@@ -1,0 +1,230 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GhostProject — Lộ trình tự học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+  <!-- shell: sidebar trên ground, không top bar (Open plane) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="who">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <div><b>GhostProject</b><span>lộ trình tự học</span></div>
+      <button class="btn ghost close-sheet" id="menuClose" type="button" aria-label="Đóng menu">Đóng</button>
+    </div>
+    <nav aria-label="Mục chính">
+      <a class="nav-item" href="#tab-dash" data-tab="dash">Tổng quan</a>
+      <a class="nav-item" href="#tab-task" data-tab="task">Task</a>
+      <a class="nav-item" href="#tab-report" data-tab="report">Báo cáo</a>
+      <a class="nav-item" href="#tab-create" data-tab="create">Tạo task</a>
+    </nav>
+    <div class="bottom">
+      <a class="nav-item" href="#tab-settings" data-tab="settings">Cài đặt</a>
+    </div>
+  </aside>
+
+  <div class="canvas">
+    <!-- phone: thanh 48px, menu mở sheet toàn màn hình -->
+    <div class="phonebar">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <b>GhostProject</b>
+      <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
+    </div>
+
+    <!-- ============ TỔNG QUAN — câu hỏi: tối nay học gì, tới đâu, còn bao lâu ============ -->
+    <!-- grid: 12 cột × 77px + 11 gutter × 16px = 1100px -->
+    <section id="tab-dash" class="tab col">
+      <header class="hello">
+        <h2 class="greet" id="greetTitle">Tối nay, Day 1.</h2>
+        <p class="sub" id="greetSub"></p>
+      </header>
+
+      <div class="grid">
+        <div class="kpis" style="grid-column: 1 / -1">
+          <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
+          <div class="kpi"><div class="kpi-label">Phút tập trung</div><div class="kpi-value" id="kMin">0 <small>phút · 7 ngày</small></div></div>
+          <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
+        </div>
+
+        <section class="panel" style="grid-column: span 7">
+          <header>
+            <h2 id="ovTaskKicker">Tối nay</h2>
+            <span class="row-end"><span class="meta" id="ovTaskMeta"></span>
+              <button class="btn ghost" id="importBtn" type="button">Nhận file</button>
+            </span>
+            <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
+          </header>
+          <div id="ovTask"></div>
+        </section>
+
+        <section class="panel" style="grid-column: span 5">
+          <header><h2>Buổi tối</h2><span class="meta" id="ovTimeMeta"></span></header>
+          <div id="ovTime"></div>
+          <p class="meta" id="ovTimeState" style="margin-top:10px"></p>
+        </section>
+
+        <section class="panel rows-panel" style="grid-column: 1 / -1">
+          <header><h2>Từng day</h2></header>
+          <div class="rows" id="ovLog"></div>
+        </section>
+      </div>
+
+      <p class="footnote">Dữ liệu nằm trong trình duyệt của bạn — xuất backup ở <a href="#tab-settings" data-tab="settings">Cài đặt</a>.</p>
+    </section>
+
+    <!-- ============ TASK — câu hỏi: đang ở phần nào, còn bao lâu ============ -->
+    <section id="tab-task" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="task">Task</h2>
+        <select id="taskDay" class="input"></select>
+      </div>
+      <div id="taskEmpty" class="empty" hidden>Day này chưa có task. Nhận file taskdayN.md ở tab Tổng quan — hoặc bảo bạn bạn đăng thẳng vào tab "Tạo task".</div>
+      <div id="taskWrap" class="detail-grid">
+        <article id="taskBody" class="panel md"></article>
+        <aside>
+          <section class="panel timer">
+            <header><h2>Timer buổi tối</h2><span class="meta" id="timerMeta"></span></header>
+            <div id="timerLabel" class="t-label">Sẵn sàng?</div>
+            <div id="timerClock" class="t-clock num">--:--</div>
+            <div id="timerNext" class="meta"></div>
+            <div id="timerRows" class="t-rows"></div>
+            <div class="btnrow">
+              <button class="btn primary" id="btnStart" type="button">Bắt đầu</button>
+              <button class="btn" id="btnPause" type="button" disabled>Tạm dừng</button>
+              <button class="btn" id="btnStop" type="button" disabled>Kết thúc</button>
+            </div>
+            <div id="timerBanner" class="notice" hidden>
+              <b>Hard stop.</b> Dừng cả giữa câu. Đánh dấu chỗ dừng, làm tiếp phiên sau. Giấc ngủ quan trọng hơn việc xong section.
+            </div>
+          </section>
+          <section class="panel fill">
+            <header><h2>Tiến độ</h2><span class="meta" id="railMeta"></span></header>
+            <div id="railProg"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ BÁO CÁO — câu hỏi: báo cáo tối nay đủ chưa ============ -->
+    <section id="tab-report" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="report">Báo cáo</h2>
+        <select id="repDay" class="input"></select>
+      </div>
+      <div class="grid">
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Nội dung</h2><button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist + timer (mất nội dung đang viết)">Điền lại từ data</button></header>
+          <textarea id="repText" spellcheck="false"></textarea>
+          <div class="btnrow">
+            <button class="btn" id="btnSaveDraft" type="button">Lưu nháp</button>
+            <button class="btn" id="btnCopy" type="button">Copy</button>
+            <button class="btn primary" id="btnDlMd" type="button">Tải baocaoday.md</button>
+            <button class="btn" id="btnDlHtml" type="button">Tải .html</button>
+          </div>
+          <p class="meta" id="repSavedInfo" style="margin-top:10px"></p>
+        </section>
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Xem trước</h2></header>
+          <div id="repPrev" class="md"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ TẠO TASK (người giao task) ============ -->
+    <section id="tab-create" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="create">Tạo task</h2>
+      </div>
+      <p class="lead">Dành cho người giao task: viết task rồi tải file <code>taskdayN.md</code> gửi qua chat. Người học kéo file vào trang là xong.</p>
+      <div class="grid">
+        <section class="panel" style="grid-column: 1 / -1">
+          <header>
+            <h2>Nội dung</h2>
+            <div class="inline-field"><label for="crDay">Day</label><input type="number" id="crDay" min="1" value="1" class="input num"></div>
+          </header>
+          <textarea id="crText" spellcheck="false"></textarea>
+          <div class="btnrow">
+            <button class="btn primary" id="btnCrDl" type="button">Tải taskday.md</button>
+            <button class="btn" id="btnCrSave" type="button">Lưu vào app</button>
+            <button class="btn ghost" id="btnCrPrev" type="button">Xem thử</button>
+          </div>
+        </section>
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Xem thử</h2></header>
+          <div id="crPrev" class="md"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ CÀI ĐẶT — settings 2 cột (450px label + panel) ============ -->
+    <!-- arithmetic: 450 + 16 + 686 = 1152 -->
+    <section id="tab-settings" class="tab col-settings">
+      <div class="title-row"><h2 class="screen-title" data-screen="settings">Cài đặt</h2></div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Dữ liệu</h2>
+          <p>Mọi thứ lưu trong trình duyệt (localStorage). Xuất file backup để chuyển máy hoặc phòng khi xoá cache.</p>
+        </div>
+        <div class="set-panel">
+          <div class="btnrow" style="margin-top:0">
+            <button class="btn" id="backupOut" type="button">Xuất backup .json</button>
+            <button class="btn" id="backupIn" type="button">Nhập backup</button>
+            <input type="file" id="backupFile" accept=".json" hidden>
+          </div>
+          <p class="meta" style="margin-top:10px">Backup gồm toàn bộ task, báo cáo, checklist và phút tập trung, dạng JSON. Nhập lại được ở đây hoặc ở máy khác.</p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Gửi lại bạn bạn</h2>
+          <p>Gộp mọi báo cáo đã viết thành một file .md duy nhất, đọc được cả chuỗi tiến trình trong một lần mở.</p>
+        </div>
+        <div class="set-panel">
+          <button class="btn" id="dlAllReports" type="button">Tải tất cả báo cáo .md</button>
+          <p class="meta" style="margin-top:10px" id="allRepCount"></p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Đồng bộ S3</h2>
+          <p>Chia sẻ dữ liệu với bạn bạn qua bucket S3. Hai máy cùng đọc ghi <code>tasks.json</code> (task) và <code>reports.json</code> (báo cáo, checklist, phút tập trung), tự trộn theo thời gian.</p>
+        </div>
+        <div class="set-panel">
+          <div class="set-fields">
+            <label class="span2">Endpoint<input id="s3Endpoint" class="input" placeholder="https://s3-hcm-r1.longvan.net"></label>
+            <label>Region<input id="s3Region" class="input" placeholder="hcm5-r1"></label>
+            <label>Bucket<input id="s3Bucket" class="input" placeholder="tên bucket, ví dụ ghostproject"></label>
+            <label>Access key<input id="s3Ak" class="input" autocomplete="off"></label>
+            <label>Secret key<input id="s3Sk" class="input" autocomplete="off" type="password"></label>
+          </div>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn primary" id="btnSyncNow" type="button">Đồng bộ ngay</button>
+            <span class="meta" id="syncStatus"></span>
+          </div>
+          <p class="meta" style="margin-top:10px">Khóa nằm trong trình duyệt này (localStorage) — không gửi đi đâu khác. Tự đồng bộ khi mở trang và 2,5 giây sau mỗi lần lưu.</p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Xoá tất cả</h2>
+          <p>Xoá toàn bộ task, báo cáo, checklist và phút tập trung trong trình duyệt này. Không hoàn tác được.</p>
+        </div>
+        <div class="set-panel">
+          <button class="btn danger" id="resetAll" type="button">Xoá dữ liệu GhostProject</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

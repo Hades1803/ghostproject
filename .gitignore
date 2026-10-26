@@ -1,0 +1,13 @@
+# Script chẩn đoán chứa key S3 thật — KHÔNG đưa lên git
+s3-probe.mjs
+s3-probe2.mjs
+s3-probe3.mjs
+s3-upload-test.mjs
+s3-cleanup.mjs
+test-sync.mjs
+
+# Bản build & công cụ nội bộ
+deploy/
+.taste-skill/
+.agents/
+node_modules/

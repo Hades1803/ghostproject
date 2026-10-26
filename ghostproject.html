@@ -1,0 +1,1342 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GhostProject — Lộ trình tự học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+/* GhostProject — style dealt: editorial-greeting (draw.mjs --app, seed 1472121576).
+   Base: tasteskill assets/app.css (neutral), tokens from the dealt sheet. */
+:root{
+  --ground:#ffffff; --surface:#f9f9f9; --raised:#f1f1ef; --active:#ededed;
+  --border:#eaeaea; --rule:#f3f3f3; --control:#d9d9d6;
+  --text:#1f201d; --muted:#636361; --faint:#6b6b6b;
+  --accent:#1b6e66; --primary:#1f201d; --primary-ink:#ffffff;
+  --positive:#2e7d32; --negative:#b42318; --warning:#92400e;
+  --pill-positive-bg:#dcfae5; --pill-positive-ink:#04250e;
+  --pill-negative-bg:#fdecea; --pill-negative-ink:#7a1d14;
+  --pill-warning-bg:#fffbeb; --pill-warning-ink:#92400e;
+  --pill-neutral-bg:#f3f3f3; --pill-neutral-ink:#3d3d3a;
+  --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Lora",Georgia,serif; /* redraw từ Instrument Serif: không có subset tiếng Việt */
+  --fs-title:24px; --fs-kpi:32px; --fs-body:14px; --fs-small:12px;
+  --radius-card:22px; --radius-control:999px;
+  --gap:16px; --pad:24px; --card-pad:20px; --control-height:38px;
+  --nav-row:32px; --row-height:48px;
+  --ease-out:cubic-bezier(0.22,1,0.36,1); --t-press:120ms; --t-hover:150ms; --t-ui:200ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--text);font:var(--fs-body)/20px var(--font);-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,figure,ul,ol{margin:0}
+ul[class],ol[class]{padding:0;list-style:none}
+img,svg,video{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.num,table{font-variant-numeric:tabular-nums}
+code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-size:.9em}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100svh}
+.sidebar{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;padding:20px 12px 16px;overflow:auto}
+.who{display:flex;align-items:center;gap:10px;padding:0 8px 18px}
+.who .mark{width:22px;height:22px;flex:none}
+.who b{display:block;font-size:14px;font-weight:600;line-height:18px}
+.who span{display:block;font-size:var(--fs-small);color:var(--muted)}
+.nav-item{display:flex;align-items:center;height:var(--nav-row);margin:1px 0;padding:0 12px;border-radius:8px;font-size:14px;color:var(--muted);transition:background-color var(--t-hover) ease,color var(--t-hover) ease}
+.nav-item:hover{background:var(--raised);color:var(--text)}
+.nav-item[aria-current="page"]{background:var(--active);color:var(--text)}
+.sidebar .bottom{margin-top:auto;padding-top:20px}
+.canvas{min-width:0;padding:var(--pad)}
+
+/* phone: nav gập vào thanh 48px, menu là sheet toàn màn hình */
+.phonebar{display:none}
+.who .close-sheet{display:none}
+@media(max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .phonebar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:15;height:48px;padding:0 16px;background:var(--ground)}
+  .phonebar .mark{width:20px;height:20px}
+  .phonebar b{font-size:14px;font-weight:600;margin-right:auto}
+  .sidebar{position:fixed;inset:0;z-index:30;height:100%;background:var(--surface);transform:translateX(-100%);transition:transform var(--t-ui) var(--ease-out);padding-top:12px}
+  .sidebar.open{transform:none}
+  .who{justify-content:space-between}
+  .who .close-sheet{display:inline-flex}
+  .canvas{padding:16px}
+}
+
+/* ---------- title ---------- */
+.tab{display:none}
+.tab.active{display:block}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.title-row .screen-title{font-size:var(--fs-title);line-height:1.2;font-weight:600;letter-spacing:-0.01em}
+.lead{max-width:64ch;color:var(--muted);margin:-6px 0 20px}
+
+/* ---------- greeting (the move của style) ---------- */
+.col{max-width:1100px;margin-inline:auto}
+.hello{margin:14px 0 28px}
+.greet{font:600 48px/1.05 var(--serif);letter-spacing:-0.02em}
+.sub{margin-top:8px;color:var(--muted);max-width:64ch}
+
+/* ---------- grid + panels ---------- */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
+.grid.top{align-items:start}
+.panel{background:var(--surface);border-radius:var(--radius-card);padding:var(--card-pad);min-width:0}
+.panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel h2{font-size:16px;line-height:1.3;font-weight:600}
+.panel .meta,.meta{color:var(--faint);font-size:var(--fs-small)}
+.row-end{display:inline-flex;align-items:center;gap:10px}
+.footnote{color:var(--faint);font-size:var(--fs-small);margin:28px 2px 0}
+.ov-list{margin:12px 0 0;padding:0;list-style:none}
+.ov-list li{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-list li::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:var(--control)}
+.ov-list li.ok{color:var(--faint);text-decoration:line-through}
+.ov-list li.ok::before{background:var(--accent)}
+.footnote a{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--control)}
+.footnote a:hover{color:var(--text)}
+
+/* ---------- KPI: một dải chia đôi bằng hairline, không tile riêng ---------- */
+.kpis{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);background:var(--surface);border-radius:var(--radius-card)}
+.kpi{padding:18px var(--card-pad)}
+.kpi+.kpi{border-left:1px solid var(--border)}
+.kpi-label{color:var(--muted)}
+.kpi-value{margin-top:6px;font-size:var(--fs-kpi);line-height:1.15;font-weight:500;letter-spacing:-0.01em}
+.kpi-value small{font-size:13px;color:var(--muted);font-weight:400;margin-left:3px}
+
+/* ---------- dải buổi tối (signature: 19:30 → 21:30) ---------- */
+.strip{position:relative;display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--rule)}
+.strip .seg{height:100%;background:#e2e2de;border-right:2px solid var(--surface)}
+.strip .seg:last-child{border-right:0}
+.strip .now{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--accent);border-radius:2px}
+.strip .now::after{content:"";position:absolute;top:-5px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.strip-labels{display:flex;justify-content:space-between;margin-top:8px;color:var(--faint);font-size:var(--fs-small)}
+.strip-labels b{color:var(--text);font-weight:500}
+
+/* ---------- rows (nhật ký day) ---------- */
+.rows{display:grid}
+.row{display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 0}
+.row+.row{border-top:1px solid var(--rule)}
+.row .d{width:64px;flex:none;font-weight:500}
+.row .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .fig{width:84px;flex:none;text-align:right;color:var(--text)}
+.row .fig small{color:var(--muted)}
+.row .text-action{flex:none;border:0;background:none;padding:6px 2px;font-weight:500;color:var(--text);cursor:pointer;text-underline-offset:3px}
+.row .text-action:hover{text-decoration:underline}
+.text-action.more{margin-top:8px;padding-left:0}
+.empty{display:grid;place-items:center;min-height:96px;padding:16px;border:1px dashed var(--control);border-radius:12px;color:var(--muted);text-align:center}
+.grid>.empty{grid-column:1/-1;width:100%}
+
+/* ---------- status pill: tint nhạt + mực cùng sắc, 1 cái mỗi row ---------- */
+.pill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:var(--fs-small);font-weight:500;background:var(--pill-neutral-bg);color:var(--pill-neutral-ink);white-space:nowrap;flex:none}
+.pill.pos{background:var(--pill-positive-bg);color:var(--pill-positive-ink)}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--control-height);padding:0 14px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--ground);font-weight:500;font-size:14px;cursor:pointer;transition:background-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+.btn:hover{background:var(--raised)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--primary);color:var(--primary-ink);border-color:transparent}
+.btn.primary:hover{background:#3a3b36}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--raised)}
+.btn.danger{border-color:transparent;background:transparent;color:var(--negative)}
+.btn.danger:hover{background:var(--pill-negative-bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled:hover{background:var(--ground)}
+.input,select.input{height:38px;padding:0 14px;border:1px solid var(--control);border-radius:12px;background:var(--ground)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.inline-field{display:flex;align-items:center;gap:8px}
+.inline-field label{color:var(--muted)}
+
+/* ---------- detail: doc + rail timer ---------- */
+.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:var(--gap);align-items:start}
+.detail-grid>aside{display:flex;flex-direction:column;gap:var(--gap)}
+.detail-grid .fill{flex:1}
+@media(max-width:900px){.detail-grid{grid-template-columns:minmax(0,1fr)}.detail-grid .fill{flex:none}}
+.track{display:block;height:8px;border-radius:999px;background:var(--rule);overflow:hidden;flex:1}
+.track>span{display:block;height:100%;border-radius:999px;background:var(--accent)}
+
+/* timer: bảng đồng hồ */
+.timer .t-label{font-size:14px;line-height:20px;color:var(--muted);min-height:40px}
+.timer .t-clock{font-size:var(--fs-kpi);line-height:1.1;font-weight:500;letter-spacing:-0.01em;margin:6px 0}
+.t-rows{margin:14px 0 2px;display:grid}
+.t-row{display:flex;gap:10px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--rule);align-items:baseline}
+.t-row:last-child{border-bottom:0}
+.t-row .tt{width:44px;flex:none;color:var(--muted)}
+.t-row .tm{width:32px;flex:none}
+.t-row.cur{color:var(--text);font-weight:500}
+.t-row.cur .tt{color:var(--accent)}
+.t-row.done{color:var(--faint)}
+.t-row.done .tp{text-decoration:line-through}
+.t-row.stop .tp{color:var(--warning);font-weight:500}
+.notice{margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;background:var(--pill-warning-bg);color:var(--pill-warning-ink)}
+
+/* ---------- tài liệu md trong panel ---------- */
+.md{min-width:0}
+.md h1{font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-0.01em;margin:0 0 12px}
+.md .doc-title{font-size:18px;margin-bottom:10px}
+.md th.n,.md td.n{text-align:right}
+.md h2{font-size:16px;font-weight:600;margin:22px 0 8px}
+.md h3{font-size:14px;font-weight:600;margin:16px 0 6px}
+.md h2:first-child,.md h1:first-child{margin-top:0}
+.md p{margin:0 0 10px;line-height:1.55}
+.md table{border-collapse:collapse;width:100%;margin:10px 0}
+.md th{height:32px;padding:0 10px;text-align:left;font-weight:400;font-size:var(--fs-small);color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+.md td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:baseline}
+.md tbody tr:last-child td{border-bottom:0}
+.md blockquote{margin:12px 0;padding:10px 14px;border-radius:10px;font-size:13px;background:var(--pill-warning-bg);color:var(--pill-warning-ink)}
+.md pre{background:var(--pill-neutral-bg);border-radius:10px;padding:12px 14px;overflow:auto}
+.md pre code{background:none;padding:0}
+.md ul,.md ol{margin:4px 0;padding-left:1.4em}
+.md li{margin:2px 0}
+.md hr{border:0;border-top:1px solid var(--rule);margin:16px 0}
+.md li.ckline{list-style:none;margin-left:-1.5em}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:4px 0;cursor:pointer}
+.ck input{margin-top:3px;accent-color:var(--accent);width:18px;height:18px;cursor:pointer;border-radius:3px}
+.ck.done span{text-decoration:line-through;color:var(--muted)}
+
+/* ---------- form viết ---------- */
+textarea{width:100%;min-height:340px;border:1px solid var(--control);border-radius:12px;background:var(--ground);color:var(--text);padding:14px;font:14px/22px var(--font);resize:vertical}
+textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- settings: 450px label + panel, rule giữa các mục ---------- */
+.col-settings{max-width:1152px;margin-inline:auto}
+.set-row{display:grid;grid-template-columns:450px minmax(0,686px);gap:var(--gap);padding:32px 0;border-top:1px solid var(--border)}
+.set-row:first-of-type{border-top:0;padding-top:0}
+.set-label h2{font-size:16px;font-weight:600;margin-bottom:6px}
+.set-label p{color:var(--muted);font-size:14px;max-width:44ch}
+.set-panel{background:#fafafa;border-radius:16px;padding:16px;min-width:0}
+.set-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.set-fields label{display:grid;gap:4px;font-size:var(--fs-small);color:var(--muted)}
+.set-fields .span2{grid-column:1/-1}
+.set-fields input{width:100%}
+@media(max-width:720px){.set-fields{grid-template-columns:1fr}}
+@media(max-width:860px){.set-row{grid-template-columns:1fr;gap:12px;padding:24px 0}}
+
+/* ---------- toast: feedback nổi ---------- */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--primary-ink);padding:10px 18px;border-radius:999px;font-size:13px;z-index:99}
+
+@media(max-width:860px){
+  .grid>*{grid-column:1/-1 !important}
+  .kpis{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi+.kpi{border-left:0}
+  .kpi:nth-child(n+3){border-top:1px solid var(--border)}
+  .kpi:nth-child(2n){border-left:1px solid var(--border)}
+  .greet{font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:0.01ms !important;animation:none !important}}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- shell: sidebar trên ground, không top bar (Open plane) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="who">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <div><b>GhostProject</b><span>lộ trình tự học</span></div>
+      <button class="btn ghost close-sheet" id="menuClose" type="button" aria-label="Đóng menu">Đóng</button>
+    </div>
+    <nav aria-label="Mục chính">
+      <a class="nav-item" href="#tab-dash" data-tab="dash">Tổng quan</a>
+      <a class="nav-item" href="#tab-task" data-tab="task">Task</a>
+      <a class="nav-item" href="#tab-report" data-tab="report">Báo cáo</a>
+      <a class="nav-item" href="#tab-create" data-tab="create">Tạo task</a>
+    </nav>
+    <div class="bottom">
+      <a class="nav-item" href="#tab-settings" data-tab="settings">Cài đặt</a>
+    </div>
+  </aside>
+
+  <div class="canvas">
+    <!-- phone: thanh 48px, menu mở sheet toàn màn hình -->
+    <div class="phonebar">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <b>GhostProject</b>
+      <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
+    </div>
+
+    <!-- ============ TỔNG QUAN — câu hỏi: tối nay học gì, tới đâu, còn bao lâu ============ -->
+    <!-- grid: 12 cột × 77px + 11 gutter × 16px = 1100px -->
+    <section id="tab-dash" class="tab col">
+      <header class="hello">
+        <h2 class="greet" id="greetTitle">Tối nay, Day 1.</h2>
+        <p class="sub" id="greetSub"></p>
+      </header>
+
+      <div class="grid">
+        <div class="kpis" style="grid-column: 1 / -1">
+          <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
+          <div class="kpi"><div class="kpi-label">Phút tập trung</div><div class="kpi-value" id="kMin">0 <small>phút · 7 ngày</small></div></div>
+          <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
+        </div>
+
+        <section class="panel" style="grid-column: span 7">
+          <header>
+            <h2 id="ovTaskKicker">Tối nay</h2>
+            <span class="row-end"><span class="meta" id="ovTaskMeta"></span>
+              <button class="btn ghost" id="importBtn" type="button">Nhận file</button>
+            </span>
+            <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
+          </header>
+          <div id="ovTask"></div>
+        </section>
+
+        <section class="panel" style="grid-column: span 5">
+          <header><h2>Buổi tối</h2><span class="meta" id="ovTimeMeta"></span></header>
+          <div id="ovTime"></div>
+          <p class="meta" id="ovTimeState" style="margin-top:10px"></p>
+        </section>
+
+        <section class="panel rows-panel" style="grid-column: 1 / -1">
+          <header><h2>Từng day</h2></header>
+          <div class="rows" id="ovLog"></div>
+        </section>
+      </div>
+
+      <p class="footnote">Dữ liệu nằm trong trình duyệt của bạn — xuất backup ở <a href="#tab-settings" data-tab="settings">Cài đặt</a>.</p>
+    </section>
+
+    <!-- ============ TASK — câu hỏi: đang ở phần nào, còn bao lâu ============ -->
+    <section id="tab-task" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="task">Task</h2>
+        <select id="taskDay" class="input"></select>
+      </div>
+      <div id="taskEmpty" class="empty" hidden>Day này chưa có task. Nhận file taskdayN.md ở tab Tổng quan — hoặc bảo bạn bạn đăng thẳng vào tab "Tạo task".</div>
+      <div id="taskWrap" class="detail-grid">
+        <article id="taskBody" class="panel md"></article>
+        <aside>
+          <section class="panel timer">
+            <header><h2>Timer buổi tối</h2><span class="meta" id="timerMeta"></span></header>
+            <div id="timerLabel" class="t-label">Sẵn sàng?</div>
+            <div id="timerClock" class="t-clock num">--:--</div>
+            <div id="timerNext" class="meta"></div>
+            <div id="timerRows" class="t-rows"></div>
+            <div class="btnrow">
+              <button class="btn primary" id="btnStart" type="button">Bắt đầu</button>
+              <button class="btn" id="btnPause" type="button" disabled>Tạm dừng</button>
+              <button class="btn" id="btnStop" type="button" disabled>Kết thúc</button>
+            </div>
+            <div id="timerBanner" class="notice" hidden>
+              <b>Hard stop.</b> Dừng cả giữa câu. Đánh dấu chỗ dừng, làm tiếp phiên sau. Giấc ngủ quan trọng hơn việc xong section.
+            </div>
+          </section>
+          <section class="panel fill">
+            <header><h2>Tiến độ</h2><span class="meta" id="railMeta"></span></header>
+            <div id="railProg"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ BÁO CÁO — câu hỏi: báo cáo tối nay đủ chưa ============ -->
+    <section id="tab-report" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="report">Báo cáo</h2>
+        <select id="repDay" class="input"></select>
+      </div>
+      <div class="grid">
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Nội dung</h2><button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist + timer (mất nội dung đang viết)">Điền lại từ data</button></header>
+          <textarea id="repText" spellcheck="false"></textarea>
+          <div class="btnrow">
+            <button class="btn" id="btnSaveDraft" type="button">Lưu nháp</button>
+            <button class="btn" id="btnCopy" type="button">Copy</button>
+            <button class="btn primary" id="btnDlMd" type="button">Tải baocaoday.md</button>
+            <button class="btn" id="btnDlHtml" type="button">Tải .html</button>
+          </div>
+          <p class="meta" id="repSavedInfo" style="margin-top:10px"></p>
+        </section>
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Xem trước</h2></header>
+          <div id="repPrev" class="md"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ TẠO TASK (người giao task) ============ -->
+    <section id="tab-create" class="tab">
+      <div class="title-row">
+        <h2 class="screen-title" data-screen="create">Tạo task</h2>
+      </div>
+      <p class="lead">Dành cho người giao task: viết task rồi tải file <code>taskdayN.md</code> gửi qua chat. Người học kéo file vào trang là xong.</p>
+      <div class="grid">
+        <section class="panel" style="grid-column: 1 / -1">
+          <header>
+            <h2>Nội dung</h2>
+            <div class="inline-field"><label for="crDay">Day</label><input type="number" id="crDay" min="1" value="1" class="input num"></div>
+          </header>
+          <textarea id="crText" spellcheck="false"></textarea>
+          <div class="btnrow">
+            <button class="btn primary" id="btnCrDl" type="button">Tải taskday.md</button>
+            <button class="btn" id="btnCrSave" type="button">Lưu vào app</button>
+            <button class="btn ghost" id="btnCrPrev" type="button">Xem thử</button>
+          </div>
+        </section>
+        <section class="panel" style="grid-column: 1 / -1">
+          <header><h2>Xem thử</h2></header>
+          <div id="crPrev" class="md"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ CÀI ĐẶT — settings 2 cột (450px label + panel) ============ -->
+    <!-- arithmetic: 450 + 16 + 686 = 1152 -->
+    <section id="tab-settings" class="tab col-settings">
+      <div class="title-row"><h2 class="screen-title" data-screen="settings">Cài đặt</h2></div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Dữ liệu</h2>
+          <p>Mọi thứ lưu trong trình duyệt (localStorage). Xuất file backup để chuyển máy hoặc phòng khi xoá cache.</p>
+        </div>
+        <div class="set-panel">
+          <div class="btnrow" style="margin-top:0">
+            <button class="btn" id="backupOut" type="button">Xuất backup .json</button>
+            <button class="btn" id="backupIn" type="button">Nhập backup</button>
+            <input type="file" id="backupFile" accept=".json" hidden>
+          </div>
+          <p class="meta" style="margin-top:10px">Backup gồm toàn bộ task, báo cáo, checklist và phút tập trung, dạng JSON. Nhập lại được ở đây hoặc ở máy khác.</p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Gửi lại bạn bạn</h2>
+          <p>Gộp mọi báo cáo đã viết thành một file .md duy nhất, đọc được cả chuỗi tiến trình trong một lần mở.</p>
+        </div>
+        <div class="set-panel">
+          <button class="btn" id="dlAllReports" type="button">Tải tất cả báo cáo .md</button>
+          <p class="meta" style="margin-top:10px" id="allRepCount"></p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Đồng bộ S3</h2>
+          <p>Chia sẻ dữ liệu với bạn bạn qua bucket S3. Hai máy cùng đọc ghi <code>tasks.json</code> (task) và <code>reports.json</code> (báo cáo, checklist, phút tập trung), tự trộn theo thời gian.</p>
+        </div>
+        <div class="set-panel">
+          <div class="set-fields">
+            <label class="span2">Endpoint<input id="s3Endpoint" class="input" placeholder="https://s3-hcm-r1.longvan.net"></label>
+            <label>Region<input id="s3Region" class="input" placeholder="hcm5-r1"></label>
+            <label>Bucket<input id="s3Bucket" class="input" placeholder="tên bucket, ví dụ ghostproject"></label>
+            <label>Access key<input id="s3Ak" class="input" autocomplete="off"></label>
+            <label>Secret key<input id="s3Sk" class="input" autocomplete="off" type="password"></label>
+          </div>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn primary" id="btnSyncNow" type="button">Đồng bộ ngay</button>
+            <span class="meta" id="syncStatus"></span>
+          </div>
+          <p class="meta" style="margin-top:10px">Khóa nằm trong trình duyệt này (localStorage) — không gửi đi đâu khác. Tự đồng bộ khi mở trang và 2,5 giây sau mỗi lần lưu.</p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
+          <h2>Xoá tất cả</h2>
+          <p>Xoá toàn bộ task, báo cáo, checklist và phút tập trung trong trình duyệt này. Không hoàn tác được.</p>
+        </div>
+        <div class="set-panel">
+          <button class="btn danger" id="resetAll" type="button">Xoá dữ liệu GhostProject</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+<script>
+'use strict';
+/* GhostProject — self-study tracker. Static site, all data in localStorage.
+   shortcut: storage is browser-local (no server) — use Backup export/import to move data between machines.
+   UI: tasteskill "editorial-greeting" (seed 1472121576) — greeting là h1, panel tông, accent teal trên data. */
+
+const $ = (id) => document.getElementById(id);
+const KEY = 'ghostproject_v1';
+const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const today = () => iso(new Date());
+
+/* ---------------- state ---------------- */
+function defaultState() {
+  return { tasks: {}, reports: {}, checks: {}, focus: [], cur: { task: null, report: null } };
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    return { ...defaultState(), ...JSON.parse(raw) };
+  } catch { return null; }
+}
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  queuePush(); // có cấu hình S3 thì đẩy debounced
+}
+let pushT = null; // debounce push lên S3 (khai báo sớm để save() gọi được lúc seed)
+function queuePush() {
+  const c = state.s3 || {};
+  if (!c.bucket || !c.ak || !c.sk) return;
+  clearTimeout(pushT);
+  pushT = setTimeout(() => { if (!syncNow.busy) syncNow(false); }, 2500);
+}
+
+const SAMPLE_MD = `# Day 1 — Foundations
+
+**Mục tiêu hôm nay:** hiểu cơ chế cốt lõi của §1 và chạy được trọn một buổi **§2 Predict → Run → Explain**.
+
+## Bối cảnh
+- Buổi học: tối ngày thường, 2 giờ (19:30 → 21:30)
+- Nguyên tắc: ghi chú bằng tay, điện thoại để khỏi phòng, hard stop đúng giờ.
+
+## Inside a 2-hour weekday evening
+
+| TIME | MIN | PART |
+|------|-----|------|
+| 19:30 | 10 | Đọc lại ghi chú hôm qua — rẻ, giữ trí nhớ cao |
+| 19:40 | 60 | **§1 Knowledge** — cơ chế cốt lõi |
+| 20:40 | 35 | **§2 Predict → Run → Explain** |
+| 21:15 | 15 | **§3 AI-Verify + §4 Drill** |
+| 21:30 | — | **Hard stop. Dừng cả giữa câu.** |
+
+> **21:30 là điểm dừng, không phải mục tiêu.** Hoàn thành section kém quan trọng hơn việc giữ trạng thái làm việc ngày mai và giấc ngủ tối nay. Đánh dấu chỗ dừng và làm tiếp ở phiên sau.
+
+## Checklist
+- [ ] Đọc lại ghi chú hôm qua (10')
+- [ ] §1: viết lại cơ chế bằng lời của mình
+- [ ] §2: Predict → Run → Explain với 3 ví dụ
+- [ ] §3: kiểm chứng 1 điểm còn mơ hồ với AI
+- [ ] §4: drill 5 câu
+- [ ] Ghi lại chỗ dừng nếu dừng sớm
+`;
+
+let state = load();
+if (!state) {
+  state = defaultState();
+  state.tasks[1] = { type: 'md', content: SAMPLE_MD, addedAt: 0 }; // addedAt 0: task thật của S3 luôn thắng sample khi trộn
+  save();
+}
+
+const taskDays = () => Object.keys(state.tasks).map(Number).sort((a, b) => a - b);
+const nextDay = () => (taskDays().at(-1) || 0) + 1;
+const focusMinutesForDay = (day) => state.focus.filter((e) => e.day === day).reduce((s, e) => s + e.minutes, 0);
+function taskTitle(day) {
+  const t = state.tasks[day]; if (!t) return '';
+  if (t.type === 'html') return 'Task dạng HTML';
+  const m = t.content.match(/^#\s+(.+)$/m);
+  return m ? m[1].replace(/\*\*/g, '').trim() : `Day ${day}`;
+}
+function ckPair(day) {
+  const c = state.checks[day] || [];
+  let total = c.length;
+  if (state.tasks[day]?.type === 'md') {
+    const n = (state.tasks[day].content.match(/^- \[( |x|X)\]/gm) || []).length;
+    if (n > total) total = n;
+  }
+  return [c.filter(Boolean).length, total];
+}
+
+/* ---------------- markdown renderer (small, offline) ---------------- */
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function inline(s) {
+  return s
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[\s(>])\*([^*\n]+)\*(?=[\s).,;:!?)<]|$)/g, '$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function splitRow(r) {
+  return r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+}
+function mdToHtml(src) {
+  const lines = esc(src).split(/\r?\n/);
+  const out = [];
+  const p = [];
+  let ck = 0; // checkbox index in document order
+  const flushP = () => { if (p.length) { out.push('<p>' + inline(p.join(' ')) + '</p>'); p.length = 0; } };
+
+  let i = 0;
+  while (i < lines.length) {
+    const L = lines[i];
+    if (/^```/.test(L)) { // code fence
+      flushP(); const buf = []; i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { buf.push(lines[i]); i++; }
+      i++; out.push('<pre><code>' + buf.join('\n') + '</code></pre>'); continue;
+    }
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(L)) { flushP(); out.push('<hr>'); i++; continue; }
+    const h = L.match(/^(#{1,4})\s+(.*)$/);
+    // md '# ' là tiêu đề tài liệu trong app → h2.doc-title (chỉ greeting được làm h1)
+    if (h) { flushP(); const lvl = Math.min(5, h[1].length + 1);
+      out.push(`<h${lvl}${h[1].length === 1 ? ' class="doc-title"' : ''}>` + inline(h[2]) + `</h${lvl}>`); i++; continue; }
+    // table: header line + separator line
+    if (/^\s*\|.*\|?\s*$/.test(L) && i + 1 < lines.length && /^\s*\|?[\s:\-|]+\|?\s*$/.test(lines[i + 1]) && lines[i + 1].includes('-')) {
+      flushP();
+      const head = splitRow(L); let j = i + 2; const body = [];
+      while (j < lines.length && /\|/.test(lines[j]) && lines[j].trim() !== '') { body.push(splitRow(lines[j])); j++; }
+      const numRe = /^-?\d[\d.,]*%?$/;
+      const colNum = head.map((_, c) => body.filter((r) => numRe.test(r[c] || '')).length);
+      const thCls = (c) => colNum[c] > 0 && colNum[c] >= Math.ceil(body.length * 0.6) ? ' class="n"' : '';
+      let html = '<table><thead><tr>' + head.map((c, ci) => `<th${thCls(ci)}>` + inline(c) + '</th>').join('') + '</tr></thead><tbody>';
+      for (const r of body) html += '<tr>' + r.map((c) => `<td${numRe.test(c) ? ' class="n"' : ''}>` + inline(c) + '</td>').join('') + '</tr>';
+      out.push(html + '</tbody></table>');
+      i = j; continue;
+    }
+    if (/^\s*&gt;/.test(L)) { // blockquote (nguồn đã escape nên '>' thành '&gt;')
+      flushP(); const buf = [];
+      while (i < lines.length && /^\s*&gt;/.test(lines[i])) { buf.push(lines[i].replace(/^\s*&gt;\s?/, '')); i++; }
+      out.push('<blockquote><p>' + inline(buf.join(' ')) + '</p></blockquote>'); continue;
+    }
+    const ul = L.match(/^\s*[-*]\s+(.*)$/);
+    const ol = L.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (ul || ol) {
+      flushP();
+      const ordered = !!ol; const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^\s*[-*]\s+(.*)$/) || lines[i].match(/^\s*\d+[.)]\s+(.*)$/);
+        if (!m) break; items.push(m[1]); i++;
+      }
+      let html = ordered ? '<ol>' : '<ul>';
+      for (const it of items) {
+        const t = it.match(/^\[([ xX])\]\s+(.*)$/);
+        if (t) {
+          const idx = ck++;
+          html += `<li class="ckline"><label class="ck"><input type="checkbox" data-ck="${idx}"><span>` + inline(t[2]) + '</span></label></li>';
+        } else html += '<li>' + inline(it) + '</li>';
+      }
+      out.push(html + (ordered ? '</ol>' : '</ul>')); continue;
+    }
+    if (L.trim() === '') { flushP(); i++; continue; }
+    p.push(L.trim()); i++;
+  }
+  flushP();
+  return out.join('\n');
+}
+
+/* schedule table → timer rows; null nếu không tìm thấy bảng phù hợp */
+function parseSchedule(md) {
+  const lines = md.split(/\r?\n/);
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (/^\s*\|.*\|/.test(lines[i]) && lines[i + 1].includes('-') && /^\s*\|?[\s:\-|]+\|?\s*$/.test(lines[i + 1])) {
+      const rows = []; let j = i + 2;
+      while (j < lines.length && /\|/.test(lines[j]) && lines[j].trim() !== '') { rows.push(splitRow(lines[j])); j++; }
+      const sched = rows.filter((c) => c.length >= 3).map((c) => ({
+        time: c[0],
+        min: /^\d+$/.test(c[1]) ? +c[1] : 0,
+        label: c.slice(2).join(' · ').replace(/\*\*/g, ''),
+      }));
+      if (sched.filter((r) => r.min > 0).length >= 2) return sched;
+      i = j;
+    }
+  }
+  return null;
+}
+const DEFAULT_SCHED = [
+  { time: '19:30', min: 10, label: 'Đọc lại ghi chú hôm qua' },
+  { time: '19:40', min: 60, label: '§1 Knowledge' },
+  { time: '20:40', min: 35, label: '§2 Predict → Run → Explain' },
+  { time: '21:15', min: 15, label: '§3 AI-Verify + §4 Drill' },
+  { time: '21:30', min: 0, label: 'Hard stop — dừng cả giữa câu', stop: true },
+];
+
+/* ---------------- helpers ---------------- */
+function download(name, text, mime = 'text/markdown') {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: mime + ';charset=utf-8' }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 500);
+}
+let toastT;
+function toast(msg) {
+  const el = $('toast'); el.textContent = msg; el.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2600);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch {
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast('Đã copy vào clipboard');
+}
+function beep(times = 1) {
+  try {
+    const a = new (window.AudioContext || window.webkitAudioContext)();
+    for (let k = 0; k < times; k++) {
+      const o = a.createOscillator(); const g = a.createGain();
+      o.connect(g); g.connect(a.destination); o.frequency.value = 880;
+      o.start(a.currentTime + k * 0.35); o.stop(a.currentTime + k * 0.35 + 0.22);
+    }
+  } catch { /* im lặng là được */ }
+}
+
+/* ---------------- tabs ---------------- */
+function retag(el, tag) {
+  if (!el || el.tagName === tag) return el;
+  const n = document.createElement(tag);
+  for (const a of el.attributes || []) n.setAttribute(a.name, a.value);
+  n.innerHTML = el.innerHTML;
+  el.replaceWith(n);
+  return n;
+}
+function setScreenTitle(name) {
+  // bất biến: đúng MỘT h1 trong DOM tại mọi thời điểm — tiêu đề của màn đang mở
+  if (name === 'dash') {
+    document.querySelectorAll('.screen-title').forEach((t) => retag(t, 'H2'));
+    retag($('greetTitle'), 'H1');
+  } else {
+    document.querySelectorAll('.screen-title').forEach((t) => retag(t, t.dataset.screen === name ? 'H1' : 'H2'));
+    retag($('greetTitle'), 'H2');
+  }
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((s) => s.classList.toggle('active', s.id === 'tab-' + name));
+  document.querySelectorAll('.nav-item[data-tab]').forEach((a) => {
+    if (a.dataset.tab === name) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+  setScreenTitle(name);
+  $('sidebar')?.classList.remove('open');
+  renderAll();
+}
+
+/* ---------------- dải buổi tối (signature element) ---------------- */
+const toMin = (hm) => { const [h, m] = hm.split(':').map(Number); return h * 60 + (m || 0); };
+const hmText = (m) => `${Math.floor(m / 60)} giờ ${String(m % 60).padStart(2, '0')} phút`;
+function stripHTML(sched) {
+  const total = sched.reduce((s, r) => s + r.min, 0);
+  const start = toMin(sched[0].time); const end = start + total;
+  const n = new Date().getHours() * 60 + new Date().getMinutes();
+  const inWindow = n >= start && n < end;
+  const pct = inWindow ? Math.min(100, Math.max(0, ((n - start) / (end - start)) * 100)) : null;
+  const segs = sched.filter((r) => r.min > 0)
+    .map((r) => `<span class="seg" style="width:${((r.min / total) * 100).toFixed(2)}%" title="${esc(r.time)} · ${esc(r.label)}"></span>`)
+    .join('');
+  return `<div class="strip" role="img" aria-label="Buổi học từ ${esc(sched[0].time)} đến ${esc(sched.at(-1).time)}, dừng cứng">${segs}${pct != null ? `<span class="now" style="left:${pct.toFixed(2)}%"></span>` : ''}</div>
+  <div class="strip-labels"><span>${esc(sched[0].time)}</span><b>${esc(sched.at(-1).time)} · dừng cứng</b></div>`;
+}
+function stripState(sched) {
+  const start = toMin(sched[0].time);
+  const end = start + sched.reduce((s, r) => s + r.min, 0);
+  const n = new Date().getHours() * 60 + new Date().getMinutes();
+  if (n < start) return n < start - 360 ? `Bắt đầu lúc ${sched[0].time}.` : `Bắt đầu sau ${hmText(start - n)} nữa.`;
+  if (n >= end) return 'Hard stop đã qua — mai học tiếp.';
+  let acc = start;
+  for (const r of sched) {
+    const rowEnd = acc + r.min;
+    if (n < rowEnd && r.min > 0) {
+      const nx = sched[sched.indexOf(r) + 1];
+      return `Đang: ${r.label} — còn ${rowEnd - n} phút${nx ? ` tới ${nx.time}` : ''}.`;
+    }
+    acc = rowEnd;
+  }
+  return '';
+}
+
+/* thanh tiến độ checklist: track + fill, nhãn 2 đầu */
+const bar = (dn, tot) => tot ? `<div class="btnrow" style="margin-top:0;margin-bottom:12px;align-items:center;gap:12px">
+  <span class="track"><span style="width:${Math.round((dn / tot) * 100)}%"></span></span>
+  <span class="num" style="font-weight:500">${dn}/${tot}</span></div>` : '';
+function ckItems(day) {
+  if (!state.tasks[day] || state.tasks[day].type !== 'md') return [];
+  const checks = state.checks[day] || [];
+  return [...state.tasks[day].content.matchAll(/^- \[( |x|X)\]\s*(.+)$/gm)]
+    .map((m, k) => ({ done: m[1].toLowerCase() === 'x' || checks[k] === true, text: m[2].replace(/\*\*/g, '') }));
+}
+
+/* ---------------- đồng bộ S3 (Long Vân / S3-compatible, SigV4 bằng crypto.subtle) ---------------- */
+const S3_DEFAULTS = { endpoint: 'https://s3-hcm-r1.longvan.net', region: 'hcm5-r1', bucket: '', ak: '', sk: '', lastSync: '' };
+const s3cfg = () => ({ ...S3_DEFAULTS, ...(state.s3 || {}) });
+const te = new TextEncoder();
+const sha256hex = async (d) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', typeof d === 'string' ? te.encode(d) : d))].map((b) => b.toString(16).padStart(2, '0')).join('');
+const hmacK = async (k, m) => crypto.subtle.importKey('raw', typeof k === 'string' ? te.encode(k) : k, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']).then((key) => crypto.subtle.sign('HMAC', key, te.encode(m)));
+const hmacHex = async (k, m) => [...new Uint8Array(await hmacK(k, m))].map((b) => b.toString(16).padStart(2, '0')).join('');
+const uriEnc = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+const canonPath = (p) => ('/' + (p || '').replace(/^\/+/, '')).split('/').map((s) => uriEnc(s)).join('/');
+
+async function s3Call(method, file, body) {
+  const cfg = s3cfg();
+  if (!cfg.endpoint || !cfg.bucket) throw new Error('Chưa điền bucket trong Cài đặt');
+  const host = cfg.endpoint.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  const path = canonPath(`/${cfg.bucket}/${file}`);
+  const query = method === 'GET' ? { v: String(Date.now()) } : {}; // bust cache edge (cache key theo URL, bỏ qua auth)
+  const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+  const payloadHash = await sha256hex(body || '');
+  const headers = { 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate };
+  if (body !== undefined) headers['content-type'] = 'application/json; charset=utf-8';
+  const sorted = Object.keys(headers).sort();
+  const qs = Object.keys(query).sort().map((k) => `${uriEnc(k)}=${query[k] ? uriEnc(query[k]) : ''}`).join('&');
+  const canonical = [method, path, qs,
+    sorted.map((h) => `${h}:${String(headers[h]).trim()}\n`).join(''),
+    sorted.join(';'), payloadHash].join('\n');
+  const scope = `${dateStamp}/${cfg.region}/s3/aws4_request`;
+  const toSign = ['AWS4-HMAC-SHA256', amzDate, scope, await sha256hex(canonical)].join('\n');
+  const kSig = await hmacK(await hmacK(await hmacK(await hmacK('AWS4' + cfg.sk, dateStamp), cfg.region), 's3'), 'aws4_request');
+  headers.authorization = `AWS4-HMAC-SHA256 Credential=${cfg.ak}/${scope}, SignedHeaders=${sorted.join(';')}, Signature=${await hmacHex(kSig, toSign)}`;
+  let res;
+  try {
+    res = await fetch(`https://${host}${path}` + (qs ? `?${qs}` : ''), { method, headers, body: body === undefined ? undefined : body });
+  } catch {
+    throw new Error('Không gọi được S3' + (location.protocol === 'file:' ? ' (mở trang qua https — file:// bị chặn CORS)' : ''));
+  }
+  if (method === 'GET' && res.status === 404) return null; // file chưa có lần nào → coi như rỗng
+  if (!res.ok) throw new Error(`${method} ${file} → HTTP ${res.status}`);
+  return method === 'GET' ? await res.json() : true;
+}
+
+function mergeIn(remoteTasks, remoteReports) {
+  let changed = false;
+  for (const [d, t] of Object.entries(remoteTasks?.tasks || {})) {
+    const cur = state.tasks[d];
+    if (!cur || (t.addedAt || 0) > (cur.addedAt || 0)) {
+      if (cur && cur.content !== t.content) delete state.checks[d]; // task đổi → checklist cũ sai lệch
+      state.tasks[d] = t; changed = true;
+    }
+  }
+  for (const [d, r] of Object.entries(remoteReports?.reports || {})) {
+    if (!state.reports[d] || (r.ts || 0) > (state.reports[d].ts || 0)) { state.reports[d] = r; changed = true; }
+  }
+  for (const [d, arr] of Object.entries(remoteReports?.checks || {})) {
+    const cur = state.checks[d] || [];
+    state.checks[d] = arr.map((v, i) => v || cur[i]);
+    if (state.checks[d].some((v, i) => v !== cur[i])) changed = true;
+  }
+  for (const e of remoteReports?.focus || []) {
+    if (!state.focus.some((x) => (x.ts && x.ts === e.ts) || (!x.ts && x.date === e.date && x.day === e.day && x.minutes === e.minutes))) {
+      state.focus.push(e); changed = true;
+    }
+  }
+  return changed;
+}
+
+let lastPush = '';
+async function syncNow(manual) {
+  if (syncNow.busy) return;
+  const cfg = s3cfg();
+  if (!cfg.bucket || !cfg.ak || !cfg.sk) {
+    if (manual) toast('Điền bucket + access key trong Cài đặt trước');
+    return;
+  }
+  syncNow.busy = true;
+  setSyncStatus('Đang đồng bộ…');
+  try {
+    const [rt, rr] = await Promise.all([s3Call('GET', 'tasks.json'), s3Call('GET', 'reports.json')]);
+    if (mergeIn(rt, rr)) { save(); renderAll(); }
+    const now = new Date().toISOString();
+    const tJson = JSON.stringify({ tasks: state.tasks, updatedAt: now });
+    const rJson = JSON.stringify({ reports: state.reports, checks: state.checks, focus: state.focus, updatedAt: now });
+    const fresh = JSON.stringify(state.tasks) + JSON.stringify([state.reports, state.checks, state.focus]);
+    if (fresh !== lastPush) {
+      await s3Call('PUT', 'tasks.json', tJson);
+      await s3Call('PUT', 'reports.json', rJson);
+      lastPush = fresh;
+    }
+    state.s3 = { ...cfg, lastSync: now };
+    save();
+    setSyncStatus('Đồng bộ lúc ' + new Date(now).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+    if (manual) toast('Đã đồng bộ với S3');
+  } catch (e) {
+    setSyncStatus('Lỗi đồng bộ: ' + e.message);
+    if (manual) toast('Đồng bộ lỗi: ' + e.message);
+  } finally { syncNow.busy = false; }
+}
+function setSyncStatus(msg) { const el = $('syncStatus'); if (el) el.textContent = msg; }
+
+/* ---------------- dashboard ---------------- */
+let logAll = false;
+function calcStreak() {
+  const dates = new Set(Object.values(state.reports).map((r) => r.date).filter(Boolean));
+  const d = new Date();
+  if (!dates.has(iso(d))) { d.setDate(d.getDate() - 1); if (!dates.has(iso(d))) return 0; }
+  let n = 0;
+  while (dates.has(iso(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function renderDash() {
+  const days = taskDays();
+  const streak = calcStreak();
+  const weekAgo = iso(new Date(Date.now() - 6 * 864e5));
+  const mins = state.focus.filter((e) => e.date >= weekAgo).reduce((s, e) => s + e.minutes, 0);
+  const done = days.filter((d) => state.reports[d]).length;
+  const cur = days.at(-1) ?? null;
+
+  $('greetTitle').textContent = cur ? `Tối nay, Day ${cur}.` : 'Chưa có task.';
+  if (cur) {
+    const [dn, tot] = ckPair(cur);
+    $('greetSub').textContent = `${taskTitle(cur)} · checklist ${tot ? `${dn}/${tot}` : '—'} · ${done}/${days.length} day đã nộp báo cáo.`;
+  } else {
+    $('greetSub').textContent = 'Nhận file taskdayN.md từ bạn bạn, hoặc tự tạo ở tab "Tạo task".';
+  }
+
+  $('kStreak').innerHTML = `${streak} <small>ngày</small>`;
+  $('kMin').innerHTML = `${mins} <small>phút · 7 ngày</small>`;
+  $('kDone').innerHTML = `${done}<small>/${days.length}</small>`;
+
+  // panel task tối nay — có checklist 4 mục đầu để cân chiều cao với panel bên cạnh
+  const ov = $('ovTask');
+  if (!cur) {
+    $('ovTaskKicker').textContent = 'Tối nay';
+    $('ovTaskMeta').textContent = '';
+    ov.innerHTML = '<div class="empty">Chưa có task nào. Import file taskdayN.md hoặc bảo bạn bạn đăng ở tab "Tạo task".</div>';
+  } else {
+    $('ovTaskKicker').textContent = 'Tối nay';
+    $('ovTaskMeta').textContent = `Day ${cur}`;
+    const [dn, tot] = ckPair(cur);
+    const items = ckItems(cur);
+    ov.innerHTML = `
+      <p style="font-size:16px;font-weight:500;line-height:1.4">${esc(taskTitle(cur))}</p>
+      ${bar(dn, tot)}
+      ${items.length ? `<ul class="ov-list">${items.slice(0, 4).map((it) =>
+        `<li class="${it.done ? 'ok' : ''}">${esc(it.text)}</li>`).join('')}</ul>` : ''}
+      <div class="btnrow">
+        <button class="btn primary" data-open="${cur}">Mở task</button>
+        <button class="btn" data-open-report="${cur}">Viết báo cáo</button>
+      </div>`;
+  }
+
+  // panel buổi tối
+  const sched = (cur && state.tasks[cur]?.type === 'md' && parseSchedule(state.tasks[cur].content)) || DEFAULT_SCHED;
+  $('ovTimeMeta').textContent = `${sched[0].time} → ${sched.at(-1).time}`;
+  $('ovTime').innerHTML = stripHTML(sched) + `<div class="t-rows" style="margin:10px 0 0">${
+    sched.filter((r) => r.min > 0).map((r) =>
+      `<div class="t-row"><span class="tt num">${esc(r.time)}</span><span class="tm num">${r.min}</span><span class="tp">${esc(r.label)}</span></div>`).join('')
+  }</div>`;
+  $('ovTimeState').textContent = stripState(sched);
+
+  // nhật ký day (cap 8 dòng, có nút xem tất cả)
+  const log = $('ovLog');
+  if (!days.length) {
+    log.innerHTML = '<div class="empty">Chưa có day nào. Day đầu tiên sẽ xuất hiện ở đây sau khi import hoặc tạo task.</div>';
+  } else {
+    const shown = logAll ? days : days.slice(0, 8);
+    log.innerHTML = shown.map((d) => {
+      const [dn, tot] = ckPair(d);
+      const rep = state.reports[d];
+      const pmin = focusMinutesForDay(d);
+      return `<div class="row">
+        <span class="d num">Day ${d}</span>
+        <span class="name">${esc(taskTitle(d))}</span>
+        <span class="fig num">${tot ? `${dn}<small>/${tot}</small>` : '—'}</span>
+        <span class="fig num">${pmin} <small>phút</small></span>
+        <span class="pill ${rep ? 'pos' : ''}">${rep ? 'Đã gửi' : 'Chưa nộp'}</span>
+        <button class="text-action" data-open="${d}">Mở</button>
+      </div>`;
+    }).join('');
+    if (days.length > 8 && !logAll) log.insertAdjacentHTML('beforeend', `<button class="text-action more" id="logMore">Tất cả ${days.length} day</button>`);
+    const more = $('logMore'); if (more) more.onclick = () => { logAll = true; renderDash(); };
+  }
+}
+
+/* ---------------- task view ---------------- */
+function renderTask() {
+  const days = taskDays();
+  $('taskDay').innerHTML = days.map((d) => `<option value="${d}">Day ${d}</option>`).join('') || '<option value="">—</option>';
+  if (!state.tasks[state.cur.task]) state.cur.task = days.at(-1) ?? null;
+  if (state.cur.task != null) $('taskDay').value = state.cur.task;
+
+  const t = state.cur.task != null ? state.tasks[state.cur.task] : null;
+  $('taskEmpty').hidden = !!t;
+  $('taskWrap').hidden = !t;
+  if (!t) return;
+  const day = state.cur.task;
+  $('timerMeta').textContent = `Day ${day}`;
+  timerSetup(day, false); // no-op nếu cùng day; xác nhận đã do caller xử lý
+
+  const body = $('taskBody');
+  if (t.type === 'html') {
+    body.innerHTML = '<p class="meta" style="margin-bottom:12px">Task dạng .html — xem nguyên bản bên dưới (không có checklist tự động).</p>';
+    const f = document.createElement('iframe');
+    f.style.cssText = 'width:100%;height:70vh;border:1px solid var(--border);border-radius:12px;background:#fff';
+    f.sandbox = ''; f.srcdoc = t.content;
+    body.appendChild(f);
+  } else {
+    body.innerHTML = mdToHtml(t.content);
+    const cks = state.checks[day] || [];
+    body.querySelectorAll('input[data-ck]').forEach((inp) => {
+      const k = +inp.dataset.ck;
+      if (cks[k]) { inp.checked = true; inp.closest('.ck')?.classList.add('done'); }
+    });
+  }
+
+  // panel tiến độ ở rail: thanh + các mục còn lại + nút sang báo cáo
+  const [dn, tot] = ckPair(day);
+  const undone = ckItems(day).filter((it) => !it.done);
+  $('railMeta').textContent = tot ? `${dn}/${tot}` : '';
+  $('railProg').innerHTML = bar(dn, tot)
+    + (tot
+      ? (undone.length
+        ? `<ul class="ov-list">${undone.slice(0, 6).map((it) => `<li>${esc(it.text)}</li>`).join('')}</ul>`
+          + (undone.length > 6 ? `<p class="meta" style="margin-top:8px">Còn ${undone.length - 6} mục nữa trong checklist.</p>` : '')
+        : '<p class="meta">Checklist đã xong hết cho day này.</p>')
+      : '<p class="meta">Task này không có checklist tự động.</p>')
+    + `<div class="btnrow"><button class="btn" data-open-report="${day}">Viết báo cáo</button></div>`
+    + `<p class="meta" style="margin-top:10px">Dừng cứng ${esc(timer.sched.at(-1).time)} — dừng cả giữa câu.</p>`;
+}
+
+/* ---------------- timer ---------------- */
+const timer = { day: null, sched: DEFAULT_SCHED, i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0, int: null };
+function timerSetup(day, confirmIfRunning) {
+  if (timer.day === day) return true;
+  if (confirmIfRunning && timer.started && !timer.logged
+    && !confirm('Timer đang chạy. Chuyển day sẽ mất tiến trình timer. Chuyển chứ?')) return false;
+  clearInterval(timer.int);
+  Object.assign(timer, { day, i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0, int: null });
+  const t = state.tasks[day];
+  timer.sched = (t && t.type === 'md' && parseSchedule(t.content)) || DEFAULT_SCHED;
+  renderTimer();
+  return true;
+}
+const fmtClock = (s) => {
+  s = Math.max(0, Math.round(s));
+  if (s < 3600) return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  return Math.floor(s / 3600) + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+};
+function renderTimer() {
+  const s = timer.sched;
+  $('timerRows').innerHTML = s.map((r, idx) => {
+    let cls = '';
+    if (idx < timer.i) cls += ' done';
+    if (idx === timer.i && timer.started && timer.running) cls += ' cur';
+    if (r.min === 0) cls += ' stop';
+    return `<div class="t-row ${cls}"><span class="tt num">${esc(r.time)}</span><span class="tm num">${r.min || '—'}</span><span class="tp">${esc(r.label)}</span></div>`;
+  }).join('');
+
+  const row = timer.i >= 0 && timer.i < s.length ? s[timer.i] : null;
+  const finished = timer.started && (timer.i >= s.length || timer.logged);
+  if (!timer.started) {
+    const total = s.reduce((x, r) => x + r.min, 0);
+    $('timerLabel').textContent = 'Sẵn sàng?';
+    $('timerClock').textContent = fmtClock(total * 60);
+    $('timerNext').textContent = 'Bắt đầu: ' + s[0].label;
+  } else if (finished) {
+    $('timerLabel').textContent = 'Hoàn thành phiên.';
+    $('timerClock').textContent = fmtClock(timer.doneMin * 60);
+    $('timerNext').textContent = `Đã ghi ${timer.doneMin} phút cho Day ${timer.day}`;
+  } else {
+    $('timerLabel').textContent = row.time + ' — ' + row.label;
+    $('timerClock').textContent = fmtClock(Math.max(0, timer.remain));
+    const nx = s[timer.i + 1];
+    $('timerNext').textContent = nx ? 'Tiếp: ' + nx.label : '';
+  }
+  $('btnStart').disabled = timer.running;
+  $('btnStart').textContent = timer.logged ? 'Lại từ đầu' : (timer.started && !timer.running ? 'Tiếp tục' : 'Bắt đầu');
+  $('btnPause').disabled = !timer.started || timer.logged;
+  $('btnPause').textContent = timer.running ? 'Tạm dừng' : (timer.started ? 'Tiếp tục' : 'Tạm dừng');
+  $('btnStop').disabled = !timer.started || timer.logged;
+  const hasStop = s.some((r) => r.min === 0);
+  $('timerBanner').hidden = !(finished && timer.logged && hasStop);
+}
+function tick() {
+  timer.remain--;
+  if (timer.remain < 0) { advance(); return; }
+  renderTimer();
+}
+function advance() {
+  const row = timer.sched[timer.i];
+  if (row && row.min > 0) { timer.doneMin += row.min; beep(); }
+  timer.i++;
+  if (timer.i >= timer.sched.length || timer.sched[timer.i].min === 0) { finishSession(); return; }
+  timer.remain = timer.sched[timer.i].min * 60;
+  renderTimer();
+}
+function finishSession() {
+  clearInterval(timer.int); timer.running = false;
+  if (!timer.logged && timer.doneMin > 0) {
+    state.focus.push({ date: today(), day: timer.day, minutes: timer.doneMin, ts: Date.now() });
+    timer.logged = true; save(); renderDash();
+    toast(`Đã ghi ${timer.doneMin} phút cho Day ${timer.day}`);
+  }
+  renderTimer();
+}
+function resetTimerRun() {
+  clearInterval(timer.int);
+  Object.assign(timer, { i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0 });
+}
+
+/* ---------------- report ---------------- */
+let repLoadedDay = null;
+function reportTemplate(day) {
+  const [dn, tot] = ckPair(day);
+  const mins = focusMinutesForDay(day);
+  return `# Báo cáo Day ${day}
+- Ngày: ${today()}
+- Thời gian tập trung: ${mins} phút (từ timer)
+- Checklist: ${dn}/${tot}${tot ? ' (' + Math.round((dn / tot) * 100) + '%)' : ''}
+
+## Đã làm
+- ...
+
+## Không làm / lý do
+- ...
+
+## Học được
+- ...
+
+## Câu hỏi cho bạn
+- ...
+
+## Bằng chứng
+- (link ghi chú / code / ảnh)
+`;
+}
+function pickReportDay() {
+  const days = taskDays();
+  if (!state.tasks[state.cur.report]) {
+    state.cur.report = days.filter((d) => !state.reports[d]).at(-1) ?? days.at(-1) ?? null;
+    repLoadedDay = null;
+  }
+  return state.cur.report;
+}
+function renderReport() {
+  const days = taskDays();
+  $('repDay').innerHTML = days.map((d) => `<option value="${d}">Day ${d}</option>`).join('') || '<option value="">—</option>';
+  const day = pickReportDay();
+  if (day != null) $('repDay').value = day;
+  if (day == null) { $('repPrev').innerHTML = '<p class="meta">Chưa có day nào có task.</p>'; return; }
+  if (repLoadedDay !== day) {
+    repLoadedDay = day;
+    const r = state.reports[day];
+    $('repText').value = r ? r.md : reportTemplate(day);
+    const info = $('repSavedInfo');
+    info.textContent = r ? `Đã lưu ${r.date} ${r.at || ''}. Tải lại file để gửi bạn bạn.` : '';
+  }
+  $('repPrev').innerHTML = mdToHtml($('repText').value);
+}
+function saveDraft() {
+  const day = state.cur.report; if (day == null) return;
+  state.reports[day] = { md: $('repText').value, date: today(), at: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }), ts: Date.now() };
+  save(); renderDash();
+  $('repSavedInfo').textContent = `Đã lưu ${state.reports[day].date} ${state.reports[day].at}`;
+}
+function reportHtmlExport(day, md) {
+  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo Day ${day}</title>
+<style>body{font:15px/1.6 Georgia,serif;max-width:720px;margin:40px auto;padding:0 20px;color:#1f201d}
+h1{font-size:1.4rem}h2{font-size:1.05rem;margin:1.2em 0 .4em;padding-top:.6em;border-top:1px solid #eaeaea}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #eaeaea;padding:6px 10px;text-align:left}
+blockquote{border-left:4px solid #fde68a;background:#fffbeb;margin:12px 0;padding:10px 14px;border-radius:10px;color:#92400e}</style>
+</head><body>${mdToHtml(md)}</body></html>`;
+}
+
+/* ---------------- create task (cho người giao task) ---------------- */
+let crAuto = true;
+function createTemplate(n) {
+  return `# Day ${n} — <tiêu đề>
+
+**Mục tiêu hôm nay:** <mục tiêu 1 dòng>
+
+## Bối cảnh
+- <ràng buộc, tài liệu đọc, rule...>
+
+## Inside a 2-hour weekday evening
+
+| TIME | MIN | PART |
+|------|-----|------|
+| 19:30 | 10 | Đọc lại ghi chú hôm qua |
+| 19:40 | 60 | **§1 Knowledge — <chủ đề>** |
+| 20:40 | 35 | **§2 Predict → Run → Explain** |
+| 21:15 | 15 | **§3 AI-Verify + §4 Drill** |
+| 21:30 | — | **Hard stop. Dừng cả giữa câu.** |
+
+> **21:30 là điểm dừng, không phải mục tiêu.** Đánh dấu chỗ dừng và làm tiếp ở phiên sau.
+
+## Checklist
+- [ ] <việc 1>
+- [ ] <việc 2>
+- [ ] <việc 3>
+- [ ] Ghi lại chỗ dừng nếu dừng sớm
+`;
+}
+
+/* ---------------- import / backup ---------------- */
+async function handleFiles(files) {
+  let first = null;
+  for (const f of files) {
+    const text = await f.text();
+    const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
+    const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
+    const day = m ? +m[1] : nextDay();
+    if (state.tasks[day] && state.tasks[day].content !== text && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
+    if (state.tasks[day]?.content !== text) delete state.checks[day]; // task mới → checklist cũ không còn đúng
+    state.tasks[day] = { type: isHtml ? 'html' : 'md', content: text, addedAt: Date.now() };
+    if (!first) first = day;
+  }
+  resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
+  save(); renderAll();
+  if (first != null) { toast(`Đã nhận task Day ${first}`); openTask(first); }
+}
+function openTask(day) {
+  if (!timerSetup(day, true)) return;
+  state.cur.task = day; save(); switchTab('task');
+}
+function openReport(day) {
+  state.cur.report = day; repLoadedDay = null; save(); switchTab('report');
+}
+
+/* ---------------- wiring ---------------- */
+function renderAll() {
+  renderDash(); renderTask(); renderReport();
+  const n = taskDays().filter((d) => state.reports[d]).length;
+  $('allRepCount').textContent = n ? `${n} day đã có báo cáo trong app.` : 'Chưa day nào có báo cáo.';
+}
+function init() {
+  // điều hướng: mọi [data-tab] (sidebar, footnote), [data-open] → task, [data-open-report] → báo cáo
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-tab]');
+    if (tab) { e.preventDefault(); switchTab(tab.dataset.tab); return; }
+    const op = e.target.closest('[data-open]');
+    if (op) { openTask(+op.dataset.open); return; }
+    const orp = e.target.closest('[data-open-report]');
+    if (orp) { openReport(+orp.dataset.openReport); return; }
+  });
+  $('menuBtn').onclick = () => $('sidebar').classList.add('open');
+  $('menuClose').onclick = () => $('sidebar').classList.remove('open');
+
+  // dashboard — nhận file task (nút + kéo thả toàn trang)
+  $('importBtn').onclick = () => $('importFile').click();
+  $('importFile').onchange = (e) => { handleFiles([...e.target.files]); e.target.value = ''; };
+  document.addEventListener('dragover', (e) => { if ([...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+  document.addEventListener('drop', (e) => {
+    if (![...e.dataTransfer.types].includes('Files')) return;
+    e.preventDefault(); handleFiles([...e.dataTransfer.files]);
+  });
+  $('backupOut').onclick = () => download('ghostproject-backup.json', JSON.stringify(state, null, 2), 'application/json');
+  $('backupIn').onclick = () => $('backupFile').click();
+  $('backupFile').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (!data || typeof data.tasks !== 'object') throw new Error('bad');
+      if (!confirm('Nhập backup sẽ thay thế toàn bộ dữ liệu hiện tại. Tiếp tục?')) return;
+      state = { ...defaultState(), ...data }; repLoadedDay = null; resetTimerRun(); timer.day = null;
+      save(); renderAll(); toast('Đã nhập backup');
+    } catch { alert('File backup không hợp lệ.'); }
+    e.target.value = '';
+  };
+  $('resetAll').onclick = () => {
+    if (!confirm('Xoá TOÀN BỘ task, báo cáo, tiến độ của GhostProject? Không hoàn tác được.')) return;
+    state = defaultState(); repLoadedDay = null; resetTimerRun(); timer.day = null;
+    save(); renderAll(); toast('Đã xoá hết');
+  };
+  $('dlAllReports').onclick = () => {
+    const days = taskDays().filter((d) => state.reports[d]);
+    if (!days.length) { toast('Chưa có báo cáo nào'); return; }
+    const md = days.map((d) => state.reports[d].md).join('\n\n---\n\n');
+    download(`baocao-day${days[0]}-den-day${days.at(-1)}.md`, md);
+    toast(`Đã tải ${days.length} báo cáo gộp một file`);
+  };
+
+  // đồng bộ S3
+  const s3Map = { s3Endpoint: 'endpoint', s3Region: 'region', s3Bucket: 'bucket', s3Ak: 'ak', s3Sk: 'sk' };
+  for (const [id, k] of Object.entries(s3Map)) {
+    const inp = $(id);
+    inp.value = s3cfg()[k] || '';
+    inp.addEventListener('input', () => {
+      state.s3 = { ...s3cfg(), [k]: inp.value.trim() };
+      save(); setSyncStatus('Đã lưu thông tin — bấm "Đồng bộ ngay" để chạy');
+    });
+  }
+  $('btnSyncNow').onclick = () => syncNow(true);
+  setSyncStatus(s3cfg().lastSync ? 'Lần đồng bộ cuối: ' + new Date(s3cfg().lastSync).toLocaleString('vi-VN') : 'Chưa đồng bộ lần nào');
+
+  // task
+  $('taskDay').onchange = (e) => {
+    const d = +e.target.value;
+    if (!timerSetup(d, true)) { e.target.value = state.cur.task; return; }
+    state.cur.task = d; save(); renderAll();
+  };
+  $('taskBody').addEventListener('change', (e) => {
+    const k = e.target.dataset.ck; if (k === undefined) return;
+    const arr = state.checks[state.cur.task] || (state.checks[state.cur.task] = []);
+    arr[+k] = e.target.checked;
+    e.target.closest('.ck')?.classList.toggle('done', e.target.checked);
+    save(); renderDash();
+  });
+
+  // timer
+  $('btnStart').onclick = () => {
+    if (timer.logged) resetTimerRun();
+    if (!timer.started) {
+      timer.started = true; timer.i = 0;
+      timer.remain = (timer.sched[0]?.min || 0) * 60;
+    }
+    timer.running = true; clearInterval(timer.int); timer.int = setInterval(tick, 1000);
+    renderTimer();
+  };
+  $('btnPause').onclick = () => {
+    if (!timer.started || timer.logged) return;
+    if (timer.running) { clearInterval(timer.int); timer.running = false; }
+    else { timer.running = true; clearInterval(timer.int); timer.int = setInterval(tick, 1000); }
+    renderTimer();
+  };
+  $('btnStop').onclick = () => {
+    if (!timer.started || timer.logged) return;
+    clearInterval(timer.int); timer.running = false;
+    let mins = timer.doneMin;
+    if (timer.i < timer.sched.length && timer.sched[timer.i].min > 0) {
+      mins += Math.floor((timer.sched[timer.i].min * 60 - timer.remain) / 60);
+    }
+    if (mins > 0) {
+      state.focus.push({ date: today(), day: timer.day, minutes: mins, ts: Date.now() });
+      timer.logged = true; save(); renderDash();
+      toast(`Đã ghi ${mins} phút cho Day ${timer.day}`);
+    } else toast('Chưa đủ 1 phút để ghi');
+    renderTimer();
+  };
+
+  // report
+  $('repDay').onchange = (e) => { state.cur.report = +e.target.value; repLoadedDay = null; save(); renderReport(); };
+  let deb;
+  $('repText').addEventListener('input', () => {
+    clearTimeout(deb); deb = setTimeout(() => { $('repPrev').innerHTML = mdToHtml($('repText').value); }, 250);
+  });
+  $('btnRefill').onclick = () => { $('repText').value = reportTemplate(state.cur.report); $('repPrev').innerHTML = mdToHtml($('repText').value); toast('Đã điền lại từ checklist + timer'); };
+  $('btnSaveDraft').onclick = () => { saveDraft(); toast('Đã lưu nháp'); };
+  $('btnCopy').onclick = () => copyText($('repText').value);
+  $('btnDlMd').onclick = () => {
+    if (state.cur.report == null) return;
+    saveDraft(); download(`baocaoday${state.cur.report}.md`, $('repText').value);
+    toast(`Đã tải baocaoday${state.cur.report}.md`);
+  };
+  $('btnDlHtml').onclick = () => {
+    if (state.cur.report == null) return;
+    saveDraft(); download(`baocaoday${state.cur.report}.html`, reportHtmlExport(state.cur.report, $('repText').value), 'text/html');
+    toast(`Đã tải baocaoday${state.cur.report}.html`);
+  };
+
+  // create
+  $('crText').value = createTemplate(1); crAuto = true;
+  $('crDay').addEventListener('input', () => {
+    const n = Math.max(1, +$('crDay').value || 1);
+    if (crAuto) { $('crText').value = createTemplate(n); renderCrPrev(); }
+  });
+  $('crText').addEventListener('input', () => { crAuto = false; renderCrPrev(); });
+  $('btnCrPrev').onclick = renderCrPrev;
+  $('btnCrDl').onclick = () => {
+    const n = Math.max(1, +$('crDay').value || 1);
+    download(`taskday${n}.md`, $('crText').value);
+    toast(`Đã tải taskday${n}.md — gửi cho người học`);
+  };
+  $('btnCrSave').onclick = () => {
+    const n = Math.max(1, +$('crDay').value || 1);
+    state.tasks[n] = { type: 'md', content: $('crText').value, addedAt: Date.now() };
+    delete state.checks[n]; save(); renderAll(); toast(`Đã lưu Day ${n} vào app`);
+  };
+  function renderCrPrev() { $('crPrev').innerHTML = mdToHtml($('crText').value); }
+  renderCrPrev();
+
+  // cập nhật vị trí "bây giờ" trên dải buổi tối mỗi 30 giây
+  setInterval(() => {
+    if ($('tab-dash')?.classList.contains('active')) renderDash();
+  }, 30000);
+
+  switchTab('dash');
+
+  // có cấu hình S3 thì kéo dữ liệu từ bucket về khi mở trang
+  if (s3cfg().bucket && s3cfg().ak && s3cfg().sk) syncNow(false);
+}
+init();
+
+</script>
+</body>
+</html>
