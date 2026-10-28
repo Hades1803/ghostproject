@@ -30,8 +30,9 @@ const sandbox = {
   URL: { createObjectURL: () => 'blob:x', revokeObjectURL() {} },
   Blob, console, setInterval, clearInterval, setTimeout, clearTimeout,
   TextEncoder, TextDecoder, crypto: require('node:crypto').webcrypto,
-  location: { protocol: 'https:' }, fetch: () => Promise.reject(new Error('no network in smoke test')),
+  location: { protocol: 'https:', hash: '' }, fetch: () => Promise.reject(new Error('no network in smoke test')),
 };
+sandbox.addEventListener = () => {}; // hashchange listener trong init()
 sandbox.window = sandbox;
 vm.createContext(sandbox);
 vm.runInContext(

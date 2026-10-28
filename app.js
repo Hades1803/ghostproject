@@ -98,6 +98,67 @@ function inline(s) {
 function splitRow(r) {
   return r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
 }
+/* HTML → md: đọc lại task dạng .html (từ "Tạo task", báo cáo, hoặc bạn bạn gửi file html khác)
+   để timer + checklist hoạt động như .md */
+function htmlToMd(src) {
+  const doc = new DOMParser().parseFromString(src, 'text/html');
+  const inl = (n) => {
+    let s = '';
+    for (const c of n.childNodes) {
+      if (c.nodeType === 3) s += c.nodeValue;
+      else if (c.nodeType !== 1) continue;
+      const t = c.tagName;
+      if (t === 'STRONG' || t === 'B') s += '**' + inl(c) + '**';
+      else if (t === 'EM' || t === 'I') s += '*' + inl(c) + '*';
+      else if (t === 'CODE') s += '`' + c.textContent + '`';
+      else if (t === 'BR') s += ' ';
+      else s += inl(c); // span/other → đi tiếp
+    }
+    return s;
+  };
+  const cell = (n) => inl(n).replace(/\s+/g, ' ').trim();
+  const out = [];
+  const walk = (parent) => {
+    for (const el of parent.children) {
+      const t = el.tagName;
+      if (/^H[1-5]$/.test(t)) {
+        const lv = t === 'H1' || t === 'H2' ? 1 : +t[1] - 1; // mdToHtml: '# '→h2.doc-title, '## '→h3…
+        out.push('#'.repeat(lv) + ' ' + cell(el));
+      } else if (t === 'P' || t === 'DIV') {
+        if (el.querySelector('table,ul,ol,blockquote,pre,h1,h2,h3,h4,h5')) { walk(el); continue; } // div bọc → đi sâu
+        out.push(cell(el));
+      } else if (t === 'TABLE') {
+        const trs = [...el.rows];
+        if (!trs.length) continue;
+        const rowMd = (tr) => '| ' + [...tr.cells].map((c) => cell(c)).join(' | ') + ' |';
+        // cả bảng một block (các hàng liền nhau — parseSchedule cần); dòng đầu làm header
+        out.push(rowMd(trs[0]) + '\n| ' + [...trs[0].cells].map(() => '---').join(' | ') + ' |\n'
+          + trs.slice(1).map(rowMd).join('\n'));
+      } else if (t === 'UL' || t === 'OL') {
+        let n = 0;
+        const items = [];
+        for (const li of el.children) {
+          if (li.tagName !== 'LI') continue;
+          const box = li.querySelector('input[type="checkbox"]');
+          const txt = cell(li.querySelector('.ck span') || li);
+          if (box || li.classList.contains('ckline')) items.push(`- [${box?.checked ? 'x' : ' '}] ${txt}`);
+          else if (t === 'OL') items.push(`${++n}. ${txt}`);
+          else items.push(`- ${txt}`);
+        }
+        if (items.length) out.push(items.join('\n')); // cả list một block
+      } else if (t === 'BLOCKQUOTE') {
+        out.push('> ' + cell(el));
+      } else if (t === 'PRE') {
+        out.push('```\n' + el.textContent.replace(/\r?\n$/, '') + '\n```');
+      } else if (t === 'HR') {
+        out.push('---');
+      } else walk(el); // section/article/… → đi sâu
+    }
+  };
+  walk(doc.body);
+  return out.join('\n\n');
+}
+
 function mdToHtml(src) {
   const lines = esc(src).split(/\r?\n/);
   const out = [];
@@ -427,7 +488,7 @@ function renderDash() {
   if (!cur) {
     $('ovTaskKicker').textContent = 'Tối nay';
     $('ovTaskMeta').textContent = '';
-    ov.innerHTML = '<div class="empty">Chưa có task nào. Import file taskdayN.md hoặc bảo bạn bạn đăng ở tab "Tạo task".</div>';
+    ov.innerHTML = '<div class="empty">Chưa có task nào. Import file taskdayN.md hoặc .html, hoặc bảo bạn bạn đăng ở tab "Tạo task".</div>';
   } else {
     $('ovTaskKicker').textContent = 'Tối nay';
     $('ovTaskMeta').textContent = `Day ${cur}`;
@@ -703,11 +764,12 @@ async function handleFiles(files) {
   for (const f of files) {
     const text = await f.text();
     const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
+    const md = isHtml ? htmlToMd(text) : text; // task .html cũng đọc được: chuyển về md để có checklist + timer
     const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
     const day = m ? +m[1] : nextDay();
-    if (state.tasks[day] && state.tasks[day].content !== text && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
-    if (state.tasks[day]?.content !== text) delete state.checks[day]; // task mới → checklist cũ không còn đúng
-    state.tasks[day] = { type: isHtml ? 'html' : 'md', content: text, addedAt: Date.now() };
+    if (state.tasks[day] && state.tasks[day].content !== md && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
+    if (state.tasks[day]?.content !== md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
+    state.tasks[day] = { type: 'md', content: md, addedAt: Date.now() };
     if (!first) first = day;
   }
   resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
@@ -879,7 +941,12 @@ function init() {
     if ($('tab-dash')?.classList.contains('active')) renderDash();
   }, 30000);
 
-  switchTab('dash');
+  const startHash = location.hash.startsWith('#tab-') && ['dash', 'task', 'report', 'create', 'settings'].includes(location.hash.slice(5)) ? location.hash.slice(5) : 'dash';
+  switchTab(startHash);
+  window.addEventListener('hashchange', () => { // deep-link: /#tab-task mở thẳng màn Task
+    const t = location.hash.startsWith('#tab-') ? location.hash.slice(5) : 'dash';
+    if (['dash', 'task', 'report', 'create', 'settings'].includes(t)) switchTab(t);
+  });
 
   // có cấu hình S3 thì kéo dữ liệu từ bucket về khi mở trang
   if (s3cfg().bucket && s3cfg().ak && s3cfg().sk) syncNow(false);

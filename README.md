@@ -11,6 +11,8 @@ Trang tĩnh (HTML/CSS/JS thuần), **không cần cài gì** — mở `index.htm
 3. **Học**: tab **Task** → xem task, tick checklist (tự lưu), bấm **Bắt đầu** timer — timer tự đọc bảng lịch (TIME/MIN/PART) trong task, kêu khi hết từng phần và bật **HARD STOP** ở dòng phút `—`.
 4. **Báo cáo**: tab **Báo cáo** → template tự điền ngày, số phút tập trung (từ timer), % checklist → **Tải baocaodayN.md** (hoặc `.html`) → gửi lại bạn bạn.
 
+Task nhận được **cả `.md` lẫn `.html`** — file html được chuyển ngược về markdown lúc import, nên timer + checklist vẫn hoạt động như .md.
+
 **Cách 2 — đồng bộ qua S3 (không cần gửi file):** xem mục Đồng bộ S3 bên dưới.
 
 ## Đồng bộ S3 (Long Vân / S3-compatible)
@@ -45,7 +47,6 @@ CORS trên bucket đã cấu hình sẵn: AllowedOrigin `*`, method GET/PUT/HEAD
 
 - Toàn bộ dữ liệu nằm trong **localStorage của trình duyệt**: dùng Chrome/Edge thường (không dùng chế độ ẩn danh), và backup định kỳ.
 - Khóa S3 nằm plaintext trong localStorage của máy nào điền nó — bucket nên dùng riêng cho GhostProject, key có thể xoay/thu hồi bất cứ lúc nào.
-- Task `.html` chỉ xem được nguyên bản, không có checklist/timer tự động (chỉ có với `.md`).
 
 ## Deploy lên Vercel
 
