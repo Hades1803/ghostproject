@@ -727,7 +727,7 @@ function init() {
   // giao task (modal)
   const modal = $('assignModal');
   const closeAssign = () => { modal.hidden = true; };
-  $('btnAssign').onclick = () => {
+  const openAssign = () => {
     const n = nextDay();
     $('crDay').value = n;
     $('crText').value = createTemplate(n); crAuto = true;
@@ -738,6 +738,7 @@ function init() {
     $('crText').setSelectionRange(0, 0);
     $('crText').scrollTop = 0;
   };
+  document.querySelectorAll('[data-assign]').forEach((b) => { b.onclick = openAssign; });
   $('assignClose').onclick = closeAssign;
   modal.addEventListener('click', (e) => { if (e.target === modal) closeAssign(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAssign(); });

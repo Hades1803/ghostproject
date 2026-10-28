@@ -53,6 +53,7 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
   .phonebar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:15;height:48px;padding:0 16px;background:var(--ground)}
   .phonebar .mark{width:20px;height:20px}
   .phonebar b{font-size:14px;font-weight:600;margin-right:auto}
+  .phonebar .btn{height:32px;padding:0 12px;font-size:13px}
   .sidebar{position:fixed;inset:0;z-index:30;height:100%;background:var(--surface);transform:translateX(-100%);transition:transform var(--t-ui) var(--ease-out);padding-top:12px}
   .sidebar.open{transform:none}
   .who{justify-content:space-between}

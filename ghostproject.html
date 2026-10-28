@@ -63,6 +63,7 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
   .phonebar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:15;height:48px;padding:0 16px;background:var(--ground)}
   .phonebar .mark{width:20px;height:20px}
   .phonebar b{font-size:14px;font-weight:600;margin-right:auto}
+  .phonebar .btn{height:32px;padding:0 12px;font-size:13px}
   .sidebar{position:fixed;inset:0;z-index:30;height:100%;background:var(--surface);transform:translateX(-100%);transition:transform var(--t-ui) var(--ease-out);padding-top:12px}
   .sidebar.open{transform:none}
   .who{justify-content:space-between}
@@ -260,7 +261,7 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <a class="nav-item" href="#tab-report" data-tab="report">Báo cáo</a>
     </nav>
     <div class="bottom">
-      <button class="btn primary wide" id="btnAssign" type="button">Giao task</button>
+      <button class="btn primary wide" data-assign type="button">Giao task</button>
       <a class="nav-item" href="#tab-settings" data-tab="settings">Cài đặt</a>
     </div>
   </aside>
@@ -270,6 +271,7 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     <div class="phonebar">
       <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
       <b>GhostProject</b>
+      <button class="btn primary" data-assign type="button">Giao task</button>
       <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
     </div>
 
@@ -1157,7 +1159,7 @@ function init() {
   // giao task (modal)
   const modal = $('assignModal');
   const closeAssign = () => { modal.hidden = true; };
-  $('btnAssign').onclick = () => {
+  const openAssign = () => {
     const n = nextDay();
     $('crDay').value = n;
     $('crText').value = createTemplate(n); crAuto = true;
@@ -1168,6 +1170,7 @@ function init() {
     $('crText').setSelectionRange(0, 0);
     $('crText').scrollTop = 0;
   };
+  document.querySelectorAll('[data-assign]').forEach((b) => { b.onclick = openAssign; });
   $('assignClose').onclick = closeAssign;
   modal.addEventListener('click', (e) => { if (e.target === modal) closeAssign(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAssign(); });
