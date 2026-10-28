@@ -1,64 +1,66 @@
 # GhostProject — website tự học theo day
 
-Trang tĩnh (HTML/CSS/JS thuần), **không cần cài gì** — mở `index.html` bằng Chrome/Edge là chạy. Có bản single-file `ghostproject.html` để gửi qua chat (build lại bằng `node build-single.js`).
+Trang tĩnh (HTML/CSS/JS thuần), **không cần build, không cần server riêng**. Dữ liệu đồng bộ giữa 2 máy bằng **Turso** — SQLite chạy qua HTTP, dùng trực tiếp từ trình duyệt.
 
-## Flow hàng ngày
+Flow đúng 3 bước: **bạn bạn giao task → bạn học + nộp báo cáo → bạn bạn đọc báo cáo.**
 
-**Cách 1 — gửi file qua chat (không cần S3):**
+## 3 màn hình
 
-1. **Bạn bạn tạo task**: mở trang → tab **Tạo task** → điền nội dung → bấm **Tải taskdayN.md** → gửi file qua chat.
-2. **Bạn nhận task**: mở trang → **Tổng quan** → bấm **Nhận file** (hoặc kéo thả file vào trang) — số day tự nhận từ tên file.
-3. **Học**: tab **Task** → xem task, tick checklist (tự lưu), bấm **Bắt đầu** timer — timer tự đọc bảng lịch (TIME/MIN/PART) trong task, kêu khi hết từng phần và bật **HARD STOP** ở dòng phút `—`.
-4. **Báo cáo**: tab **Báo cáo** → template tự điền ngày, số phút tập trung (từ timer), % checklist → **Tải baocaodayN.md** (hoặc `.html`) → gửi lại bạn bạn.
+| Màn | Dùng để |
+|---|---|
+| **Hôm nay** | Task tối nay (checklist tick được, bảng giờ), timer buổi tối, và ô **Nộp báo cáo** ngay bên dưới. |
+| **Báo cáo** | Danh sách mọi day: đã nộp thì mở ra đọc (báo cáo mới nhất mở sẵn), chưa nộp thì có nút **Viết báo cáo**. Cả hai người dùng chung màn này. |
+| **Cài đặt** | Kết nối Turso, backup JSON, tải tất cả báo cáo `.md`, xoá dữ liệu. |
 
-Task nhận được **cả `.md` lẫn `.html`** — file html được chuyển ngược về markdown lúc import, nên timer + checklist vẫn hoạt động như .md.
+Nút **Giao task** (sidebar) mở hộp thoại cho người giao task: chọn Day → viết nội dung → **Đăng task** (lên Turso ngay) hoặc **Tải taskday.md** (gửi qua chat như cũ).
 
-**Cách 2 — đồng bộ qua S3 (không cần gửi file):** xem mục Đồng bộ S3 bên dưới.
+## Cài Turso (mỗi máy một lần, ~3 phút)
 
-## Đồng bộ S3 (Long Vân / S3-compatible)
+1. Vào [app.turso.tech](https://app.turso.tech) → đăng nhập bằng GitHub → **Create Database** (chọn region gần, ví dụ Singapore) → đặt tên, ví dụ `ghostproject`.
+2. Mở database vừa tạo, copy **Database URL** (dạng `libsql://ghostproject-ten.turso.io`).
+3. Bấm **Create Token** → copy token.
+4. Trên mỗi máy: mở trang → **Cài đặt → Turso** → dán URL + token → **Kết nối & đồng bộ**.
 
-Hai máy cùng mở trang, cùng điền thông tin bucket ở **Cài đặt → Đồng bộ S3**:
+Máy thứ hai chỉ cần dán đúng URL + token đó. Bảng dữ liệu được tạo tự động ở lần kết nối đầu tiên.
 
-- **Endpoint**: `https://s3-hcm-r1.longvan.net` (đã test — endpoint client `s3-hcm5-r1` bị chặn thao tác object)
-- **Region**: `hcm5-r1`
-- **Bucket**: tên bucket (ví dụ `ghostproject` — nên tạo bucket riêng trong console Long Vân vì access key không có quyền tạo bucket)
-- **Access key / Secret key**: của bạn
+**Không cấu hình Turso?** App vẫn chạy được, chỉ lưu trong máy đó (dùng backup `.json` để chuyển dữ liệu).
 
-Cách hoạt động: hai file JSON trong bucket —
+## Cách đồng bộ hoạt động
 
-| File | Chủ sở hữu | Nội dung |
+| Bảng | Ai ghi | Nội dung |
 |---|---|---|
-| `tasks.json` | người giao task | nội dung từng day (theo `addedAt`, mới hơn thắng) |
-| `reports.json` | người học | báo cáo, checklist, phút tập trung (trộn OR, không nhân đôi) |
+| `tasks` | người giao task | nội dung từng day (`updated_at` mới hơn thắng) |
+| `reports` | người học | báo cáo từng day |
+| `checks` | người học | checklist đã tick |
+| `focus` | người học | phút tập trung từ timer |
 
-App tự **kéo về khi mở trang** và **đẩy lên 2,5 giây sau mỗi lần lưu**; nút **Đồng bộ ngay** chạy tay ở Cài đặt.
+- Ghi ngay khi có thay đổi: tick checklist, ngừng gõ báo cáo 0,9 giây, hết/ngừng timer, đăng task.
+- Đọc lại toàn bộ khi mở trang, khi bấm **Kết nối & đồng bộ**, và sau mỗi lần kết nối lại.
+- Người kia cần **mở/refresh trang** để thấy dữ liệu mới (không có realtime).
 
-**Quan trọng:** đồng bộ cần trang được mở qua **https** (GitHub Pages, hoặc static hosting của Long Vân). Mở bằng `file://` thì trình duyệt chặn CORS (Origin `null` không được phép echo) — app sẽ hiện lỗi rõ ràng. Xem/nhập file qua chat vẫn dùng được bình thường với `file://`.
+## Học + nộp báo cáo
 
-CORS trên bucket đã cấu hình sẵn: AllowedOrigin `*`, method GET/PUT/HEAD (script `s3-probe2.mjs` có thể đặt lại nếu cần).
-
-## Tính năng
-
-- **Tổng quan**: dải buổi tối 19:30 → 21:30 với vạch "bây giờ" + hard stop; streak; phút tập trung 7 ngày; day có báo cáo; nhật ký từng day (cap 8 dòng).
-- **Báo cáo** lưu nháp trong máy — day có báo cáo (kể cả nháp) mới tính vào streak.
-- **Cài đặt**: backup xuất/nhập `.json`, gộp tất cả báo cáo thành 1 file `.md`, đồng bộ S3, xoá dữ liệu.
-
-## Lưu ý
-
-- Toàn bộ dữ liệu nằm trong **localStorage của trình duyệt**: dùng Chrome/Edge thường (không dùng chế độ ẩn danh), và backup định kỳ.
-- Khóa S3 nằm plaintext trong localStorage của máy nào điền nó — bucket nên dùng riêng cho GhostProject, key có thể xoay/thu hồi bất cứ lúc nào.
+- **Nhận task**: bạn bạn bấm **Giao task** → app bạn tự có khi mở trang. Hoặc **Nhận file** ở màn Hôm nay (hoặc kéo thả file vào trang) — nhận cả `.md` lẫn `.html`, số day lấy từ tên file.
+- **Học**: tick checklist ngay trong task; timer tự đọc bảng giờ `TIME | MIN | PART` (19:30 → 21:30) trong task, kêu khi hết từng phần, bật **HARD STOP** ở dòng phút `—`.
+- **Nộp**: viết vào ô báo cáo — template có sẵn ngày, phút từ timer, % checklist. Ngừng gõ là tự lưu + đẩy lên Turso; bấm **Nộp báo cáo** để lưu và chuyển sang day kế tiếp chưa nộp.
+- **Đọc lại**: tab **Báo cáo** (cả hai người), hoặc **Cài đặt → Tải tất cả báo cáo .md**.
 
 ## Deploy lên Vercel
 
-Chạy `node build-single.js` — nó build `ghostproject.html` **và** chép 4 file web vào `deploy/`. Chỉ upload thư mục `deploy/` (các script khác ở thư mục gốc chứa key S3, không được đưa lên web). Hai cách:
+`node build-single.js` tạo `ghostproject.html` (bản single-file để gửi qua chat) **và** chép `index.html`, `style.css`, `app.js`, `ghostproject.html` vào `deploy/`.
 
-1. **Kéo–thả (nhanh nhất):** vào [vercel.com/new](https://vercel.com/new) → kéo thư mục `deploy` vào → xong, nhận ngay `https://tên-project.vercel.app`.
-2. **CLI:** `npm i -g vercel` → `cd deploy` → `vercel --prod` (đăng nhập lần đầu bằng browser).
+1. **Git:** repo đã nối Vercel — push lên `main` là tự deploy (chỉ thư mục `deploy/` được đưa lên web).
+2. **Tay:** [vercel.com/new](https://vercel.com/new) → kéo thư mục `deploy` → xong.
 
-Mở trang qua https là đồng bộ S3 chạy được ngay (CORS bucket đã cho mọi origin). Điền thông tin bucket ở **Cài đặt → Đồng bộ S3** trên máy nào cũng cần điền một lần.
+Trang phải chạy qua **https** (Vercel) để gọi được Turso; `file://` bị trình duyệt chặn CORS.
 
 ## Test
 
-- `node test-smoke.js` — 33 assert logic (md, lịch, timer, streak, merge S3).
-- `node test-sync.mjs` — end-to-end với bucket thật (cần key trong file).
-- `node s3-probe.mjs` / `s3-probe2.mjs` — chẩn đoán quyền/CORS bucket.
+- `node test-smoke.js` — logic thuần: markdown, bảng lịch, timer, streak, chọn day, template báo cáo, decode Turso.
+- `node --check app.js` — cú pháp.
+
+## Lưu ý
+
+- Token Turso nằm trong `localStorage` của máy nào dán nó; thu hồi/tạo token mới ở dashboard bất cứ lúc nào (dán lại vào Cài đặt).
+- Backup `.json` **không chứa** token Turso.
+- Streak và "day có báo cáo" chỉ tính day đã có báo cáo (kể cả bản đang viết).

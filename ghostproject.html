@@ -78,7 +78,9 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .lead{max-width:64ch;color:var(--muted);margin:-6px 0 20px}
 
 /* ---------- greeting (the move của style) ---------- */
-.col{max-width:1100px;margin-inline:auto}
+.col{max-width:880px;margin-inline:auto}
+.col>.kpis{margin-bottom:var(--gap)}
+.col>.panel{margin-top:var(--gap)}
 .hello{margin:14px 0 28px}
 .greet{font:600 48px/1.05 var(--serif);letter-spacing:-0.02em}
 .sub{margin-top:8px;color:var(--muted);max-width:64ch}
@@ -92,11 +94,6 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .panel .meta,.meta{color:var(--faint);font-size:var(--fs-small)}
 .row-end{display:inline-flex;align-items:center;gap:10px}
 .footnote{color:var(--faint);font-size:var(--fs-small);margin:28px 2px 0}
-.ov-list{margin:12px 0 0;padding:0;list-style:none}
-.ov-list li{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ov-list li::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:var(--control)}
-.ov-list li.ok{color:var(--faint);text-decoration:line-through}
-.ov-list li.ok::before{background:var(--accent)}
 .footnote a{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--control)}
 .footnote a:hover{color:var(--text)}
 
@@ -117,17 +114,19 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .strip-labels{display:flex;justify-content:space-between;margin-top:8px;color:var(--faint);font-size:var(--fs-small)}
 .strip-labels b{color:var(--text);font-weight:500}
 
-/* ---------- rows (nhật ký day) ---------- */
-.rows{display:grid}
-.row{display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 0}
-.row+.row{border-top:1px solid var(--rule)}
-.row .d{width:64px;flex:none;font-weight:500}
-.row .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .fig{width:84px;flex:none;text-align:right;color:var(--text)}
-.row .fig small{color:var(--muted)}
-.row .text-action{flex:none;border:0;background:none;padding:6px 2px;font-weight:500;color:var(--text);cursor:pointer;text-underline-offset:3px}
-.row .text-action:hover{text-decoration:underline}
-.text-action.more{margin-top:8px;padding-left:0}
+/* ---------- rows (báo cáo) ---------- */
+.rep-list{display:grid;gap:10px}
+.rep-item{background:var(--surface);border-radius:18px;padding:0 20px;min-width:0}
+.rep-item>summary,.rep-head{display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 0;list-style:none;cursor:pointer}
+.rep-item>summary::-webkit-details-marker{display:none}
+.rep-item>summary::after{content:"+";margin-left:4px;color:var(--muted);font-weight:500}
+.rep-item[open]>summary::after{content:"–"}
+.rep-item[open]>summary{border-bottom:1px solid var(--border);cursor:default}
+.rep-item .d{width:64px;flex:none;font-weight:500}
+.rep-item .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rep-item .fig{width:70px;flex:none;text-align:right}
+.rep-item .fig small{color:var(--muted)}
+.rep-item .md{padding:16px 0 20px}
 .empty{display:grid;place-items:center;min-height:96px;padding:16px;border:1px dashed var(--control);border-radius:12px;color:var(--muted);text-align:center}
 .grid>.empty{grid-column:1/-1;width:100%}
 
@@ -137,6 +136,8 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 
 /* ---------- controls ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--control-height);padding:0 14px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--ground);font-weight:500;font-size:14px;cursor:pointer;transition:background-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+.btn.wide{width:100%}
+.sidebar .bottom .btn.wide{margin-bottom:10px}
 .btn:hover{background:var(--raised)}
 .btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--primary);color:var(--primary-ink);border-color:transparent}
@@ -152,13 +153,17 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .inline-field{display:flex;align-items:center;gap:8px}
 .inline-field label{color:var(--muted)}
 
-/* ---------- detail: doc + rail timer ---------- */
-.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:var(--gap);align-items:start}
-.detail-grid>aside{display:flex;flex-direction:column;gap:var(--gap)}
-.detail-grid .fill{flex:1}
-@media(max-width:900px){.detail-grid{grid-template-columns:minmax(0,1fr)}.detail-grid .fill{flex:none}}
+/* ---------- hôm nay: task + timer + báo cáo ---------- */
+.timer-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+@media(max-width:720px){.timer-grid{grid-template-columns:minmax(0,1fr);gap:4px}}
 .track{display:block;height:8px;border-radius:999px;background:var(--rule);overflow:hidden;flex:1}
 .track>span{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.preview{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.preview>summary{display:inline-flex;gap:6px;font-size:var(--fs-small);color:var(--muted);cursor:pointer;list-style:none}
+.preview>summary::-webkit-details-marker{display:none}
+.preview>summary::after{content:"+";font-weight:500}
+.preview[open]>summary::after{content:"–"}
+.preview[open]>summary{margin-bottom:12px}
 
 /* timer: bảng đồng hồ */
 .timer .t-label{font-size:14px;line-height:20px;color:var(--muted);min-height:40px}
@@ -220,6 +225,14 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* ---------- toast: feedback nổi ---------- */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--primary-ink);padding:10px 18px;border-radius:999px;font-size:13px;z-index:99}
 
+/* ---------- modal giao task ---------- */
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:rgba(31,32,29,.32)}
+.sheet{width:min(720px,100%);max-height:calc(100svh - 32px);overflow:auto;background:var(--ground);border-radius:var(--radius-card);padding:22px}
+.sheet>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sheet h2{font-size:18px;font-weight:600}
+.sheet textarea{min-height:260px}
+.assign-prev{border-top:1px solid var(--border);margin-top:16px;padding-top:14px}
+
 @media(max-width:860px){
   .grid>*{grid-column:1/-1 !important}
   .kpis{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -235,7 +248,7 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <body>
 
 <div class="app">
-  <!-- shell: sidebar trên ground, không top bar (Open plane) -->
+  <!-- shell: sidebar trên ground, không top bar -->
   <aside class="sidebar" id="sidebar">
     <div class="who">
       <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
@@ -243,12 +256,11 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <button class="btn ghost close-sheet" id="menuClose" type="button" aria-label="Đóng menu">Đóng</button>
     </div>
     <nav aria-label="Mục chính">
-      <a class="nav-item" href="#tab-dash" data-tab="dash">Tổng quan</a>
-      <a class="nav-item" href="#tab-task" data-tab="task">Task</a>
+      <a class="nav-item" href="#tab-dash" data-tab="dash">Hôm nay</a>
       <a class="nav-item" href="#tab-report" data-tab="report">Báo cáo</a>
-      <a class="nav-item" href="#tab-create" data-tab="create">Tạo task</a>
     </nav>
     <div class="bottom">
+      <button class="btn primary wide" id="btnAssign" type="button">Giao task</button>
       <a class="nav-item" href="#tab-settings" data-tab="settings">Cài đặt</a>
     </div>
   </aside>
@@ -261,63 +273,40 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
     </div>
 
-    <!-- ============ TỔNG QUAN — câu hỏi: tối nay học gì, tới đâu, còn bao lâu ============ -->
-    <!-- grid: 12 cột × 77px + 11 gutter × 16px = 1100px -->
+    <!-- ============ HÔM NAY — task tối nay + timer + nộp báo cáo ============ -->
     <section id="tab-dash" class="tab col">
       <header class="hello">
         <h2 class="greet" id="greetTitle">Tối nay, Day 1.</h2>
         <p class="sub" id="greetSub"></p>
       </header>
 
-      <div class="grid">
-        <div class="kpis" style="grid-column: 1 / -1">
-          <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
-          <div class="kpi"><div class="kpi-label">Phút tập trung</div><div class="kpi-value" id="kMin">0 <small>phút · 7 ngày</small></div></div>
-          <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
-        </div>
-
-        <section class="panel" style="grid-column: span 7">
-          <header>
-            <h2 id="ovTaskKicker">Tối nay</h2>
-            <span class="row-end"><span class="meta" id="ovTaskMeta"></span>
-              <button class="btn" id="importBtn" type="button">Nhận file</button>
-            </span>
-            <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
-          </header>
-          <div id="ovTask"></div>
-        </section>
-
-        <section class="panel" style="grid-column: span 5">
-          <header><h2>Buổi tối</h2><span class="meta" id="ovTimeMeta"></span></header>
-          <div id="ovTime"></div>
-          <p class="meta" id="ovTimeState" style="margin-top:10px"></p>
-        </section>
-
-        <section class="panel rows-panel" style="grid-column: 1 / -1">
-          <header><h2>Từng day</h2></header>
-          <div class="rows" id="ovLog"></div>
-        </section>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
+        <div class="kpi"><div class="kpi-label">Phút tập trung</div><div class="kpi-value" id="kMin">0 <small>phút · 7 ngày</small></div></div>
+        <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
       </div>
 
-      <p class="footnote">Dữ liệu nằm trong trình duyệt của bạn — xuất backup ở <a href="#tab-settings" data-tab="settings">Cài đặt</a>.</p>
-    </section>
+      <section class="panel">
+        <header>
+          <h2>Tối nay</h2>
+          <span class="row-end">
+            <span class="meta" id="todayMeta"></span>
+            <button class="btn" id="importBtn" type="button">Nhận file</button>
+          </span>
+          <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
+        </header>
+        <div id="todayBody" class="md"></div>
+        <p class="meta" id="todayHint" style="margin-top:12px"></p>
+      </section>
 
-    <!-- ============ TASK — câu hỏi: đang ở phần nào, còn bao lâu ============ -->
-    <section id="tab-task" class="tab">
-      <div class="title-row">
-        <h2 class="screen-title" data-screen="task">Task</h2>
-        <select id="taskDay" class="input"></select>
-      </div>
-      <div id="taskEmpty" class="empty" hidden>Day này chưa có task. Nhận file taskdayN.md ở tab Tổng quan — hoặc bảo bạn bạn đăng thẳng vào tab "Tạo task".</div>
-      <div id="taskWrap" class="detail-grid">
-        <article id="taskBody" class="panel md"></article>
-        <aside>
-          <section class="panel timer">
-            <header><h2>Timer buổi tối</h2><span class="meta" id="timerMeta"></span></header>
+      <section class="panel timer" id="timerPanel">
+        <header><h2>Buổi tối</h2><span class="meta" id="timerMeta"></span></header>
+        <div id="timerStrip"></div>
+        <div class="timer-grid">
+          <div>
             <div id="timerLabel" class="t-label">Sẵn sàng?</div>
             <div id="timerClock" class="t-clock num">--:--</div>
             <div id="timerNext" class="meta"></div>
-            <div id="timerRows" class="t-rows"></div>
             <div class="btnrow">
               <button class="btn primary" id="btnStart" type="button">Bắt đầu</button>
               <button class="btn" id="btnPause" type="button" disabled>Tạm dừng</button>
@@ -326,74 +315,66 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
             <div id="timerBanner" class="notice" hidden>
               <b>Hard stop.</b> Dừng cả giữa câu. Đánh dấu chỗ dừng, làm tiếp phiên sau. Giấc ngủ quan trọng hơn việc xong section.
             </div>
-          </section>
-          <section class="panel fill">
-            <header><h2>Tiến độ</h2><span class="meta" id="railMeta"></span></header>
-            <div id="railProg"></div>
-          </section>
-        </aside>
-      </div>
+          </div>
+          <div id="timerRows" class="t-rows"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="repPanel">
+        <header><h2 id="repTitle">Báo cáo hôm nay</h2><span class="meta" id="repSavedInfo"></span></header>
+        <textarea id="repText" spellcheck="false" placeholder="Viết báo cáo ở đây — ngừng gõ là tự lưu và đồng bộ."></textarea>
+        <div class="btnrow">
+          <button class="btn primary" id="btnSaveDraft" type="button">Nộp báo cáo</button>
+          <button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist + timer (mất nội dung đang viết)">Điền lại từ data</button>
+          <button class="btn ghost" id="btnCopy" type="button">Copy</button>
+          <button class="btn ghost" id="btnDlMd" type="button">Tải .md</button>
+          <button class="btn ghost" id="btnDlHtml" type="button">Tải .html</button>
+        </div>
+        <details class="preview">
+          <summary>Xem trước</summary>
+          <div id="repPrev" class="md"></div>
+        </details>
+      </section>
+
+      <p class="footnote">Dữ liệu lưu trong máy + đồng bộ qua Turso — cấu hình ở <a href="#tab-settings" data-tab="settings">Cài đặt</a>.</p>
     </section>
 
-    <!-- ============ BÁO CÁO — câu hỏi: báo cáo tối nay đủ chưa ============ -->
-    <section id="tab-report" class="tab">
+    <!-- ============ BÁO CÁO — cả hai bên đọc bài đã nộp ============ -->
+    <section id="tab-report" class="tab col">
       <div class="title-row">
         <h2 class="screen-title" data-screen="report">Báo cáo</h2>
-        <select id="repDay" class="input"></select>
+        <span class="row-end">
+          <span class="meta" id="repListMeta"></span>
+          <button class="btn" id="dlAllReports" type="button">Tải tất cả .md</button>
+        </span>
       </div>
-      <div class="grid">
-        <section class="panel" style="grid-column: 1 / -1">
-          <header><h2>Nội dung</h2><button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist + timer (mất nội dung đang viết)">Điền lại từ data</button></header>
-          <textarea id="repText" spellcheck="false"></textarea>
-          <div class="btnrow">
-            <button class="btn" id="btnSaveDraft" type="button">Lưu nháp</button>
-            <button class="btn" id="btnCopy" type="button">Copy</button>
-            <button class="btn primary" id="btnDlMd" type="button">Tải baocaoday.md</button>
-            <button class="btn" id="btnDlHtml" type="button">Tải .html</button>
-          </div>
-          <p class="meta" id="repSavedInfo" style="margin-top:10px"></p>
-        </section>
-        <section class="panel" style="grid-column: 1 / -1">
-          <header><h2>Xem trước</h2></header>
-          <div id="repPrev" class="md"></div>
-        </section>
-      </div>
+      <div id="repList" class="rep-list"></div>
     </section>
 
-    <!-- ============ TẠO TASK (người giao task) ============ -->
-    <section id="tab-create" class="tab">
-      <div class="title-row">
-        <h2 class="screen-title" data-screen="create">Tạo task</h2>
-      </div>
-      <p class="lead">Dành cho người giao task: viết task rồi tải file <code>taskdayN.md</code> gửi qua chat. Người học kéo file vào trang là xong.</p>
-      <div class="grid">
-        <section class="panel" style="grid-column: 1 / -1">
-          <header>
-            <h2>Nội dung</h2>
-            <div class="inline-field"><label for="crDay">Day</label><input type="number" id="crDay" min="1" value="1" class="input num"></div>
-          </header>
-          <textarea id="crText" spellcheck="false"></textarea>
-          <div class="btnrow">
-            <button class="btn primary" id="btnCrDl" type="button">Tải taskday.md</button>
-            <button class="btn" id="btnCrSave" type="button">Lưu vào app</button>
-            <button class="btn ghost" id="btnCrPrev" type="button">Xem thử</button>
-          </div>
-        </section>
-        <section class="panel" style="grid-column: 1 / -1">
-          <header><h2>Xem thử</h2></header>
-          <div id="crPrev" class="md"></div>
-        </section>
-      </div>
-    </section>
-
-    <!-- ============ CÀI ĐẶT — settings 2 cột (450px label + panel) ============ -->
-    <!-- arithmetic: 450 + 16 + 686 = 1152 -->
+    <!-- ============ CÀI ĐẶT ============ -->
     <section id="tab-settings" class="tab col-settings">
       <div class="title-row"><h2 class="screen-title" data-screen="settings">Cài đặt</h2></div>
       <div class="set-row">
         <div class="set-label">
+          <h2>Turso (SQLite)</h2>
+          <p>Hai máy dùng chung một database Turso: bạn bạn giao task, bạn nộp báo cáo, cả hai đọc được ở tab Báo cáo. Tạo database free ở turso.tech → copy URL + auth token dán vào đây (mỗi máy một lần).</p>
+        </div>
+        <div class="set-panel">
+          <div class="set-fields">
+            <label class="span2">Database URL<input id="tursoUrl" class="input" placeholder="libsql://ten-db-org.turso.io" autocomplete="off"></label>
+            <label class="span2">Auth token<input id="tursoToken" class="input" type="password" autocomplete="off"></label>
+          </div>
+          <div class="btnrow">
+            <button class="btn primary" id="btnConnect" type="button">Kết nối &amp; đồng bộ</button>
+            <span class="meta" id="syncStatus"></span>
+          </div>
+          <p class="meta" style="margin-top:10px">Token lưu trong trình duyệt máy này. Khi kết nối, dữ liệu máy này được gộp lên DB (bản mới hơn thắng) rồi kéo toàn bộ về.</p>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-label">
           <h2>Dữ liệu</h2>
-          <p>Mọi thứ lưu trong trình duyệt (localStorage). Xuất file backup để chuyển máy hoặc phòng khi xoá cache.</p>
+          <p>Backup JSON của task, báo cáo, checklist và phút tập trung (không gồm token Turso).</p>
         </div>
         <div class="set-panel">
           <div class="btnrow" style="margin-top:0">
@@ -401,43 +382,23 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
             <button class="btn" id="backupIn" type="button">Nhập backup</button>
             <input type="file" id="backupFile" accept=".json" hidden>
           </div>
-          <p class="meta" style="margin-top:10px">Backup gồm toàn bộ task, báo cáo, checklist và phút tập trung, dạng JSON. Nhập lại được ở đây hoặc ở máy khác.</p>
+          <p class="meta" style="margin-top:10px">Nhập backup thay thế dữ liệu máy này; lần "Kết nối &amp; đồng bộ" sau sẽ gộp phần mới hơn lên Turso.</p>
         </div>
       </div>
       <div class="set-row">
         <div class="set-label">
-          <h2>Gửi lại bạn bạn</h2>
-          <p>Gộp mọi báo cáo đã viết thành một file .md duy nhất, đọc được cả chuỗi tiến trình trong một lần mở.</p>
+          <h2>Báo cáo</h2>
+          <p>Gộp mọi báo cáo đã nộp thành một file .md để lưu hoặc gửi đi.</p>
         </div>
         <div class="set-panel">
-          <button class="btn" id="dlAllReports" type="button">Tải tất cả báo cáo .md</button>
+          <button class="btn" id="dlAllMd" type="button">Tải tất cả báo cáo .md</button>
           <p class="meta" style="margin-top:10px" id="allRepCount"></p>
         </div>
       </div>
       <div class="set-row">
         <div class="set-label">
-          <h2>Đồng bộ S3</h2>
-          <p>Chia sẻ dữ liệu với bạn bạn qua bucket S3. Hai máy cùng đọc ghi <code>tasks.json</code> (task) và <code>reports.json</code> (báo cáo, checklist, phút tập trung), tự trộn theo thời gian.</p>
-        </div>
-        <div class="set-panel">
-          <div class="set-fields">
-            <label class="span2">Endpoint<input id="s3Endpoint" class="input" placeholder="https://s3-hcm-r1.longvan.net"></label>
-            <label>Region<input id="s3Region" class="input" placeholder="hcm5-r1"></label>
-            <label>Bucket<input id="s3Bucket" class="input" placeholder="tên bucket, ví dụ ghostproject"></label>
-            <label>Access key<input id="s3Ak" class="input" autocomplete="off"></label>
-            <label>Secret key<input id="s3Sk" class="input" autocomplete="off" type="password"></label>
-          </div>
-          <div class="btnrow" style="margin-top:12px">
-            <button class="btn primary" id="btnSyncNow" type="button">Đồng bộ ngay</button>
-            <span class="meta" id="syncStatus"></span>
-          </div>
-          <p class="meta" style="margin-top:10px">Khóa nằm trong trình duyệt này (localStorage) — không gửi đi đâu khác. Tự đồng bộ khi mở trang và 2,5 giây sau mỗi lần lưu.</p>
-        </div>
-      </div>
-      <div class="set-row">
-        <div class="set-label">
           <h2>Xoá tất cả</h2>
-          <p>Xoá toàn bộ task, báo cáo, checklist và phút tập trung trong trình duyệt này. Không hoàn tác được.</p>
+          <p>Xoá task, báo cáo, checklist và phút tập trung — cả trên Turso nếu đã kết nối. Không hoàn tác được.</p>
         </div>
         <div class="set-panel">
           <button class="btn danger" id="resetAll" type="button">Xoá dữ liệu GhostProject</button>
@@ -447,76 +408,53 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   </div>
 </div>
 
+<!-- ============ GIAO TASK (modal) ============ -->
+<div class="modal" id="assignModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="assignTitle">
+    <header>
+      <h2 id="assignTitle">Giao task</h2>
+      <button class="btn ghost" id="assignClose" type="button">Đóng</button>
+    </header>
+    <div class="inline-field" style="margin-bottom:12px"><label for="crDay">Day</label><input type="number" id="crDay" min="1" value="1" class="input num" style="width:88px"></div>
+    <textarea id="crText" spellcheck="false"></textarea>
+    <div class="btnrow">
+      <button class="btn primary" id="btnCrSave" type="button">Đăng task</button>
+      <button class="btn" id="btnCrDl" type="button">Tải taskday.md</button>
+      <button class="btn ghost" id="btnCrPrev" type="button">Xem thử</button>
+    </div>
+    <div id="crPrev" class="md assign-prev"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 <script>
 'use strict';
-/* GhostProject — self-study tracker. Static site, all data in localStorage.
-   shortcut: storage is browser-local (no server) — use Backup export/import to move data between machines.
+/* GhostProject — self-study tracker. Static site, dữ liệu ở localStorage + Turso (SQLite qua HTTP).
+   Flow: bạn bạn "Giao task" → bạn tick checklist + timer + "Nộp báo cáo" → cả hai đọc ở tab Báo cáo.
    UI: tasteskill "editorial-greeting" (seed 1472121576) — greeting là h1, panel tông, accent teal trên data. */
 
 const $ = (id) => document.getElementById(id);
 const KEY = 'ghostproject_v1';
 const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const today = () => iso(new Date());
+const nowHM = () => new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
 /* ---------------- state ---------------- */
 function defaultState() {
-  return { tasks: {}, reports: {}, checks: {}, focus: [], cur: { task: null, report: null } };
+  return { tasks: {}, reports: {}, checks: {}, focus: [], turso: { url: '', token: '', lastSync: '' } };
 }
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
-    return { ...defaultState(), ...JSON.parse(raw) };
+    const s = JSON.parse(raw);
+    return { ...defaultState(), ...s, turso: { ...defaultState().turso, ...(s.turso || {}) } };
   } catch { return null; }
 }
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(state));
-  queuePush(); // có cấu hình S3 thì đẩy debounced
-}
-let pushT = null; // debounce push lên S3 (khai báo sớm để save() gọi được lúc seed)
-function queuePush() {
-  const c = state.s3 || {};
-  if (!c.bucket || !c.ak || !c.sk) return;
-  clearTimeout(pushT);
-  pushT = setTimeout(() => { if (!syncNow.busy) syncNow(false); }, 2500);
-}
-
-const SAMPLE_MD = `# Day 1 — Foundations
-
-**Mục tiêu hôm nay:** hiểu cơ chế cốt lõi của §1 và chạy được trọn một buổi **§2 Predict → Run → Explain**.
-
-## Bối cảnh
-- Buổi học: tối ngày thường, 2 giờ (19:30 → 21:30)
-- Nguyên tắc: ghi chú bằng tay, điện thoại để khỏi phòng, hard stop đúng giờ.
-
-## Inside a 2-hour weekday evening
-
-| TIME | MIN | PART |
-|------|-----|------|
-| 19:30 | 10 | Đọc lại ghi chú hôm qua — rẻ, giữ trí nhớ cao |
-| 19:40 | 60 | **§1 Knowledge** — cơ chế cốt lõi |
-| 20:40 | 35 | **§2 Predict → Run → Explain** |
-| 21:15 | 15 | **§3 AI-Verify + §4 Drill** |
-| 21:30 | — | **Hard stop. Dừng cả giữa câu.** |
-
-> **21:30 là điểm dừng, không phải mục tiêu.** Hoàn thành section kém quan trọng hơn việc giữ trạng thái làm việc ngày mai và giấc ngủ tối nay. Đánh dấu chỗ dừng và làm tiếp ở phiên sau.
-
-## Checklist
-- [ ] Đọc lại ghi chú hôm qua (10')
-- [ ] §1: viết lại cơ chế bằng lời của mình
-- [ ] §2: Predict → Run → Explain với 3 ví dụ
-- [ ] §3: kiểm chứng 1 điểm còn mơ hồ với AI
-- [ ] §4: drill 5 câu
-- [ ] Ghi lại chỗ dừng nếu dừng sớm
-`;
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
 let state = load();
-if (!state) {
-  state = defaultState();
-  state.tasks[1] = { type: 'md', content: SAMPLE_MD, addedAt: 0 }; // addedAt 0: task thật của S3 luôn thắng sample khi trộn
-  save();
-}
+if (!state) { state = defaultState(); save(); }
 
 const taskDays = () => Object.keys(state.tasks).map(Number).sort((a, b) => a - b);
 const nextDay = () => (taskDays().at(-1) || 0) + 1;
@@ -798,114 +736,129 @@ function stripState(sched) {
 const bar = (dn, tot) => tot ? `<div class="btnrow" style="margin-top:0;margin-bottom:12px;align-items:center;gap:12px">
   <span class="track"><span style="width:${Math.round((dn / tot) * 100)}%"></span></span>
   <span class="num" style="font-weight:500">${dn}/${tot}</span></div>` : '';
-function ckItems(day) {
-  if (!state.tasks[day] || state.tasks[day].type !== 'md') return [];
-  const checks = state.checks[day] || [];
-  return [...state.tasks[day].content.matchAll(/^- \[( |x|X)\]\s*(.+)$/gm)]
-    .map((m, k) => ({ done: m[1].toLowerCase() === 'x' || checks[k] === true, text: m[2].replace(/\*\*/g, '') }));
-}
 
-/* ---------------- đồng bộ S3 (Long Vân / S3-compatible, SigV4 bằng crypto.subtle) ---------------- */
-const S3_DEFAULTS = { endpoint: 'https://s3-hcm-r1.longvan.net', region: 'hcm5-r1', bucket: '', ak: '', sk: '', lastSync: '' };
-const s3cfg = () => ({ ...S3_DEFAULTS, ...(state.s3 || {}) });
-const te = new TextEncoder();
-const sha256hex = async (d) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', typeof d === 'string' ? te.encode(d) : d))].map((b) => b.toString(16).padStart(2, '0')).join('');
-const hmacK = async (k, m) => crypto.subtle.importKey('raw', typeof k === 'string' ? te.encode(k) : k, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']).then((key) => crypto.subtle.sign('HMAC', key, te.encode(m)));
-const hmacHex = async (k, m) => [...new Uint8Array(await hmacK(k, m))].map((b) => b.toString(16).padStart(2, '0')).join('');
-const uriEnc = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
-const canonPath = (p) => ('/' + (p || '').replace(/^\/+/, '')).split('/').map((s) => uriEnc(s)).join('/');
-
-async function s3Call(method, file, body) {
-  const cfg = s3cfg();
-  if (!cfg.endpoint || !cfg.bucket) throw new Error('Chưa điền bucket trong Cài đặt');
-  const host = cfg.endpoint.replace(/^https?:\/\//, '').replace(/\/+$/, '');
-  const path = canonPath(`/${cfg.bucket}/${file}`);
-  const query = method === 'GET' ? { v: String(Date.now()) } : {}; // bust cache edge (cache key theo URL, bỏ qua auth)
-  const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
-  const dateStamp = amzDate.slice(0, 8);
-  const payloadHash = await sha256hex(body || '');
-  const headers = { 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate };
-  if (body !== undefined) headers['content-type'] = 'application/json; charset=utf-8';
-  const sorted = Object.keys(headers).sort();
-  const qs = Object.keys(query).sort().map((k) => `${uriEnc(k)}=${query[k] ? uriEnc(query[k]) : ''}`).join('&');
-  const canonical = [method, path, qs,
-    sorted.map((h) => `${h}:${String(headers[h]).trim()}\n`).join(''),
-    sorted.join(';'), payloadHash].join('\n');
-  const scope = `${dateStamp}/${cfg.region}/s3/aws4_request`;
-  const toSign = ['AWS4-HMAC-SHA256', amzDate, scope, await sha256hex(canonical)].join('\n');
-  const kSig = await hmacK(await hmacK(await hmacK(await hmacK('AWS4' + cfg.sk, dateStamp), cfg.region), 's3'), 'aws4_request');
-  headers.authorization = `AWS4-HMAC-SHA256 Credential=${cfg.ak}/${scope}, SignedHeaders=${sorted.join(';')}, Signature=${await hmacHex(kSig, toSign)}`;
+/* ---------------- Turso — SQLite qua HTTP (v2/pipeline), không cần server riêng ---------------- */
+const tursoCfg = () => ({ url: '', token: '', lastSync: '', ...(state.turso || {}) });
+/* chấp nhận libsql://…, https://…/v2/pipeline, hoặc bản sao URL từ dashboard */
+const tursoBase = (u) => u.trim().replace(/^libsql:\/\//, 'https://').replace(/\/+$/, '').replace(/\/v2\/pipeline$/, '');
+async function tsql(sql, args = []) {
+  const cfg = tursoCfg();
+  if (!cfg.url || !cfg.token) throw new Error('Chưa điền URL + token Turso');
   let res;
   try {
-    res = await fetch(`https://${host}${path}` + (qs ? `?${qs}` : ''), { method, headers, body: body === undefined ? undefined : body });
+    res = await fetch(tursoBase(cfg.url) + '/v2/pipeline', {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + cfg.token, 'content-type': 'application/json' },
+      body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql, args } }, { type: 'close' }] }),
+    });
   } catch {
-    throw new Error('Không gọi được S3' + (location.protocol === 'file:' ? ' (mở trang qua https — file:// bị chặn CORS)' : ''));
+    throw new Error('Không gọi được Turso' + (location.protocol === 'file:' ? ' (mở trang qua https — file:// bị chặn)' : ''));
   }
-  if (method === 'GET' && res.status === 404) return null; // file chưa có lần nào → coi như rỗng
-  if (!res.ok) throw new Error(`${method} ${file} → HTTP ${res.status}`);
-  return method === 'GET' ? await res.json() : true;
+  if (!res.ok) throw new Error(`Turso HTTP ${res.status}` + (res.status === 401 ? ' — token sai?' : ''));
+  const j = await res.json();
+  const r = j?.results?.[0];
+  if (!r || r.type !== 'ok') throw new Error(r?.error?.message || 'Turso từ chối truy vấn');
+  return r.response?.result || null;
 }
+const qs = (v) => ({ type: 'text', value: String(v) });
+const qi = (v) => ({ type: 'integer', value: String(Math.round(v)) });
+function tsqlRows(result) {
+  if (!result || !result.rows) return [];
+  return result.rows.map((row) => Object.fromEntries((result.cols || []).map((c, i) => {
+    const v = row[i] || { type: 'null' };
+    return [c.name, v.type === 'integer' || v.type === 'float' ? Number(v.value) : v.type === 'null' ? null : v.value];
+  })));
+}
+async function tursoBootstrap() {
+  await tsql('CREATE TABLE IF NOT EXISTS tasks (day INTEGER PRIMARY KEY, content TEXT NOT NULL, updated_at INTEGER NOT NULL)');
+  await tsql('CREATE TABLE IF NOT EXISTS reports (day INTEGER PRIMARY KEY, content TEXT NOT NULL, updated_at INTEGER NOT NULL)');
+  await tsql('CREATE TABLE IF NOT EXISTS checks (day INTEGER NOT NULL, idx INTEGER NOT NULL, done INTEGER NOT NULL, PRIMARY KEY (day, idx))');
+  await tsql('CREATE TABLE IF NOT EXISTS focus (ts INTEGER PRIMARY KEY, day INTEGER NOT NULL, date TEXT NOT NULL, minutes INTEGER NOT NULL)');
+}
+const pushTask = (day) => tsql('INSERT INTO tasks (day, content, updated_at) VALUES (?, ?, ?) ON CONFLICT(day) DO UPDATE SET content = excluded.content, updated_at = excluded.updated_at',
+  [qi(day), qs(state.tasks[day].content), qi(state.tasks[day].addedAt || Date.now())]);
+const pushReport = (day) => tsql('INSERT INTO reports (day, content, updated_at) VALUES (?, ?, ?) ON CONFLICT(day) DO UPDATE SET content = excluded.content, updated_at = excluded.updated_at',
+  [qi(day), qs(state.reports[day].md), qi(state.reports[day].ts || Date.now())]);
+const pushCheck = (day, idx, done) => tsql('INSERT INTO checks (day, idx, done) VALUES (?, ?, ?) ON CONFLICT(day, idx) DO UPDATE SET done = excluded.done',
+  [qi(day), qi(idx), qi(done ? 1 : 0)]);
+const pushFocus = (e) => tsql('INSERT OR IGNORE INTO focus (ts, day, date, minutes) VALUES (?, ?, ?, ?)',
+  [qi(e.ts), qi(e.day), qs(e.date), qi(e.minutes)]);
 
-function mergeIn(remoteTasks, remoteReports) {
-  let changed = false;
-  for (const [d, t] of Object.entries(remoteTasks?.tasks || {})) {
-    const cur = state.tasks[d];
-    if (!cur || (t.addedAt || 0) > (cur.addedAt || 0)) {
-      if (cur && cur.content !== t.content) delete state.checks[d]; // task đổi → checklist cũ sai lệch
-      state.tasks[d] = t; changed = true;
-    }
-  }
-  for (const [d, r] of Object.entries(remoteReports?.reports || {})) {
-    if (!state.reports[d] || (r.ts || 0) > (state.reports[d].ts || 0)) { state.reports[d] = r; changed = true; }
-  }
-  for (const [d, arr] of Object.entries(remoteReports?.checks || {})) {
-    const cur = state.checks[d] || [];
-    state.checks[d] = arr.map((v, i) => v || cur[i]);
-    if (state.checks[d].some((v, i) => v !== cur[i])) changed = true;
-  }
-  for (const e of remoteReports?.focus || []) {
-    if (!state.focus.some((x) => (x.ts && x.ts === e.ts) || (!x.ts && x.date === e.date && x.day === e.day && x.minutes === e.minutes))) {
-      state.focus.push(e); changed = true;
-    }
-  }
-  return changed;
-}
-
-let lastPush = '';
-async function syncNow(manual) {
-  if (syncNow.busy) return;
-  const cfg = s3cfg();
-  if (!cfg.bucket || !cfg.ak || !cfg.sk) {
-    if (manual) toast('Điền bucket + access key trong Cài đặt trước');
-    return;
-  }
-  syncNow.busy = true;
-  setSyncStatus('Đang đồng bộ…');
-  try {
-    const [rt, rr] = await Promise.all([s3Call('GET', 'tasks.json'), s3Call('GET', 'reports.json')]);
-    if (mergeIn(rt, rr)) { save(); renderAll(); }
-    const now = new Date().toISOString();
-    const tJson = JSON.stringify({ tasks: state.tasks, updatedAt: now });
-    const rJson = JSON.stringify({ reports: state.reports, checks: state.checks, focus: state.focus, updatedAt: now });
-    const fresh = JSON.stringify(state.tasks) + JSON.stringify([state.reports, state.checks, state.focus]);
-    if (fresh !== lastPush) {
-      await s3Call('PUT', 'tasks.json', tJson);
-      await s3Call('PUT', 'reports.json', rJson);
-      lastPush = fresh;
-    }
-    state.s3 = { ...cfg, lastSync: now };
-    save();
-    setSyncStatus('Đồng bộ lúc ' + new Date(now).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
-    if (manual) toast('Đã đồng bộ với S3');
-  } catch (e) {
-    setSyncStatus('Lỗi đồng bộ: ' + e.message);
-    if (manual) toast('Đồng bộ lỗi: ' + e.message);
-  } finally { syncNow.busy = false; }
-}
 function setSyncStatus(msg) { const el = $('syncStatus'); if (el) el.textContent = msg; }
+/* ghi nền: UI cập nhật local trước, lỗi chỉ hiện ở dòng trạng thái */
+function bg(p) {
+  const cfg = tursoCfg();
+  if (!cfg.url || !cfg.token) return; // chế độ chỉ-trong-máy
+  p.then(() => setSyncStatus('Đã lưu Turso · ' + nowHM()))
+    .catch((e) => setSyncStatus('Lỗi Turso: ' + e.message));
+}
 
-/* ---------------- dashboard ---------------- */
-let logAll = false;
+async function tursoPull() {
+  const [t, r, c, f] = await Promise.all([
+    tsql('SELECT day, content, updated_at FROM tasks'),
+    tsql('SELECT day, content, updated_at FROM reports'),
+    tsql('SELECT day, idx, done FROM checks'),
+    tsql('SELECT ts, day, date, minutes FROM focus'),
+  ]);
+  const tasks = {};
+  for (const x of tsqlRows(t)) tasks[x.day] = { type: 'md', content: x.content, addedAt: x.updated_at };
+  const reports = {};
+  for (const x of tsqlRows(r)) {
+    const d = new Date(x.updated_at);
+    reports[x.day] = { md: x.content, ts: x.updated_at, date: iso(d), at: d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) };
+  }
+  const checks = {};
+  for (const x of tsqlRows(c)) (checks[x.day] ||= [])[x.idx] = !!x.done;
+  const focus = tsqlRows(f).map((x) => ({ ts: x.ts, day: x.day, date: x.date, minutes: x.minutes })).sort((a, b) => a.ts - b.ts);
+  Object.assign(state, { tasks, reports, checks, focus });
+  save();
+}
+/* đẩy dữ liệu local mới hơn lên (lần đầu kết nối / sau nhập backup) */
+async function pushLocalNewer() {
+  const first = !tursoCfg().pushed;
+  const [rt, rr] = await Promise.all([
+    tsql('SELECT day, updated_at FROM tasks'),
+    tsql('SELECT day, updated_at FROM reports'),
+  ]);
+  const tM = new Map(tsqlRows(rt).map((x) => [x.day, x.updated_at]));
+  const rM = new Map(tsqlRows(rr).map((x) => [x.day, x.updated_at]));
+  for (const [d, t] of Object.entries(state.tasks)) if (!tM.has(+d) || (t.addedAt || 0) > tM.get(+d)) await pushTask(+d);
+  for (const [d, r] of Object.entries(state.reports)) if (!rM.has(+d) || (r.ts || 0) > rM.get(+d)) await pushReport(+d);
+  if (!first) return; // checklist + phút chỉ đẩy một lần; về sau ghi ngay tại chỗ tick/hết giờ
+  for (const [d, arr] of Object.entries(state.checks)) for (let i = 0; i < arr.length; i++) if (arr[i]) await pushCheck(+d, i, 1);
+  for (const e of state.focus) await pushFocus(e);
+}
+
+async function tursoConnect(manual) {
+  if (tursoConnect.busy) return;
+  const cfg = tursoCfg();
+  if (!cfg.url || !cfg.token) { if (manual) toast('Điền URL + token Turso trước'); return; }
+  tursoConnect.busy = true;
+  setSyncStatus('Đang kết nối Turso…');
+  try {
+    await tursoBootstrap();
+    await pushLocalNewer();
+    await tursoPull();
+    state.turso = { ...cfg, lastSync: new Date().toISOString(), pushed: true }; save();
+    repLoadedDay = null;
+    renderAll();
+    setSyncStatus('Turso · đồng bộ ' + nowHM());
+    if (manual) toast('Đã kết nối Turso');
+  } catch (e) {
+    setSyncStatus('Lỗi Turso: ' + e.message);
+    if (manual) toast('Lỗi: ' + e.message);
+  } finally { tursoConnect.busy = false; }
+}
+
+/* ---------------- hôm nay ---------------- */
+let pickDay = null; // day đang mở; null = tự chọn day mới nhất chưa nộp
+function curDay() {
+  const days = taskDays();
+  if (!days.length) return null;
+  if (pickDay != null && state.tasks[pickDay]) return pickDay;
+  pickDay = days.filter((d) => !state.reports[d]).at(-1) ?? days.at(-1);
+  return pickDay;
+}
 function calcStreak() {
   const dates = new Set(Object.values(state.reports).map((r) => r.date).filter(Boolean));
   const d = new Date();
@@ -914,125 +867,73 @@ function calcStreak() {
   while (dates.has(iso(d))) { n++; d.setDate(d.getDate() - 1); }
   return n;
 }
-function renderDash() {
+function renderToday() {
   const days = taskDays();
+  const day = curDay();
   const streak = calcStreak();
   const weekAgo = iso(new Date(Date.now() - 6 * 864e5));
   const mins = state.focus.filter((e) => e.date >= weekAgo).reduce((s, e) => s + e.minutes, 0);
   const done = days.filter((d) => state.reports[d]).length;
-  const cur = days.at(-1) ?? null;
 
-  $('greetTitle').textContent = cur ? `Tối nay, Day ${cur}.` : 'Chưa có task.';
-  if (cur) {
-    const [dn, tot] = ckPair(cur);
-    $('greetSub').textContent = `${taskTitle(cur)} · checklist ${tot ? `${dn}/${tot}` : '—'} · ${done}/${days.length} day đã nộp báo cáo.`;
+  $('greetTitle').textContent = day ? `Tối nay, Day ${day}.` : 'Chưa có task.';
+  if (day) {
+    const [dn, tot] = ckPair(day);
+    $('greetSub').textContent = `${taskTitle(day)} · checklist ${tot ? `${dn}/${tot}` : '—'} · ${done}/${days.length} day đã nộp báo cáo.`;
   } else {
-    $('greetSub').textContent = 'Nhận file taskdayN.md từ bạn bạn, hoặc tự tạo ở tab "Tạo task".';
+    $('greetSub').textContent = 'Bạn bạn giao task (hoặc bạn nhận file taskdayN.md) — task sẽ hiện ở đây.';
   }
 
   $('kStreak').innerHTML = `${streak} <small>ngày</small>`;
   $('kMin').innerHTML = `${mins} <small>phút · 7 ngày</small>`;
   $('kDone').innerHTML = `${done}<small>/${days.length}</small>`;
 
-  // panel task tối nay — có checklist 4 mục đầu để cân chiều cao với panel bên cạnh
-  const ov = $('ovTask');
-  if (!cur) {
-    $('ovTaskKicker').textContent = 'Tối nay';
-    $('ovTaskMeta').textContent = '';
-    ov.innerHTML = '<div class="empty">Chưa có task nào. Import file taskdayN.md hoặc .html, hoặc bảo bạn bạn đăng ở tab "Tạo task".</div>';
-  } else {
-    $('ovTaskKicker').textContent = 'Tối nay';
-    $('ovTaskMeta').textContent = `Day ${cur}`;
-    const [dn, tot] = ckPair(cur);
-    const items = ckItems(cur);
-    ov.innerHTML = `
-      <p style="font-size:16px;font-weight:500;line-height:1.4">${esc(taskTitle(cur))}</p>
-      ${bar(dn, tot)}
-      ${items.length ? `<ul class="ov-list">${items.slice(0, 4).map((it) =>
-        `<li class="${it.done ? 'ok' : ''}">${esc(it.text)}</li>`).join('')}</ul>` : ''}
-      <div class="btnrow">
-        <button class="btn primary" data-open="${cur}">Mở task</button>
-        <button class="btn" data-open-report="${cur}">Viết báo cáo</button>
-      </div>`;
+  const body = $('todayBody');
+  if (!day) {
+    $('todayMeta').textContent = '';
+    $('todayHint').textContent = '';
+    body.innerHTML = '<div class="empty">Chưa có task. Bấm "Nhận file" (taskdayN.md hoặc .html) — hoặc bảo bạn bạn bấm "Giao task".</div>';
+    $('timerPanel').hidden = true;
+    return;
   }
-
-  // panel buổi tối
-  const sched = (cur && state.tasks[cur]?.type === 'md' && parseSchedule(state.tasks[cur].content)) || DEFAULT_SCHED;
-  $('ovTimeMeta').textContent = `${sched[0].time} → ${sched.at(-1).time}`;
-  $('ovTime').innerHTML = stripHTML(sched) + `<div class="t-rows" style="margin:10px 0 0">${
-    sched.filter((r) => r.min > 0).map((r) =>
-      `<div class="t-row"><span class="tt num">${esc(r.time)}</span><span class="tm num">${r.min}</span><span class="tp">${esc(r.label)}</span></div>`).join('')
-  }</div>`;
-  $('ovTimeState').textContent = stripState(sched);
-
-  // nhật ký day (cap 8 dòng, có nút xem tất cả)
-  const log = $('ovLog');
-  if (!days.length) {
-    log.innerHTML = '<div class="empty">Chưa có day nào. Day đầu tiên sẽ xuất hiện ở đây sau khi import hoặc tạo task.</div>';
-  } else {
-    const shown = logAll ? days : days.slice(0, 8);
-    log.innerHTML = shown.map((d) => {
-      const [dn, tot] = ckPair(d);
-      const rep = state.reports[d];
-      const pmin = focusMinutesForDay(d);
-      return `<div class="row">
-        <span class="d num">Day ${d}</span>
-        <span class="name">${esc(taskTitle(d))}</span>
-        <span class="fig num">${tot ? `${dn}<small>/${tot}</small>` : '—'}</span>
-        <span class="fig num">${pmin} <small>phút</small></span>
-        <span class="pill ${rep ? 'pos' : ''}">${rep ? 'Đã nộp' : 'Chưa nộp'}</span>
-        <button class="text-action" data-open="${d}">Mở</button>
-      </div>`;
-    }).join('');
-    if (days.length > 8 && !logAll) log.insertAdjacentHTML('beforeend', `<button class="text-action more" id="logMore">Tất cả ${days.length} day</button>`);
-    const more = $('logMore'); if (more) more.onclick = () => { logAll = true; renderDash(); };
-  }
+  $('timerPanel').hidden = false;
+  const [dn, tot] = ckPair(day);
+  $('todayMeta').textContent = `Day ${day}`;
+  $('todayHint').textContent = tot ? `Checklist ${dn}/${tot} · timer đọc bảng giờ trong task.` : 'Task này không có checklist tự động.';
+  body.innerHTML = (tot ? bar(dn, tot) : '') + mdToHtml(state.tasks[day].content);
+  const cks = state.checks[day] || [];
+  body.querySelectorAll('input[data-ck]').forEach((inp) => {
+    const k = +inp.dataset.ck;
+    if (cks[k]) { inp.checked = true; inp.closest('.ck')?.classList.add('done'); }
+  });
+  timerSetup(day, true);
 }
 
-/* ---------------- task view ---------------- */
-function renderTask() {
-  const days = taskDays();
-  $('taskDay').innerHTML = days.map((d) => `<option value="${d}">Day ${d}</option>`).join('') || '<option value="">—</option>';
-  if (!state.tasks[state.cur.task]) state.cur.task = days.at(-1) ?? null;
-  if (state.cur.task != null) $('taskDay').value = state.cur.task;
-
-  const t = state.cur.task != null ? state.tasks[state.cur.task] : null;
-  $('taskEmpty').hidden = !!t;
-  $('taskWrap').hidden = !t;
-  if (!t) return;
-  const day = state.cur.task;
-  $('timerMeta').textContent = `Day ${day}`;
-  timerSetup(day, false); // no-op nếu cùng day; xác nhận đã do caller xử lý
-
-  const body = $('taskBody');
-  if (t.type === 'html') {
-    body.innerHTML = '<p class="meta" style="margin-bottom:12px">Task dạng .html — xem nguyên bản bên dưới (không có checklist tự động).</p>';
-    const f = document.createElement('iframe');
-    f.style.cssText = 'width:100%;height:70vh;border:1px solid var(--border);border-radius:12px;background:#fff';
-    f.sandbox = ''; f.srcdoc = t.content;
-    body.appendChild(f);
-  } else {
-    body.innerHTML = mdToHtml(t.content);
-    const cks = state.checks[day] || [];
-    body.querySelectorAll('input[data-ck]').forEach((inp) => {
-      const k = +inp.dataset.ck;
-      if (cks[k]) { inp.checked = true; inp.closest('.ck')?.classList.add('done'); }
-    });
+/* ---------------- báo cáo — danh sách, cả hai bên đọc ---------------- */
+function renderReports() {
+  const days = taskDays().slice().sort((a, b) => b - a);
+  const doneN = days.filter((d) => state.reports[d]).length;
+  $('repListMeta').textContent = days.length ? `${doneN}/${days.length} day đã nộp` : '';
+  const list = $('repList');
+  if (!days.length) {
+    list.innerHTML = '<div class="empty">Chưa có task — chưa có gì để báo cáo.</div>';
+    return;
   }
-
-  // panel tiến độ ở rail: thanh + các mục còn lại + nút sang báo cáo
-  const [dn, tot] = ckPair(day);
-  const undone = ckItems(day).filter((it) => !it.done);
-  $('railMeta').textContent = tot ? `${dn}/${tot}` : '';
-  $('railProg').innerHTML = bar(dn, tot)
-    + (tot
-      ? (undone.length
-        ? `<ul class="ov-list">${undone.slice(0, 6).map((it) => `<li>${esc(it.text)}</li>`).join('')}</ul>`
-          + (undone.length > 6 ? `<p class="meta" style="margin-top:8px">Còn ${undone.length - 6} mục nữa trong checklist.</p>` : '')
-        : '<p class="meta">Checklist đã xong hết cho day này.</p>')
-      : '<p class="meta">Task này không có checklist tự động.</p>')
-    + `<div class="btnrow"><button class="btn" data-open-report="${day}">Viết báo cáo</button></div>`
-    + `<p class="meta" style="margin-top:10px">Dừng cứng ${esc(timer.sched.at(-1).time)} — dừng cả giữa câu.</p>`;
+  let opened = false;
+  list.innerHTML = days.map((d) => {
+    const r = state.reports[d];
+    const pmin = focusMinutesForDay(d);
+    const [dn, tot] = ckPair(d);
+    const head = `<span class="d num">Day ${d}</span>
+      <span class="name">${esc(taskTitle(d))}</span>
+      <span class="fig num">${tot ? `${dn}<small>/${tot}</small>` : '—'}</span>
+      <span class="fig num">${pmin} <small>phút</small></span>
+      <span class="pill ${r ? 'pos' : ''}">${r ? 'Đã nộp' : 'Chưa nộp'}</span>`;
+    if (!r) return `<div class="rep-item"><div class="rep-head">${head}</div>
+      <div class="btnrow" style="margin:0 0 16px"><button class="btn" data-open-report="${d}">Viết báo cáo</button></div></div>`;
+    const isOpen = !opened;
+    opened = true; // mở sẵn báo cáo mới nhất cho người đọc
+    return `<details class="rep-item"${isOpen ? ' open' : ''}><summary>${head}</summary><div class="md">${mdToHtml(r.md)}</div></details>`;
+  }).join('');
 }
 
 /* ---------------- timer ---------------- */
@@ -1055,6 +956,8 @@ const fmtClock = (s) => {
 };
 function renderTimer() {
   const s = timer.sched;
+  $('timerMeta').textContent = timer.day != null ? `Day ${timer.day}` : '';
+  $('timerStrip').innerHTML = stripHTML(s) + `<p class="meta" style="margin-top:10px">${stripState(s)}</p>`;
   $('timerRows').innerHTML = s.map((r, idx) => {
     let cls = '';
     if (idx < timer.i) cls += ' done';
@@ -1105,7 +1008,8 @@ function finishSession() {
   clearInterval(timer.int); timer.running = false;
   if (!timer.logged && timer.doneMin > 0) {
     state.focus.push({ date: today(), day: timer.day, minutes: timer.doneMin, ts: Date.now() });
-    timer.logged = true; save(); renderDash();
+    timer.logged = true; save(); bg(pushFocus(state.focus.at(-1)));
+    renderToday();
     toast(`Đã ghi ${timer.doneMin} phút cho Day ${timer.day}`);
   }
   renderTimer();
@@ -1141,34 +1045,32 @@ function reportTemplate(day) {
 - (link ghi chú / code / ảnh)
 `;
 }
-function pickReportDay() {
-  const days = taskDays();
-  if (!state.tasks[state.cur.report]) {
-    state.cur.report = days.filter((d) => !state.reports[d]).at(-1) ?? days.at(-1) ?? null;
-    repLoadedDay = null;
-  }
-  return state.cur.report;
-}
 function renderReport() {
-  const days = taskDays();
-  $('repDay').innerHTML = days.map((d) => `<option value="${d}">Day ${d}</option>`).join('') || '<option value="">—</option>';
-  const day = pickReportDay();
-  if (day != null) $('repDay').value = day;
-  if (day == null) { $('repPrev').innerHTML = '<p class="meta">Chưa có day nào có task.</p>'; return; }
+  const day = curDay();
+  const ta = $('repText');
+  $('repPanel').hidden = day == null;
+  if (day == null) {
+    $('repTitle').textContent = 'Báo cáo hôm nay';
+    $('repSavedInfo').textContent = '';
+    ta.value = ''; ta.disabled = true;
+    $('repPrev').innerHTML = '<p class="meta">Chưa có task nào.</p>';
+    return;
+  }
+  ta.disabled = false;
+  $('repTitle').textContent = `Báo cáo Day ${day}`;
   if (repLoadedDay !== day) {
     repLoadedDay = day;
-    const r = state.reports[day];
-    $('repText').value = r ? r.md : reportTemplate(day);
-    const info = $('repSavedInfo');
-    info.textContent = r ? `Đã lưu ${r.date} ${r.at || ''}. Tải lại file để gửi bạn bạn.` : '';
+    ta.value = state.reports[day] ? state.reports[day].md : reportTemplate(day);
   }
-  $('repPrev').innerHTML = mdToHtml($('repText').value);
+  const r = state.reports[day];
+  $('repSavedInfo').textContent = r ? `Đã nộp ${r.date} ${r.at || ''}` : 'Chưa nộp';
+  $('repPrev').innerHTML = mdToHtml(ta.value);
 }
 function saveDraft() {
-  const day = state.cur.report; if (day == null) return;
-  state.reports[day] = { md: $('repText').value, date: today(), at: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }), ts: Date.now() };
-  save(); renderDash();
-  $('repSavedInfo').textContent = `Đã lưu ${state.reports[day].date} ${state.reports[day].at}`;
+  const day = curDay(); if (day == null) return;
+  state.reports[day] = { md: $('repText').value, date: today(), at: nowHM(), ts: Date.now() };
+  save(); bg(pushReport(day));
+  $('repSavedInfo').textContent = `Đã nộp ${state.reports[day].date} ${state.reports[day].at}`;
 }
 function reportHtmlExport(day, md) {
   return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo Day ${day}</title>
@@ -1211,7 +1113,7 @@ function createTemplate(n) {
 
 /* ---------------- import / backup ---------------- */
 async function handleFiles(files) {
-  let first = null;
+  const touched = []; let first = null;
   for (const f of files) {
     const text = await f.text();
     const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
@@ -1221,40 +1123,56 @@ async function handleFiles(files) {
     if (state.tasks[day] && state.tasks[day].content !== md && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
     if (state.tasks[day]?.content !== md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
     state.tasks[day] = { type: 'md', content: md, addedAt: Date.now() };
-    if (!first) first = day;
+    touched.push(day);
+    if (first == null) first = day;
   }
+  if (!touched.length) return;
   resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
+  pickDay = null; repLoadedDay = null;
   save(); renderAll();
-  if (first != null) { toast(`Đã nhận task Day ${first}`); openTask(first); }
-}
-function openTask(day) {
-  if (!timerSetup(day, true)) return;
-  state.cur.task = day; save(); switchTab('task');
+  for (const d of touched) bg(pushTask(d));
+  toast(`Đã nhận task Day ${first}`);
 }
 function openReport(day) {
-  state.cur.report = day; repLoadedDay = null; save(); switchTab('report');
+  pickDay = day; repLoadedDay = null; save(); switchTab('dash');
 }
 
 /* ---------------- wiring ---------------- */
 function renderAll() {
-  renderDash(); renderTask(); renderReport();
+  renderToday(); renderReport(); renderReports();
   const n = taskDays().filter((d) => state.reports[d]).length;
   $('allRepCount').textContent = n ? `${n} day đã có báo cáo trong app.` : 'Chưa day nào có báo cáo.';
 }
 function init() {
-  // điều hướng: mọi [data-tab] (sidebar, footnote), [data-open] → task, [data-open-report] → báo cáo
+  // điều hướng: mọi [data-tab] (sidebar, footnote), [data-open-report] → mở day đó ở Hôm nay
   document.addEventListener('click', (e) => {
     const tab = e.target.closest('[data-tab]');
     if (tab) { e.preventDefault(); switchTab(tab.dataset.tab); return; }
-    const op = e.target.closest('[data-open]');
-    if (op) { openTask(+op.dataset.open); return; }
     const orp = e.target.closest('[data-open-report]');
     if (orp) { openReport(+orp.dataset.openReport); return; }
   });
   $('menuBtn').onclick = () => $('sidebar').classList.add('open');
   $('menuClose').onclick = () => $('sidebar').classList.remove('open');
 
-  // dashboard — nhận file task (nút + kéo thả toàn trang)
+  // giao task (modal)
+  const modal = $('assignModal');
+  const closeAssign = () => { modal.hidden = true; };
+  $('btnAssign').onclick = () => {
+    const n = nextDay();
+    $('crDay').value = n;
+    $('crText').value = createTemplate(n); crAuto = true;
+    renderCrPrev();
+    modal.hidden = false;
+    $('sidebar').classList.remove('open');
+    $('crText').focus();
+    $('crText').setSelectionRange(0, 0);
+    $('crText').scrollTop = 0;
+  };
+  $('assignClose').onclick = closeAssign;
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeAssign(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAssign(); });
+
+  // nhận file task (nút + kéo thả toàn trang)
   $('importBtn').onclick = () => $('importFile').click();
   $('importFile').onchange = (e) => { handleFiles([...e.target.files]); e.target.value = ''; };
   document.addEventListener('dragover', (e) => { if ([...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
@@ -1262,57 +1180,64 @@ function init() {
     if (![...e.dataTransfer.types].includes('Files')) return;
     e.preventDefault(); handleFiles([...e.dataTransfer.files]);
   });
-  $('backupOut').onclick = () => download('ghostproject-backup.json', JSON.stringify(state, null, 2), 'application/json');
+
+  // backup — không đưa token Turso vào file
+  $('backupOut').onclick = () => {
+    const { turso, ...data } = state;
+    download('ghostproject-backup.json', JSON.stringify(data, null, 2), 'application/json');
+  };
   $('backupIn').onclick = () => $('backupFile').click();
   $('backupFile').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     try {
       const data = JSON.parse(await f.text());
       if (!data || typeof data.tasks !== 'object') throw new Error('bad');
-      if (!confirm('Nhập backup sẽ thay thế toàn bộ dữ liệu hiện tại. Tiếp tục?')) return;
-      state = { ...defaultState(), ...data }; repLoadedDay = null; resetTimerRun(); timer.day = null;
+      if (!confirm('Nhập backup sẽ thay thế dữ liệu máy này. Tiếp tục?')) return;
+      state = { ...defaultState(), ...data, turso: { ...state.turso, pushed: false } };
+      pickDay = null; repLoadedDay = null; resetTimerRun(); timer.day = null;
       save(); renderAll(); toast('Đã nhập backup');
     } catch { alert('File backup không hợp lệ.'); }
     e.target.value = '';
   };
   $('resetAll').onclick = () => {
-    if (!confirm('Xoá TOÀN BỘ task, báo cáo, tiến độ của GhostProject? Không hoàn tác được.')) return;
-    state = defaultState(); repLoadedDay = null; resetTimerRun(); timer.day = null;
-    save(); renderAll(); toast('Đã xoá hết');
+    if (!confirm('Xoá TOÀN BỘ task, báo cáo, tiến độ — cả trên Turso nếu đã kết nối? Không hoàn tác được.')) return;
+    state = { ...defaultState(), turso: state.turso };
+    pickDay = null; repLoadedDay = null; resetTimerRun(); timer.day = null;
+    save(); renderAll();
+    if (tursoCfg().url && tursoCfg().token) {
+      bg((async () => { for (const t of ['tasks', 'reports', 'checks', 'focus']) await tsql('DELETE FROM ' + t); })());
+    }
+    toast('Đã xoá hết');
   };
-  $('dlAllReports').onclick = () => {
+  $('dlAllMd').onclick = () => {
     const days = taskDays().filter((d) => state.reports[d]);
     if (!days.length) { toast('Chưa có báo cáo nào'); return; }
-    const md = days.map((d) => state.reports[d].md).join('\n\n---\n\n');
-    download(`baocao-day${days[0]}-den-day${days.at(-1)}.md`, md);
+    download(`baocao-day${days[0]}-den-day${days.at(-1)}.md`, days.map((d) => state.reports[d].md).join('\n\n---\n\n'));
     toast(`Đã tải ${days.length} báo cáo gộp một file`);
   };
 
-  // đồng bộ S3
-  const s3Map = { s3Endpoint: 'endpoint', s3Region: 'region', s3Bucket: 'bucket', s3Ak: 'ak', s3Sk: 'sk' };
-  for (const [id, k] of Object.entries(s3Map)) {
+  // Turso
+  const tMap = { tursoUrl: 'url', tursoToken: 'token' };
+  for (const [id, k] of Object.entries(tMap)) {
     const inp = $(id);
-    inp.value = s3cfg()[k] || '';
+    inp.value = tursoCfg()[k] || '';
     inp.addEventListener('input', () => {
-      state.s3 = { ...s3cfg(), [k]: inp.value.trim() };
-      save(); setSyncStatus('Đã lưu thông tin — bấm "Đồng bộ ngay" để chạy');
+      state.turso = { ...tursoCfg(), [k]: inp.value.trim() };
+      save(); setSyncStatus('Đã lưu — bấm "Kết nối & đồng bộ"');
     });
   }
-  $('btnSyncNow').onclick = () => syncNow(true);
-  setSyncStatus(s3cfg().lastSync ? 'Lần đồng bộ cuối: ' + new Date(s3cfg().lastSync).toLocaleString('vi-VN') : 'Chưa đồng bộ lần nào');
+  $('btnConnect').onclick = () => tursoConnect(true);
+  setSyncStatus(tursoCfg().lastSync ? 'Đồng bộ lần cuối: ' + new Date(tursoCfg().lastSync).toLocaleString('vi-VN') : 'Chưa kết nối Turso');
 
-  // task
-  $('taskDay').onchange = (e) => {
-    const d = +e.target.value;
-    if (!timerSetup(d, true)) { e.target.value = state.cur.task; return; }
-    state.cur.task = d; save(); renderAll();
-  };
-  $('taskBody').addEventListener('change', (e) => {
+  // checklist của task tối nay
+  $('todayBody').addEventListener('change', (e) => {
     const k = e.target.dataset.ck; if (k === undefined) return;
-    const arr = state.checks[state.cur.task] || (state.checks[state.cur.task] = []);
+    const day = curDay(); if (day == null) return;
+    const arr = state.checks[day] || (state.checks[day] = []);
     arr[+k] = e.target.checked;
     e.target.closest('.ck')?.classList.toggle('done', e.target.checked);
-    save(); renderDash();
+    save(); bg(pushCheck(day, +k, e.target.checked));
+    renderToday();
   });
 
   // timer
@@ -1340,34 +1265,47 @@ function init() {
     }
     if (mins > 0) {
       state.focus.push({ date: today(), day: timer.day, minutes: mins, ts: Date.now() });
-      timer.logged = true; save(); renderDash();
+      timer.logged = true; save(); bg(pushFocus(state.focus.at(-1))); renderToday();
       toast(`Đã ghi ${mins} phút cho Day ${timer.day}`);
     } else toast('Chưa đủ 1 phút để ghi');
     renderTimer();
   };
 
-  // report
-  $('repDay').onchange = (e) => { state.cur.report = +e.target.value; repLoadedDay = null; save(); renderReport(); };
+  // báo cáo: tự lưu khi ngừng gõ (900ms) → tự đẩy Turso
   let deb, draftT;
   $('repText').addEventListener('input', () => {
     clearTimeout(deb); deb = setTimeout(() => { $('repPrev').innerHTML = mdToHtml($('repText').value); }, 250);
-    clearTimeout(draftT); draftT = setTimeout(saveDraft, 900); // tự lưu nháp + tự đẩy S3 khi ngừng gõ
+    clearTimeout(draftT); draftT = setTimeout(saveDraft, 900);
   });
-  $('btnRefill').onclick = () => { $('repText').value = reportTemplate(state.cur.report); $('repPrev').innerHTML = mdToHtml($('repText').value); toast('Đã điền lại từ checklist + timer'); };
-  $('btnSaveDraft').onclick = () => { saveDraft(); toast('Đã lưu nháp'); };
+  $('btnRefill').onclick = () => {
+    const day = curDay(); if (day == null) return;
+    $('repText').value = reportTemplate(day);
+    renderReport();
+    toast('Đã điền lại từ checklist + timer');
+  };
+  $('btnSaveDraft').onclick = () => {
+    const day = curDay(); if (day == null) return;
+    const had = !!state.reports[day];
+    saveDraft();
+    pickDay = null; repLoadedDay = null; // nộp xong → tự sang day kế tiếp chưa nộp
+    renderAll();
+    toast(had ? `Đã cập nhật báo cáo Day ${day}` : `Đã nộp báo cáo Day ${day}`);
+  };
   $('btnCopy').onclick = () => copyText($('repText').value);
   $('btnDlMd').onclick = () => {
-    if (state.cur.report == null) return;
-    saveDraft(); download(`baocaoday${state.cur.report}.md`, $('repText').value);
-    toast(`Đã tải baocaoday${state.cur.report}.md`);
+    const day = curDay(); if (day == null) return;
+    saveDraft();
+    download(`baocaoday${day}.md`, $('repText').value);
+    toast(`Đã tải baocaoday${day}.md`);
   };
   $('btnDlHtml').onclick = () => {
-    if (state.cur.report == null) return;
-    saveDraft(); download(`baocaoday${state.cur.report}.html`, reportHtmlExport(state.cur.report, $('repText').value), 'text/html');
-    toast(`Đã tải baocaoday${state.cur.report}.html`);
+    const day = curDay(); if (day == null) return;
+    saveDraft();
+    download(`baocaoday${day}.html`, reportHtmlExport(day, $('repText').value), 'text/html');
+    toast(`Đã tải baocaoday${day}.html`);
   };
 
-  // create
+  // giao task — nội dung
   $('crText').value = createTemplate(1); crAuto = true;
   $('crDay').addEventListener('input', () => {
     const n = Math.max(1, +$('crDay').value || 1);
@@ -1378,30 +1316,37 @@ function init() {
   $('btnCrDl').onclick = () => {
     const n = Math.max(1, +$('crDay').value || 1);
     download(`taskday${n}.md`, $('crText').value);
-    toast(`Đã tải taskday${n}.md — gửi cho người học`);
+    toast(`Đã tải taskday${n}.md`);
   };
   $('btnCrSave').onclick = () => {
     const n = Math.max(1, +$('crDay').value || 1);
+    if (state.tasks[n] && !confirm(`Day ${n} đã có task. Ghi đè?`)) return;
     state.tasks[n] = { type: 'md', content: $('crText').value, addedAt: Date.now() };
-    delete state.checks[n]; save(); renderAll(); toast(`Đã lưu Day ${n} vào app`);
+    delete state.checks[n];
+    save(); bg(pushTask(n));
+    modal.hidden = true;
+    pickDay = n; repLoadedDay = null;
+    renderAll();
+    toast(`Đã giao Day ${n}`);
   };
   function renderCrPrev() { $('crPrev').innerHTML = mdToHtml($('crText').value); }
   renderCrPrev();
 
-  // cập nhật vị trí "bây giờ" trên dải buổi tối mỗi 30 giây
+  // cập nhật dải buổi tối mỗi 30 giây khi đang mở Hôm nay
   setInterval(() => {
-    if ($('tab-dash')?.classList.contains('active')) renderDash();
+    if ($('tab-dash')?.classList.contains('active')) { renderToday(); renderTimer(); }
   }, 30000);
 
-  const startHash = location.hash.startsWith('#tab-') && ['dash', 'task', 'report', 'create', 'settings'].includes(location.hash.slice(5)) ? location.hash.slice(5) : 'dash';
-  switchTab(startHash);
-  window.addEventListener('hashchange', () => { // deep-link: /#tab-task mở thẳng màn Task
-    const t = location.hash.startsWith('#tab-') ? location.hash.slice(5) : 'dash';
-    if (['dash', 'task', 'report', 'create', 'settings'].includes(t)) switchTab(t);
+  const TABS = ['dash', 'report', 'settings'];
+  const hashTab = () => (location.hash.startsWith('#tab-') && TABS.includes(location.hash.slice(5)) ? location.hash.slice(5) : 'dash');
+  switchTab(hashTab());
+  window.addEventListener('hashchange', () => { // deep-link: /#tab-report mở thẳng màn Báo cáo
+    const t = hashTab();
+    switchTab(t);
   });
 
-  // có cấu hình S3 thì kéo dữ liệu từ bucket về khi mở trang
-  if (s3cfg().bucket && s3cfg().ak && s3cfg().sk) syncNow(false);
+  // có cấu hình Turso thì kéo dữ liệu về khi mở trang
+  if (tursoCfg().url && tursoCfg().token) tursoConnect(false);
 }
 init();
 

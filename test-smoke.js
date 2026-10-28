@@ -37,7 +37,7 @@ sandbox.window = sandbox;
 vm.createContext(sandbox);
 vm.runInContext(
   fs.readFileSync('app.js', 'utf8')
-  + '\n;globalThis.__A = { state, timer, mdToHtml, parseSchedule, calcStreak, iso, today, tick, finishSession, timerSetup, reportTemplate, mergeIn, s3cfg, queuePush };',
+  + '\n;globalThis.__A = { state, timer, save, renderAll, mdToHtml, parseSchedule, calcStreak, iso, today, tick, finishSession, timerSetup, reportTemplate, tursoBase, tsqlRows, tsql, curDay, setPick: (v) => { pickDay = v; } };',
   sandbox
 );
 
@@ -49,7 +49,32 @@ function assert(name, cond) {
   else { fails++; console.log('  FAIL ' + name); }
 }
 
-const SAMPLE = ctx.state.tasks[1].content;
+/* task mẫu: bảng lịch + checklist + blockquote */
+const SAMPLE = `# Day 1 — Foundations
+
+**Mục tiêu hôm nay:** hiểu cơ chế cốt lõi của §1.
+
+## Inside a 2-hour weekday evening
+
+| TIME | MIN | PART |
+|------|-----|------|
+| 19:30 | 10 | Đọc lại ghi chú hôm qua |
+| 19:40 | 60 | **§1 Knowledge** — cơ chế cốt lõi |
+| 20:40 | 35 | **§2 Predict → Run → Explain** |
+| 21:15 | 15 | **§3 AI-Verify + §4 Drill** |
+| 21:30 | — | **Hard stop. Dừng cả giữa câu.** |
+
+> **21:30 là điểm dừng, không phải mục tiêu.**
+
+## Checklist
+- [ ] Đọc lại ghi chú hôm qua (10')
+- [ ] §1: viết lại cơ chế bằng lời của mình
+- [ ] §2: Predict → Run → Explain với 3 ví dụ
+- [ ] §3: kiểm chứng 1 điểm còn mơ hồ với AI
+- [ ] §4: drill 5 câu
+- [ ] Ghi lại chỗ dừng nếu dừng sớm
+`;
+ctx.state.tasks[1] = { type: 'md', content: SAMPLE, addedAt: 1 };
 
 /* ---- markdown renderer ---- */
 console.log('mdToHtml:');
@@ -83,8 +108,23 @@ assert('2 ngày liên tục', ctx.calcStreak() === 2);
 delete ctx.state.reports[1];
 assert('hôm nay trống, hôm qua có → 1', ctx.calcStreak() === 1);
 
+/* ---- chọn day ---- */
+console.log('curDay:');
+ctx.state.reports = {};
+ctx.setPick(null);
+assert('chưa nộp → day mới nhất', ctx.curDay() === 1);
+ctx.state.reports[1] = { md: 'x', date: ctx.today(), ts: 1 };
+ctx.state.tasks[2] = { type: 'md', content: SAMPLE, addedAt: 2 };
+ctx.setPick(null);
+assert('đã nộp day 1 → nhảy day 2', ctx.curDay() === 2);
+ctx.state.reports[2] = { md: 'x', date: ctx.today(), ts: 2 };
+ctx.setPick(null);
+assert('nộp hết → day mới nhất', ctx.curDay() === 2);
+
 /* ---- timer ---- */
 console.log('timer:');
+ctx.state.reports = {};
+ctx.setPick(1);
 assert('timerSetup day 1', ctx.timerSetup(1, false) === true && ctx.timer.sched.length === 5);
 ctx.timer.started = true; ctx.timer.i = 0; ctx.timer.remain = 0;
 ctx.tick(); // hết 10p đầu → advance
@@ -107,33 +147,46 @@ console.log('storage:');
 const raw = JSON.parse(sandbox.localStorage.getItem('ghostproject_v1'));
 assert('state có task day 1', !!raw.tasks[1]);
 assert('state có focus', raw.focus.length > 0);
+assert('backup không cần token ở đây, state.turso có mặt', typeof raw.turso === 'object');
 
-/* ---- merge S3 ---- */
-console.log('mergeIn:');
-assert('s3cfg mặc định đúng endpoint', ctx.s3cfg().endpoint === 'https://s3-hcm-r1.longvan.net' && ctx.s3cfg().region === 'hcm5-r1');
-// task mới hơn ở remote thắng task cũ ở local
-ctx.state.tasks[9] = { type: 'md', content: '# Day 9 — cũ', addedAt: 100 };
-const changed1 = ctx.mergeIn({ tasks: { 9: { type: 'md', content: '# Day 9 — mới', addedAt: 200 } } }, null);
-assert('task remote mới hơn thắng', changed1 && ctx.state.tasks[9].content === '# Day 9 — mới');
-// task cũ hơn ở remote KHÔNG đè task local
-ctx.mergeIn({ tasks: { 9: { type: 'md', content: '# Day 9 — cũ hơn', addedAt: 50 } } }, null);
-assert('task remote cũ hơn không đè', ctx.state.tasks[9].content === '# Day 9 — mới');
-// checks: OR-merge (tick ở máy nào cũng được giữ)
-ctx.state.checks[9] = [true, false, false];
-ctx.mergeIn(null, { checks: { 9: [false, true, false] } });
-assert('checks OR-merge', ctx.state.checks[9][0] === true && ctx.state.checks[9][1] === true);
-// focus: trộn theo ts, không nhân đôi
-ctx.state.focus = [{ date: '2026-10-26', day: 9, minutes: 30, ts: 111 }];
-ctx.mergeIn(null, { focus: [{ date: '2026-10-26', day: 9, minutes: 30, ts: 111 }, { date: '2026-10-26', day: 9, minutes: 45, ts: 222 }] });
-assert('focus không nhân đôi + thêm entry mới', ctx.state.focus.length === 2 && ctx.state.focus.some((e) => e.ts === 222));
-// reports: ts mới hơn thắng
-ctx.state.reports[9] = { md: 'bản cũ', date: 'x', ts: 1 };
-ctx.mergeIn(null, { reports: { 9: { md: 'bản mới', date: 'y', ts: 2 } } });
-assert('report ts mới thắng', ctx.state.reports[9].md === 'bản mới');
-// task đổi nội dung → checklist của day đó bị reset
-ctx.state.checks[9] = [true, true, true];
-ctx.mergeIn({ tasks: { 9: { type: 'md', content: '# Day 9 — đổi hoàn toàn', addedAt: 999 } } }, null);
-assert('task đổi → checks reset', !ctx.state.checks[9] || ctx.state.checks[9].length === 0);
+/* ---- Turso helpers ---- */
+console.log('turso:');
+assert('libsql:// → https://', ctx.tursoBase('libsql://db-org.turso.io') === 'https://db-org.turso.io');
+assert('bỏ /v2/pipeline + slash cuối', ctx.tursoBase('https://db-org.turso.io/v2/pipeline/') === 'https://db-org.turso.io');
+const rows = ctx.tsqlRows({
+  cols: [{ name: 'day' }, { name: 'content' }, { name: 'minutes' }, { name: 'note' }],
+  rows: [[{ type: 'integer', value: '3' }, { type: 'text', value: '# Day 3' }, { type: 'float', value: '12.5' }, { type: 'null' }]],
+});
+assert('decode integer → number', rows[0].day === 3);
+assert('decode text', rows[0].content === '# Day 3');
+assert('decode float', rows[0].minutes === 12.5);
+assert('decode null', rows[0].note === null);
+assert('rows rỗng khi không có result', ctx.tsqlRows(null).length === 0);
 
-console.log(fails ? `\n${fails} test FAIL` : '\nTất cả test pass ✓');
-process.exit(fails ? 1 : 0);
+/* ---- Turso HTTP: request/response thật (fetch giả) ---- */
+(async () => {
+  console.log('turso http:');
+  const calls = [];
+  sandbox.fetch = async (url, opt) => {
+    calls.push({ url, opt });
+    if (calls.length === 2) return { ok: true, status: 200, json: async () => ({ results: [{ type: 'error', error: { message: 'boom' } }] }) };
+    return {
+      ok: true, status: 200,
+      json: async () => ({ results: [{ type: 'ok', response: { type: 'execute', result: { cols: [{ name: 'n' }], rows: [[{ type: 'integer', value: '1' }]] } } }] }),
+    };
+  };
+  ctx.state.turso = { url: 'libsql://db-org.turso.io', token: 'tok' };
+  const out = await ctx.tsql('SELECT ? AS n', [{ type: 'text', value: 'x' }]);
+  assert('POST đúng endpoint /v2/pipeline', calls[0].url === 'https://db-org.turso.io/v2/pipeline' && calls[0].opt.method === 'POST');
+  assert('Bearer token', calls[0].opt.headers.authorization === 'Bearer tok');
+  const body = JSON.parse(calls[0].opt.body);
+  assert('pipeline = execute + close', body.requests[0].type === 'execute' && body.requests[1].type === 'close');
+  assert('giữ arg kiểu text', JSON.stringify(body.requests[0].stmt.args) === '[{"type":"text","value":"x"}]');
+  assert('trả rows đã decode', ctx.tsqlRows(out)[0].n === 1);
+  let err = '';
+  try { await ctx.tsql('nope'); } catch (e) { err = e.message; }
+  assert('lỗi Turso → message', err === 'boom');
+
+  console.log(fails ? `\n${fails} test FAIL` : '\nTất cả test pass ✓');
+  process.exit(fails ? 1 : 0);
+})();
