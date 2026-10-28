@@ -980,7 +980,7 @@ function renderDash() {
         <span class="name">${esc(taskTitle(d))}</span>
         <span class="fig num">${tot ? `${dn}<small>/${tot}</small>` : '—'}</span>
         <span class="fig num">${pmin} <small>phút</small></span>
-        <span class="pill ${rep ? 'pos' : ''}">${rep ? 'Đã gửi' : 'Chưa nộp'}</span>
+        <span class="pill ${rep ? 'pos' : ''}">${rep ? 'Đã nộp' : 'Chưa nộp'}</span>
         <button class="text-action" data-open="${d}">Mở</button>
       </div>`;
     }).join('');
@@ -1348,9 +1348,10 @@ function init() {
 
   // report
   $('repDay').onchange = (e) => { state.cur.report = +e.target.value; repLoadedDay = null; save(); renderReport(); };
-  let deb;
+  let deb, draftT;
   $('repText').addEventListener('input', () => {
     clearTimeout(deb); deb = setTimeout(() => { $('repPrev').innerHTML = mdToHtml($('repText').value); }, 250);
+    clearTimeout(draftT); draftT = setTimeout(saveDraft, 900); // tự lưu nháp + tự đẩy S3 khi ngừng gõ
   });
   $('btnRefill').onclick = () => { $('repText').value = reportTemplate(state.cur.report); $('repPrev').innerHTML = mdToHtml($('repText').value); toast('Đã điền lại từ checklist + timer'); };
   $('btnSaveDraft').onclick = () => { saveDraft(); toast('Đã lưu nháp'); };
