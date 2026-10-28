@@ -5,6 +5,7 @@ s3-probe3.mjs
 s3-upload-test.mjs
 s3-cleanup.mjs
 test-sync.mjs
+test-flow.mjs
 
 # Bản build & công cụ nội bộ
 deploy/
