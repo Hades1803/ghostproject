@@ -40,7 +40,7 @@ Máy thứ hai chỉ cần dán đúng URL + token đó. Bảng dữ liệu đư
 
 ## Học + nộp báo cáo
 
-- **Nhận task**: bạn bạn bấm **Giao task** → app bạn tự có khi mở trang. Hoặc **Nhận file** ở màn Hôm nay (hoặc kéo thả file vào trang) — nhận cả `.md` lẫn `.html`, số day lấy từ tên file.
+- **Nhận task**: bạn bạn bấm **Giao task** → app bạn tự có khi mở trang. Hoặc **Nhận file** ở màn Hôm nay (hoặc kéo thả file vào trang) — hộp **Xem trước task** hiện bản render của file (bảng giờ + checklist): sửa số Day nếu muốn, bấm **Nhận task** để chốt. Nhận cả `.md` lẫn `.html`; nếu Day đã có task khác, hộp hiện cảnh báo "sẽ ghi đè" trước khi nhận.
 - **Học**: tick checklist ngay trong task; timer tự đọc bảng giờ `TIME | MIN | PART` (19:30 → 21:30) trong task, kêu khi hết từng phần, bật **HARD STOP** ở dòng phút `—`.
 - **Nộp**: viết vào ô báo cáo — template có sẵn ngày, phút từ timer, % checklist. Ngừng gõ là tự lưu + đẩy lên Turso; bấm **Nộp báo cáo** để lưu và chuyển sang day kế tiếp chưa nộp.
 - **Đọc lại**: tab **Báo cáo** (cả hai người), hoặc **Cài đặt → Tải tất cả báo cáo .md**.

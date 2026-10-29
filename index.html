@@ -191,6 +191,21 @@
   </div>
 </div>
 
+<!-- ============ NHẬN FILE: xem trước khi nhận ============ -->
+<div class="modal" id="importModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stageTitle">
+    <header>
+      <h2 id="stageTitle">Xem trước task</h2>
+      <button class="btn ghost" id="stageClose" type="button">Đóng</button>
+    </header>
+    <div id="stageList"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="btnStageAccept" type="button">Nhận task</button>
+      <button class="btn ghost" id="stageCancel" type="button">Huỷ</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 <script src="app.js"></script>
 </body>

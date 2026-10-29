@@ -135,6 +135,8 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .pill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:var(--fs-small);font-weight:500;background:var(--pill-neutral-bg);color:var(--pill-neutral-ink);white-space:nowrap;flex:none}
 .pill.pos{background:var(--pill-positive-bg);color:var(--pill-positive-ink)}
 
+.pill.warn{background:var(--pill-warning-bg);color:var(--pill-warning-ink)}
+
 /* ---------- controls ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--control-height);padding:0 14px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--ground);font-weight:500;font-size:14px;cursor:pointer;transition:background-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
 .btn.wide{width:100%}
@@ -233,6 +235,13 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sheet h2{font-size:18px;font-weight:600}
 .sheet textarea{min-height:260px}
 .assign-prev{border-top:1px solid var(--border);margin-top:16px;padding-top:14px}
+
+/* ---------- modal nhận file: xem trước từng file ---------- */
+.stage-item{border:1px solid var(--border);border-radius:16px;padding:14px 16px;background:var(--surface)}
+.stage-item+.stage-item{margin-top:12px}
+.stage-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.stage-head .name{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage-prev{max-height:44vh;overflow:auto;border-top:1px solid var(--border);padding-top:12px}
 
 @media(max-width:860px){
   .grid>*{grid-column:1/-1 !important}
@@ -425,6 +434,21 @@ textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <button class="btn ghost" id="btnCrPrev" type="button">Xem thử</button>
     </div>
     <div id="crPrev" class="md assign-prev"></div>
+  </div>
+</div>
+
+<!-- ============ NHẬN FILE: xem trước khi nhận ============ -->
+<div class="modal" id="importModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stageTitle">
+    <header>
+      <h2 id="stageTitle">Xem trước task</h2>
+      <button class="btn ghost" id="stageClose" type="button">Đóng</button>
+    </header>
+    <div id="stageList"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="btnStageAccept" type="button">Nhận task</button>
+      <button class="btn ghost" id="stageCancel" type="button">Huỷ</button>
+    </div>
   </div>
 </div>
 
@@ -1113,27 +1137,50 @@ function createTemplate(n) {
 `;
 }
 
-/* ---------------- import / backup ---------------- */
-async function handleFiles(files) {
-  const touched = []; let first = null;
+/* ---------------- import: xem trước file task rồi mới nhận ---------------- */
+let staged = []; // {name, md, day}
+async function stageFiles(files) {
+  staged = [];
   for (const f of files) {
     const text = await f.text();
     const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
     const md = isHtml ? htmlToMd(text) : text; // task .html cũng đọc được: chuyển về md để có checklist + timer
     const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
-    const day = m ? +m[1] : nextDay();
-    if (state.tasks[day] && state.tasks[day].content !== md && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
-    if (state.tasks[day]?.content !== md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
-    state.tasks[day] = { type: 'md', content: md, addedAt: Date.now() };
-    touched.push(day);
-    if (first == null) first = day;
+    staged.push({ name: f.name, md, day: m ? +m[1] : nextDay() });
   }
-  if (!touched.length) return;
+  if (!staged.length) return;
+  renderStage();
+  $('importModal').hidden = false;
+  $('btnStageAccept').focus();
+}
+function renderStage() {
+  $('stageList').innerHTML = staged.map((s, i) => {
+    const dup = state.tasks[s.day] && state.tasks[s.day].content !== s.md;
+    return `<div class="stage-item">
+      <div class="stage-head">
+        <span class="name">${esc(s.name)}</span>
+        <label class="inline-field">Day<input type="number" class="input num" min="1" value="${s.day}" data-stage-day="${i}" style="width:76px"></label>
+        <span class="pill ${dup ? 'warn' : 'pos'}">${dup ? `Day ${s.day} đã có — sẽ ghi đè` : 'Task mới'}</span>
+      </div>
+      <div class="md stage-prev">${mdToHtml(s.md)}</div>
+    </div>`;
+  }).join('');
+}
+function acceptStaged() {
+  const touched = [];
+  for (const s of staged) {
+    const day = Math.max(1, +s.day || nextDay());
+    if (state.tasks[day]?.content !== s.md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
+    state.tasks[day] = { type: 'md', content: s.md, addedAt: Date.now() };
+    touched.push(day);
+  }
+  staged = [];
+  $('importModal').hidden = true;
   resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
   pickDay = null; repLoadedDay = null;
   save(); renderAll();
   for (const d of touched) bg(pushTask(d));
-  toast(`Đã nhận task Day ${first}`);
+  toast(touched.length > 1 ? `Đã nhận ${touched.length} task` : `Đã nhận task Day ${touched[0]}`);
 }
 function openReport(day) {
   pickDay = day; repLoadedDay = null; save(); switchTab('dash');
@@ -1173,15 +1220,30 @@ function init() {
   document.querySelectorAll('[data-assign]').forEach((b) => { b.onclick = openAssign; });
   $('assignClose').onclick = closeAssign;
   modal.addEventListener('click', (e) => { if (e.target === modal) closeAssign(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAssign(); });
+  // modal nhận file: xem trước task
+  const im = $('importModal');
+  const closeImport = () => { staged = []; im.hidden = true; };
+  $('stageClose').onclick = $('stageCancel').onclick = closeImport;
+  $('btnStageAccept').onclick = acceptStaged;
+  im.addEventListener('click', (e) => { if (e.target === im) closeImport(); });
+  $('stageList').addEventListener('change', (e) => {
+    const i = e.target.dataset.stageDay; if (i === undefined) return;
+    staged[+i].day = Math.max(1, +e.target.value || staged[+i].day);
+    renderStage();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!modal.hidden) closeAssign();
+    if (!im.hidden) closeImport();
+  });
 
-  // nhận file task (nút + kéo thả toàn trang)
+  // nhận file task (nút + kéo thả toàn trang) → mở modal xem trước
   $('importBtn').onclick = () => $('importFile').click();
-  $('importFile').onchange = (e) => { handleFiles([...e.target.files]); e.target.value = ''; };
+  $('importFile').onchange = (e) => { stageFiles([...e.target.files]); e.target.value = ''; };
   document.addEventListener('dragover', (e) => { if ([...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
   document.addEventListener('drop', (e) => {
     if (![...e.dataTransfer.types].includes('Files')) return;
-    e.preventDefault(); handleFiles([...e.dataTransfer.files]);
+    e.preventDefault(); stageFiles([...e.dataTransfer.files]);
   });
 
   // backup — không đưa token Turso vào file

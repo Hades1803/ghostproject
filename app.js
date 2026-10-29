@@ -681,27 +681,50 @@ function createTemplate(n) {
 `;
 }
 
-/* ---------------- import / backup ---------------- */
-async function handleFiles(files) {
-  const touched = []; let first = null;
+/* ---------------- import: xem trước file task rồi mới nhận ---------------- */
+let staged = []; // {name, md, day}
+async function stageFiles(files) {
+  staged = [];
   for (const f of files) {
     const text = await f.text();
     const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
     const md = isHtml ? htmlToMd(text) : text; // task .html cũng đọc được: chuyển về md để có checklist + timer
     const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
-    const day = m ? +m[1] : nextDay();
-    if (state.tasks[day] && state.tasks[day].content !== md && !confirm(`Day ${day} đã có task. Ghi đè?`)) continue;
-    if (state.tasks[day]?.content !== md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
-    state.tasks[day] = { type: 'md', content: md, addedAt: Date.now() };
-    touched.push(day);
-    if (first == null) first = day;
+    staged.push({ name: f.name, md, day: m ? +m[1] : nextDay() });
   }
-  if (!touched.length) return;
+  if (!staged.length) return;
+  renderStage();
+  $('importModal').hidden = false;
+  $('btnStageAccept').focus();
+}
+function renderStage() {
+  $('stageList').innerHTML = staged.map((s, i) => {
+    const dup = state.tasks[s.day] && state.tasks[s.day].content !== s.md;
+    return `<div class="stage-item">
+      <div class="stage-head">
+        <span class="name">${esc(s.name)}</span>
+        <label class="inline-field">Day<input type="number" class="input num" min="1" value="${s.day}" data-stage-day="${i}" style="width:76px"></label>
+        <span class="pill ${dup ? 'warn' : 'pos'}">${dup ? `Day ${s.day} đã có — sẽ ghi đè` : 'Task mới'}</span>
+      </div>
+      <div class="md stage-prev">${mdToHtml(s.md)}</div>
+    </div>`;
+  }).join('');
+}
+function acceptStaged() {
+  const touched = [];
+  for (const s of staged) {
+    const day = Math.max(1, +s.day || nextDay());
+    if (state.tasks[day]?.content !== s.md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
+    state.tasks[day] = { type: 'md', content: s.md, addedAt: Date.now() };
+    touched.push(day);
+  }
+  staged = [];
+  $('importModal').hidden = true;
   resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
   pickDay = null; repLoadedDay = null;
   save(); renderAll();
   for (const d of touched) bg(pushTask(d));
-  toast(`Đã nhận task Day ${first}`);
+  toast(touched.length > 1 ? `Đã nhận ${touched.length} task` : `Đã nhận task Day ${touched[0]}`);
 }
 function openReport(day) {
   pickDay = day; repLoadedDay = null; save(); switchTab('dash');
@@ -741,15 +764,30 @@ function init() {
   document.querySelectorAll('[data-assign]').forEach((b) => { b.onclick = openAssign; });
   $('assignClose').onclick = closeAssign;
   modal.addEventListener('click', (e) => { if (e.target === modal) closeAssign(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAssign(); });
+  // modal nhận file: xem trước task
+  const im = $('importModal');
+  const closeImport = () => { staged = []; im.hidden = true; };
+  $('stageClose').onclick = $('stageCancel').onclick = closeImport;
+  $('btnStageAccept').onclick = acceptStaged;
+  im.addEventListener('click', (e) => { if (e.target === im) closeImport(); });
+  $('stageList').addEventListener('change', (e) => {
+    const i = e.target.dataset.stageDay; if (i === undefined) return;
+    staged[+i].day = Math.max(1, +e.target.value || staged[+i].day);
+    renderStage();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!modal.hidden) closeAssign();
+    if (!im.hidden) closeImport();
+  });
 
-  // nhận file task (nút + kéo thả toàn trang)
+  // nhận file task (nút + kéo thả toàn trang) → mở modal xem trước
   $('importBtn').onclick = () => $('importFile').click();
-  $('importFile').onchange = (e) => { handleFiles([...e.target.files]); e.target.value = ''; };
+  $('importFile').onchange = (e) => { stageFiles([...e.target.files]); e.target.value = ''; };
   document.addEventListener('dragover', (e) => { if ([...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
   document.addEventListener('drop', (e) => {
     if (![...e.dataTransfer.types].includes('Files')) return;
-    e.preventDefault(); handleFiles([...e.dataTransfer.files]);
+    e.preventDefault(); stageFiles([...e.dataTransfer.files]);
   });
 
   // backup — không đưa token Turso vào file
