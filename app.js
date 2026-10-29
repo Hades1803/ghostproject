@@ -717,6 +717,20 @@ function init() {
     if (crAuto) { $('crText').value = createTemplate(n); renderCrPrev(); }
   });
   $('crText').addEventListener('input', () => { crAuto = false; renderCrPrev(); });
+  // nạp sẵn file .md/.html vào ô soạn (người giao task đã có sẵn nội dung ngoài app)
+  $('crFileBtn').onclick = () => $('crFile').click();
+  $('crFile').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const text = await f.text();
+    const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
+    $('crText').value = isHtml ? htmlToMd(text) : text;
+    crAuto = false; // nội dung thật, không tự dính template nữa
+    const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
+    if (m) $('crDay').value = Math.max(1, +m[1]);
+    renderCrPrev();
+    e.target.value = '';
+    toast(`Đã nạp ${f.name} — chỉnh rồi bấm Đăng task hoặc Tải file`);
+  };
   $('btnCrPrev').onclick = renderCrPrev;
   $('btnCrDl').onclick = () => {
     const n = Math.max(1, +$('crDay').value || 1);
