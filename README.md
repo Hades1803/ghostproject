@@ -2,13 +2,13 @@
 
 Trang tĩnh (HTML/CSS/JS thuần), **không cần build, không cần server riêng**. Dữ liệu đồng bộ giữa 2 máy bằng **Turso** — SQLite chạy qua HTTP, dùng trực tiếp từ trình duyệt.
 
-Flow đúng 3 bước: **bạn bạn giao task → bạn học + nộp báo cáo → bạn bạn đọc báo cáo.**
+Flow đúng 3 bước: **bạn bạn gửi file .md → bạn xem, học, viết trả lời → tạo file .md gửi lại (hoặc nộp trong app), bạn bạn đọc.**
 
 ## 3 màn hình
 
 | Màn | Dùng để |
 |---|---|
-| **Hôm nay** | Task tối nay (checklist tick được, bảng giờ), timer buổi tối, và ô **Nộp báo cáo** ngay bên dưới. |
+| **Hôm nay** | Task tối nay (checklist tick được, bảng giờ nằm trong file task) và ô **Nộp báo cáo** ngay bên dưới. |
 | **Báo cáo** | Danh sách mọi day: đã nộp thì mở ra đọc (báo cáo mới nhất mở sẵn), chưa nộp thì có nút **Viết báo cáo**. Cả hai người dùng chung màn này. |
 | **Cài đặt** | Kết nối Turso, backup JSON, tải tất cả báo cáo `.md`, xoá dữ liệu. |
 
@@ -32,18 +32,17 @@ Máy thứ hai chỉ cần dán đúng URL + token đó. Bảng dữ liệu đư
 | `tasks` | người giao task | nội dung từng day (`updated_at` mới hơn thắng) |
 | `reports` | người học | báo cáo từng day |
 | `checks` | người học | checklist đã tick |
-| `focus` | người học | phút tập trung từ timer |
 
-- Ghi ngay khi có thay đổi: tick checklist, ngừng gõ báo cáo 0,9 giây, hết/ngừng timer, đăng task.
+- Ghi ngay khi có thay đổi: tick checklist, ngừng gõ báo cáo 0,9 giây, bấm Nộp báo cáo, đăng task.
 - Đọc lại toàn bộ khi mở trang, khi bấm **Kết nối & đồng bộ**, và sau mỗi lần kết nối lại.
 - Người kia cần **mở/refresh trang** để thấy dữ liệu mới (không có realtime).
 
 ## Học + nộp báo cáo
 
-- **Nhận task**: bạn bạn bấm **Giao task** → app bạn tự có khi mở trang. Hoặc **Nhận file** ở màn Hôm nay (hoặc kéo thả file vào trang) — hộp **Xem trước task** hiện bản render của file (bảng giờ + checklist): sửa số Day nếu muốn, bấm **Nhận task** để chốt. Nhận cả `.md` lẫn `.html`; nếu Day đã có task khác, hộp hiện cảnh báo "sẽ ghi đè" trước khi nhận.
-- **Học**: tick checklist ngay trong task; timer tự đọc bảng giờ `TIME | MIN | PART` (19:30 → 21:30) trong task, kêu khi hết từng phần, bật **HARD STOP** ở dòng phút `—`.
-- **Nộp**: viết vào ô báo cáo — template có sẵn ngày, phút từ timer, % checklist. Ngừng gõ là tự lưu + đẩy lên Turso; bấm **Nộp báo cáo** để lưu và chuyển sang day kế tiếp chưa nộp.
-- **Đọc lại**: tab **Báo cáo** (cả hai người), hoặc **Cài đặt → Tải tất cả báo cáo .md**.
+- **Nhận file**: bấm **Mở file .md** ở màn Hôm nay hoặc **Báo cáo** (hoặc kéo thả file vào trang). Hộp **Xem trước file** hiện bản render: file task (kiểu `taskday3.md`) thì sửa số Day nếu muốn rồi bấm **Nhận**; file báo cáo nhận lại từ bạn (kiểu `baocaoday5.md`, bắt đầu bằng `# Báo cáo Day N`) hiện preview và được lưu vào app nếu máy đó chưa có — nếu đã có thì chỉ xem, không đè. Nhận cả `.md` lẫn `.html`.
+- **Học**: tick checklist ngay trong task; bảng giờ `TIME | MIN | PART` nằm trong nội dung task, tự render thành bảng.
+- **Nộp**: viết vào ô báo cáo — template có sẵn ngày, % checklist. Ngừng gõ là tự lưu + đẩy lên Turso; bấm **Nộp báo cáo** để lưu và chuyển sang day kế tiếp chưa nộp.
+- **Gửi lại qua chat**: **Tạo file .md** tải `baocaodayN.md` — bạn bạn mở file đó bằng **Mở file .md** để đọc preview, hoặc đọc trực tiếp ở tab **Báo cáo** (nếu hai máy đã kết nối Turso).
 
 ## Deploy lên Vercel
 
@@ -56,7 +55,7 @@ Trang phải chạy qua **https** (Vercel) để gọi được Turso; `file://`
 
 ## Test
 
-- `node test-smoke.js` — logic thuần: markdown, bảng lịch, timer, streak, chọn day, template báo cáo, decode Turso.
+- `node test-smoke.js` — logic thuần: markdown, streak, chọn day, template báo cáo, nhận file task/báo cáo, decode Turso.
 - `node --check app.js` — cú pháp.
 
 ## Lưu ý

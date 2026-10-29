@@ -11,7 +11,7 @@ function el() {
     style: {}, dataset: {},
     classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     addEventListener() {}, appendChild() {}, closest() { return null; }, replaceWith() {},
-    querySelectorAll() { return []; }, click() {},
+    querySelectorAll() { return []; }, click() {}, focus() {},
     set onclick(f) { this._onclick = f; }, get onclick() { return this._onclick; },
   };
 }
@@ -37,12 +37,12 @@ sandbox.window = sandbox;
 vm.createContext(sandbox);
 vm.runInContext(
   fs.readFileSync('app.js', 'utf8')
-  + '\n;globalThis.__A = { state, timer, save, renderAll, mdToHtml, parseSchedule, calcStreak, iso, today, tick, finishSession, timerSetup, reportTemplate, tursoBase, tsqlRows, tsql, curDay, setPick: (v) => { pickDay = v; } };',
+  + '\n;globalThis.__A = { state, save, renderAll, mdToHtml, calcStreak, iso, today, reportTemplate, tursoBase, tsqlRows, tsql, curDay, stageFiles, acceptStaged, getStaged: () => staged, setPick: (v) => { pickDay = v; } };',
   sandbox
 );
 
 const A = sandbox.__A;
-const ctx = A; // hàm trong app.js là global của vm; state/timer lấy qua hook
+const ctx = A; // hàm trong app.js là global của vm; state lấy qua hook
 let fails = 0;
 function assert(name, cond) {
   if (cond) console.log('  ok  ' + name);
@@ -89,16 +89,6 @@ const one = ctx.mdToHtml('**a** và *b* và `c`');
 assert('inline bold/em/code', one.includes('<strong>a</strong>') && one.includes('<em>b</em>') && one.includes('<code>c</code>'));
 assert('XSS bị escape', ctx.mdToHtml('<img src=x onerror=alert(1)>').includes('&lt;img'));
 
-/* ---- schedule parser ---- */
-console.log('parseSchedule:');
-const sched = ctx.parseSchedule(SAMPLE);
-assert('5 dòng lịch', Array.isArray(sched) && sched.length === 5);
-assert('row 19:40 = 60p', sched[1].time === '19:40' && sched[1].min === 60);
-assert('dòng cuối là hard stop (min 0)', sched[4].min === 0);
-assert('bỏ ** trong label', !sched[1].label.includes('**'));
-assert('md không có bảng → null', ctx.parseSchedule('# Day 2\n\nChỉ chữ, không bảng.') === null);
-assert('bảng thiếu số phút → null', ctx.parseSchedule('| A | B |\n|---|---|\n| x | y |') === null);
-
 /* ---- streak ---- */
 console.log('streak:');
 ctx.state.reports = { 1: { md: '', date: ctx.today() } };
@@ -121,19 +111,6 @@ ctx.state.reports[2] = { md: 'x', date: ctx.today(), ts: 2 };
 ctx.setPick(null);
 assert('nộp hết → day mới nhất', ctx.curDay() === 2);
 
-/* ---- timer ---- */
-console.log('timer:');
-ctx.state.reports = {};
-ctx.setPick(1);
-assert('timerSetup day 1', ctx.timerSetup(1, false) === true && ctx.timer.sched.length === 5);
-ctx.timer.started = true; ctx.timer.i = 0; ctx.timer.remain = 0;
-ctx.tick(); // hết 10p đầu → advance
-assert('advance: done 10p, sang row 1', ctx.timer.doneMin === 10 && ctx.timer.i === 1);
-ctx.timer.doneMin = 120; ctx.timer.i = 4; ctx.timer.remain = 0;
-ctx.finishSession();
-assert('finishSession ghi 120p vào focus', ctx.state.focus.some((e) => e.day === 1 && e.minutes === 120));
-assert('logged sau finish', ctx.timer.logged === true);
-
 /* ---- report template ---- */
 console.log('report:');
 ctx.state.checks[1] = [true, true, false, false, false, false];
@@ -144,9 +121,9 @@ assert('tên file baocaoday', rep.startsWith('# Báo cáo Day 1'));
 
 /* ---- state lưu/đọc lại ---- */
 console.log('storage:');
+ctx.save();
 const raw = JSON.parse(sandbox.localStorage.getItem('ghostproject_v1'));
 assert('state có task day 1', !!raw.tasks[1]);
-assert('state có focus', raw.focus.length > 0);
 assert('backup không cần token ở đây, state.turso có mặt', typeof raw.turso === 'object');
 
 /* ---- Turso helpers ---- */
@@ -165,6 +142,30 @@ assert('rows rỗng khi không có result', ctx.tsqlRows(null).length === 0);
 
 /* ---- Turso HTTP: request/response thật (fetch giả) ---- */
 (async () => {
+  /* ---- nhận file: task + báo cáo (stage → accept) ---- */
+  console.log('stageFiles:');
+  ctx.state.reports = {};
+  ctx.setPick(null);
+  await ctx.stageFiles([
+    { name: 'taskday9.md', text: async () => '# Day 9 — Test\n\n- [ ] việc 1' },
+    { name: 'reply.md', text: async () => '# Báo cáo Day 5\n- Ngày: 2026-01-01\n' },
+    { name: 'khongso.md', text: async () => '# Ghi chú chung\n' },
+  ]);
+  const st = ctx.getStaged();
+  assert('3 file staged', st.length === 3);
+  assert('task file → kind task, day 9 từ tên', st[0].kind === 'task' && st[0].day === 9);
+  assert('report file → kind report, day từ tiêu đề', st[1].kind === 'report' && st[1].day === 5);
+  assert('file không có số → nextDay', st[2].kind === 'task' && st[2].day === 3);
+  ctx.acceptStaged();
+  assert('accept: nhận task day 9', !!ctx.state.tasks[9]);
+  assert('accept: lưu báo cáo day 5', ctx.state.reports[5] && ctx.state.reports[5].md.startsWith('# Báo cáo Day 5'));
+  assert('accept: ngày lấy từ dòng Ngày', ctx.state.reports[5].date === '2026-01-01');
+  assert('staged dọn sạch', ctx.getStaged().length === 0);
+  const repSnapshot = JSON.stringify(ctx.state.reports[5]);
+  await ctx.stageFiles([{ name: 'reply2.md', text: async () => '# Báo cáo Day 5\n- Ngày: 2026-02-02\n' }]);
+  ctx.acceptStaged();
+  assert('báo cáo đã có → không đè', JSON.stringify(ctx.state.reports[5]) === repSnapshot);
+
   console.log('turso http:');
   const calls = [];
   sandbox.fetch = async (url, opt) => {

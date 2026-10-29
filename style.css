@@ -96,15 +96,6 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .kpi-value{margin-top:6px;font-size:var(--fs-kpi);line-height:1.15;font-weight:500;letter-spacing:-0.01em}
 .kpi-value small{font-size:13px;color:var(--muted);font-weight:400;margin-left:3px}
 
-/* ---------- dải buổi tối (signature: 19:30 → 21:30) ---------- */
-.strip{position:relative;display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--rule)}
-.strip .seg{height:100%;background:#e2e2de;border-right:2px solid var(--surface)}
-.strip .seg:last-child{border-right:0}
-.strip .now{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--accent);border-radius:2px}
-.strip .now::after{content:"";position:absolute;top:-5px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.strip-labels{display:flex;justify-content:space-between;margin-top:8px;color:var(--faint);font-size:var(--fs-small)}
-.strip-labels b{color:var(--text);font-weight:500}
-
 /* ---------- rows (báo cáo) ---------- */
 .rep-list{display:grid;gap:10px}
 .rep-item{background:var(--surface);border-radius:18px;padding:0 20px;min-width:0}
@@ -146,9 +137,7 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .inline-field{display:flex;align-items:center;gap:8px}
 .inline-field label{color:var(--muted)}
 
-/* ---------- hôm nay: task + timer + báo cáo ---------- */
-.timer-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
-@media(max-width:720px){.timer-grid{grid-template-columns:minmax(0,1fr);gap:4px}}
+/* ---------- hôm nay: task + báo cáo ---------- */
 .track{display:block;height:8px;border-radius:999px;background:var(--rule);overflow:hidden;flex:1}
 .track>span{display:block;height:100%;border-radius:999px;background:var(--accent)}
 .preview{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
@@ -157,21 +146,6 @@ code{background:var(--pill-neutral-bg);border-radius:4px;padding:1px 5px;font-si
 .preview>summary::after{content:"+";font-weight:500}
 .preview[open]>summary::after{content:"–"}
 .preview[open]>summary{margin-bottom:12px}
-
-/* timer: bảng đồng hồ */
-.timer .t-label{font-size:14px;line-height:20px;color:var(--muted);min-height:40px}
-.timer .t-clock{font-size:var(--fs-kpi);line-height:1.1;font-weight:500;letter-spacing:-0.01em;margin:6px 0}
-.t-rows{margin:14px 0 2px;display:grid}
-.t-row{display:flex;gap:10px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--rule);align-items:baseline}
-.t-row:last-child{border-bottom:0}
-.t-row .tt{width:44px;flex:none;color:var(--muted)}
-.t-row .tm{width:32px;flex:none}
-.t-row.cur{color:var(--text);font-weight:500}
-.t-row.cur .tt{color:var(--accent)}
-.t-row.done{color:var(--faint)}
-.t-row.done .tp{text-decoration:line-through}
-.t-row.stop .tp{color:var(--warning);font-weight:500}
-.notice{margin-top:14px;padding:10px 14px;border-radius:10px;font-size:13px;background:var(--pill-warning-bg);color:var(--pill-warning-ink)}
 
 /* ---------- tài liệu md trong panel ---------- */
 .md{min-width:0}

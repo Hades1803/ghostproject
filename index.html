@@ -38,7 +38,7 @@
       <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
     </div>
 
-    <!-- ============ HÔM NAY — task tối nay + timer + nộp báo cáo ============ -->
+    <!-- ============ HÔM NAY — task tối nay + nộp báo cáo ============ -->
     <section id="tab-dash" class="tab col">
       <header class="hello">
         <h2 class="greet" id="greetTitle">Tối nay, Day 1.</h2>
@@ -47,7 +47,6 @@
 
       <div class="kpis">
         <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
-        <div class="kpi"><div class="kpi-label">Phút tập trung</div><div class="kpi-value" id="kMin">0 <small>phút · 7 ngày</small></div></div>
         <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
       </div>
 
@@ -56,7 +55,7 @@
           <h2>Tối nay</h2>
           <span class="row-end">
             <span class="meta" id="todayMeta"></span>
-            <button class="btn" id="importBtn" type="button">Nhận file</button>
+            <button class="btn" id="importBtn" type="button">Mở file .md</button>
           </span>
           <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
         </header>
@@ -64,36 +63,14 @@
         <p class="meta" id="todayHint" style="margin-top:12px"></p>
       </section>
 
-      <section class="panel timer" id="timerPanel">
-        <header><h2>Buổi tối</h2><span class="meta" id="timerMeta"></span></header>
-        <div id="timerStrip"></div>
-        <div class="timer-grid">
-          <div>
-            <div id="timerLabel" class="t-label">Sẵn sàng?</div>
-            <div id="timerClock" class="t-clock num">--:--</div>
-            <div id="timerNext" class="meta"></div>
-            <div class="btnrow">
-              <button class="btn primary" id="btnStart" type="button">Bắt đầu</button>
-              <button class="btn" id="btnPause" type="button" disabled>Tạm dừng</button>
-              <button class="btn" id="btnStop" type="button" disabled>Kết thúc</button>
-            </div>
-            <div id="timerBanner" class="notice" hidden>
-              <b>Hard stop.</b> Dừng cả giữa câu. Đánh dấu chỗ dừng, làm tiếp phiên sau. Giấc ngủ quan trọng hơn việc xong section.
-            </div>
-          </div>
-          <div id="timerRows" class="t-rows"></div>
-        </div>
-      </section>
-
       <section class="panel" id="repPanel">
         <header><h2 id="repTitle">Báo cáo hôm nay</h2><span class="meta" id="repSavedInfo"></span></header>
         <textarea id="repText" spellcheck="false" placeholder="Viết báo cáo ở đây — ngừng gõ là tự lưu và đồng bộ."></textarea>
         <div class="btnrow">
           <button class="btn primary" id="btnSaveDraft" type="button">Nộp báo cáo</button>
-          <button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist + timer (mất nội dung đang viết)">Điền lại từ data</button>
+          <button class="btn" id="btnDlMd" type="button">Tạo file .md</button>
+          <button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist (mất nội dung đang viết)">Điền lại từ data</button>
           <button class="btn ghost" id="btnCopy" type="button">Copy</button>
-          <button class="btn ghost" id="btnDlMd" type="button">Tải .md</button>
-          <button class="btn ghost" id="btnDlHtml" type="button">Tải .html</button>
         </div>
         <details class="preview">
           <summary>Xem trước</summary>
@@ -110,6 +87,7 @@
         <h2 class="screen-title" data-screen="report">Báo cáo</h2>
         <span class="row-end">
           <span class="meta" id="repListMeta"></span>
+          <button class="btn" id="repFileBtn" type="button">Mở file .md</button>
           <button class="btn" id="dlAllReports" type="button">Tải tất cả .md</button>
         </span>
       </div>
@@ -195,12 +173,12 @@
 <div class="modal" id="importModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stageTitle">
     <header>
-      <h2 id="stageTitle">Xem trước task</h2>
+      <h2 id="stageTitle">Xem trước file</h2>
       <button class="btn ghost" id="stageClose" type="button">Đóng</button>
     </header>
     <div id="stageList"></div>
     <div class="btnrow">
-      <button class="btn primary" id="btnStageAccept" type="button">Nhận task</button>
+      <button class="btn primary" id="btnStageAccept" type="button">Nhận</button>
       <button class="btn ghost" id="stageCancel" type="button">Huỷ</button>
     </div>
   </div>

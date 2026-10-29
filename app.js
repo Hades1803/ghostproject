@@ -1,6 +1,7 @@
 'use strict';
 /* GhostProject — self-study tracker. Static site, dữ liệu ở localStorage + Turso (SQLite qua HTTP).
-   Flow: bạn bạn "Giao task" → bạn tick checklist + timer + "Nộp báo cáo" → cả hai đọc ở tab Báo cáo.
+   Flow: bạn bạn gửi file .md → "Mở file .md" xem trước → học, tick checklist → viết trả lời,
+   "Tạo file .md" gửi lại bạn bạn → bạn bạn mở file để đọc, hoặc đọc trực tiếp ở tab Báo cáo.
    UI: tasteskill "editorial-greeting" (seed 1472121576) — greeting là h1, panel tông, accent teal trên data. */
 
 const $ = (id) => document.getElementById(id);
@@ -11,7 +12,7 @@ const nowHM = () => new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', mi
 
 /* ---------------- state ---------------- */
 function defaultState() {
-  return { tasks: {}, reports: {}, checks: {}, focus: [], turso: { url: '', token: '', lastSync: '' } };
+  return { tasks: {}, reports: {}, checks: {}, turso: { url: '', token: '', lastSync: '' } };
 }
 function load() {
   try {
@@ -28,7 +29,6 @@ if (!state) { state = defaultState(); save(); }
 
 const taskDays = () => Object.keys(state.tasks).map(Number).sort((a, b) => a - b);
 const nextDay = () => (taskDays().at(-1) || 0) + 1;
-const focusMinutesForDay = (day) => state.focus.filter((e) => e.day === day).reduce((s, e) => s + e.minutes, 0);
 function taskTitle(day) {
   const t = state.tasks[day]; if (!t) return '';
   if (t.type === 'html') return 'Task dạng HTML';
@@ -57,8 +57,8 @@ function inline(s) {
 function splitRow(r) {
   return r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
 }
-/* HTML → md: đọc lại task dạng .html (từ "Tạo task", báo cáo, hoặc bạn bạn gửi file html khác)
-   để timer + checklist hoạt động như .md */
+/* HTML → md: đọc lại task/báo cáo dạng .html (từ "Tạo task", hoặc bạn bạn gửi file html khác)
+   để checklist hoạt động như .md */
 function htmlToMd(src) {
   const doc = new DOMParser().parseFromString(src, 'text/html');
   const inl = (n) => {
@@ -90,7 +90,7 @@ function htmlToMd(src) {
         const trs = [...el.rows];
         if (!trs.length) continue;
         const rowMd = (tr) => '| ' + [...tr.cells].map((c) => cell(c)).join(' | ') + ' |';
-        // cả bảng một block (các hàng liền nhau — parseSchedule cần); dòng đầu làm header
+        // cả bảng một block (các hàng liền nhau); dòng đầu làm header
         out.push(rowMd(trs[0]) + '\n| ' + [...trs[0].cells].map(() => '---').join(' | ') + ' |\n'
           + trs.slice(1).map(rowMd).join('\n'));
       } else if (t === 'UL' || t === 'OL') {
@@ -182,32 +182,6 @@ function mdToHtml(src) {
   return out.join('\n');
 }
 
-/* schedule table → timer rows; null nếu không tìm thấy bảng phù hợp */
-function parseSchedule(md) {
-  const lines = md.split(/\r?\n/);
-  for (let i = 0; i < lines.length - 1; i++) {
-    if (/^\s*\|.*\|/.test(lines[i]) && lines[i + 1].includes('-') && /^\s*\|?[\s:\-|]+\|?\s*$/.test(lines[i + 1])) {
-      const rows = []; let j = i + 2;
-      while (j < lines.length && /\|/.test(lines[j]) && lines[j].trim() !== '') { rows.push(splitRow(lines[j])); j++; }
-      const sched = rows.filter((c) => c.length >= 3).map((c) => ({
-        time: c[0],
-        min: /^\d+$/.test(c[1]) ? +c[1] : 0,
-        label: c.slice(2).join(' · ').replace(/\*\*/g, ''),
-      }));
-      if (sched.filter((r) => r.min > 0).length >= 2) return sched;
-      i = j;
-    }
-  }
-  return null;
-}
-const DEFAULT_SCHED = [
-  { time: '19:30', min: 10, label: 'Đọc lại ghi chú hôm qua' },
-  { time: '19:40', min: 60, label: '§1 Knowledge' },
-  { time: '20:40', min: 35, label: '§2 Predict → Run → Explain' },
-  { time: '21:15', min: 15, label: '§3 AI-Verify + §4 Drill' },
-  { time: '21:30', min: 0, label: 'Hard stop — dừng cả giữa câu', stop: true },
-];
-
 /* ---------------- helpers ---------------- */
 function download(name, text, mime = 'text/markdown') {
   const a = document.createElement('a');
@@ -227,16 +201,6 @@ async function copyText(t) {
     ta.select(); document.execCommand('copy'); ta.remove();
   }
   toast('Đã copy vào clipboard');
-}
-function beep(times = 1) {
-  try {
-    const a = new (window.AudioContext || window.webkitAudioContext)();
-    for (let k = 0; k < times; k++) {
-      const o = a.createOscillator(); const g = a.createGain();
-      o.connect(g); g.connect(a.destination); o.frequency.value = 880;
-      o.start(a.currentTime + k * 0.35); o.stop(a.currentTime + k * 0.35 + 0.22);
-    }
-  } catch { /* im lặng là được */ }
 }
 
 /* ---------------- tabs ---------------- */
@@ -267,39 +231,6 @@ function switchTab(name) {
   setScreenTitle(name);
   $('sidebar')?.classList.remove('open');
   renderAll();
-}
-
-/* ---------------- dải buổi tối (signature element) ---------------- */
-const toMin = (hm) => { const [h, m] = hm.split(':').map(Number); return h * 60 + (m || 0); };
-const hmText = (m) => `${Math.floor(m / 60)} giờ ${String(m % 60).padStart(2, '0')} phút`;
-function stripHTML(sched) {
-  const total = sched.reduce((s, r) => s + r.min, 0);
-  const start = toMin(sched[0].time); const end = start + total;
-  const n = new Date().getHours() * 60 + new Date().getMinutes();
-  const inWindow = n >= start && n < end;
-  const pct = inWindow ? Math.min(100, Math.max(0, ((n - start) / (end - start)) * 100)) : null;
-  const segs = sched.filter((r) => r.min > 0)
-    .map((r) => `<span class="seg" style="width:${((r.min / total) * 100).toFixed(2)}%" title="${esc(r.time)} · ${esc(r.label)}"></span>`)
-    .join('');
-  return `<div class="strip" role="img" aria-label="Buổi học từ ${esc(sched[0].time)} đến ${esc(sched.at(-1).time)}, dừng cứng">${segs}${pct != null ? `<span class="now" style="left:${pct.toFixed(2)}%"></span>` : ''}</div>
-  <div class="strip-labels"><span>${esc(sched[0].time)}</span><b>${esc(sched.at(-1).time)} · dừng cứng</b></div>`;
-}
-function stripState(sched) {
-  const start = toMin(sched[0].time);
-  const end = start + sched.reduce((s, r) => s + r.min, 0);
-  const n = new Date().getHours() * 60 + new Date().getMinutes();
-  if (n < start) return n < start - 360 ? `Bắt đầu lúc ${sched[0].time}.` : `Bắt đầu sau ${hmText(start - n)} nữa.`;
-  if (n >= end) return 'Hard stop đã qua — mai học tiếp.';
-  let acc = start;
-  for (const r of sched) {
-    const rowEnd = acc + r.min;
-    if (n < rowEnd && r.min > 0) {
-      const nx = sched[sched.indexOf(r) + 1];
-      return `Đang: ${r.label} — còn ${rowEnd - n} phút${nx ? ` tới ${nx.time}` : ''}.`;
-    }
-    acc = rowEnd;
-  }
-  return '';
 }
 
 /* thanh tiến độ checklist: track + fill, nhãn 2 đầu */
@@ -343,7 +274,6 @@ async function tursoBootstrap() {
   await tsql('CREATE TABLE IF NOT EXISTS tasks (day INTEGER PRIMARY KEY, content TEXT NOT NULL, updated_at INTEGER NOT NULL)');
   await tsql('CREATE TABLE IF NOT EXISTS reports (day INTEGER PRIMARY KEY, content TEXT NOT NULL, updated_at INTEGER NOT NULL)');
   await tsql('CREATE TABLE IF NOT EXISTS checks (day INTEGER NOT NULL, idx INTEGER NOT NULL, done INTEGER NOT NULL, PRIMARY KEY (day, idx))');
-  await tsql('CREATE TABLE IF NOT EXISTS focus (ts INTEGER PRIMARY KEY, day INTEGER NOT NULL, date TEXT NOT NULL, minutes INTEGER NOT NULL)');
 }
 const pushTask = (day) => tsql('INSERT INTO tasks (day, content, updated_at) VALUES (?, ?, ?) ON CONFLICT(day) DO UPDATE SET content = excluded.content, updated_at = excluded.updated_at',
   [qi(day), qs(state.tasks[day].content), qi(state.tasks[day].addedAt || Date.now())]);
@@ -351,8 +281,6 @@ const pushReport = (day) => tsql('INSERT INTO reports (day, content, updated_at)
   [qi(day), qs(state.reports[day].md), qi(state.reports[day].ts || Date.now())]);
 const pushCheck = (day, idx, done) => tsql('INSERT INTO checks (day, idx, done) VALUES (?, ?, ?) ON CONFLICT(day, idx) DO UPDATE SET done = excluded.done',
   [qi(day), qi(idx), qi(done ? 1 : 0)]);
-const pushFocus = (e) => tsql('INSERT OR IGNORE INTO focus (ts, day, date, minutes) VALUES (?, ?, ?, ?)',
-  [qi(e.ts), qi(e.day), qs(e.date), qi(e.minutes)]);
 
 function setSyncStatus(msg) { const el = $('syncStatus'); if (el) el.textContent = msg; }
 /* ghi nền: UI cập nhật local trước, lỗi chỉ hiện ở dòng trạng thái */
@@ -364,11 +292,10 @@ function bg(p) {
 }
 
 async function tursoPull() {
-  const [t, r, c, f] = await Promise.all([
+  const [t, r, c] = await Promise.all([
     tsql('SELECT day, content, updated_at FROM tasks'),
     tsql('SELECT day, content, updated_at FROM reports'),
     tsql('SELECT day, idx, done FROM checks'),
-    tsql('SELECT ts, day, date, minutes FROM focus'),
   ]);
   const tasks = {};
   for (const x of tsqlRows(t)) tasks[x.day] = { type: 'md', content: x.content, addedAt: x.updated_at };
@@ -379,8 +306,7 @@ async function tursoPull() {
   }
   const checks = {};
   for (const x of tsqlRows(c)) (checks[x.day] ||= [])[x.idx] = !!x.done;
-  const focus = tsqlRows(f).map((x) => ({ ts: x.ts, day: x.day, date: x.date, minutes: x.minutes })).sort((a, b) => a.ts - b.ts);
-  Object.assign(state, { tasks, reports, checks, focus });
+  Object.assign(state, { tasks, reports, checks });
   save();
 }
 /* đẩy dữ liệu local mới hơn lên (lần đầu kết nối / sau nhập backup) */
@@ -394,9 +320,8 @@ async function pushLocalNewer() {
   const rM = new Map(tsqlRows(rr).map((x) => [x.day, x.updated_at]));
   for (const [d, t] of Object.entries(state.tasks)) if (!tM.has(+d) || (t.addedAt || 0) > tM.get(+d)) await pushTask(+d);
   for (const [d, r] of Object.entries(state.reports)) if (!rM.has(+d) || (r.ts || 0) > rM.get(+d)) await pushReport(+d);
-  if (!first) return; // checklist + phút chỉ đẩy một lần; về sau ghi ngay tại chỗ tick/hết giờ
+  if (!first) return; // checklist chỉ đẩy một lần; về sau ghi ngay tại chỗ tick
   for (const [d, arr] of Object.entries(state.checks)) for (let i = 0; i < arr.length; i++) if (arr[i]) await pushCheck(+d, i, 1);
-  for (const e of state.focus) await pushFocus(e);
 }
 
 async function tursoConnect(manual) {
@@ -441,8 +366,6 @@ function renderToday() {
   const days = taskDays();
   const day = curDay();
   const streak = calcStreak();
-  const weekAgo = iso(new Date(Date.now() - 6 * 864e5));
-  const mins = state.focus.filter((e) => e.date >= weekAgo).reduce((s, e) => s + e.minutes, 0);
   const done = days.filter((d) => state.reports[d]).length;
 
   $('greetTitle').textContent = day ? `Tối nay, Day ${day}.` : 'Chưa có task.';
@@ -450,32 +373,28 @@ function renderToday() {
     const [dn, tot] = ckPair(day);
     $('greetSub').textContent = `${taskTitle(day)} · checklist ${tot ? `${dn}/${tot}` : '—'} · ${done}/${days.length} day đã nộp báo cáo.`;
   } else {
-    $('greetSub').textContent = 'Bạn bạn giao task (hoặc bạn nhận file taskdayN.md) — task sẽ hiện ở đây.';
+    $('greetSub').textContent = 'Bạn bạn gửi file .md — bấm "Mở file .md" để xem trước và nhận task.';
   }
 
   $('kStreak').innerHTML = `${streak} <small>ngày</small>`;
-  $('kMin').innerHTML = `${mins} <small>phút · 7 ngày</small>`;
   $('kDone').innerHTML = `${done}<small>/${days.length}</small>`;
 
   const body = $('todayBody');
   if (!day) {
     $('todayMeta').textContent = '';
     $('todayHint').textContent = '';
-    body.innerHTML = '<div class="empty">Chưa có task. Bấm "Nhận file" (taskdayN.md hoặc .html) — hoặc bảo bạn bạn bấm "Giao task".</div>';
-    $('timerPanel').hidden = true;
+    body.innerHTML = '<div class="empty">Chưa có task. Bấm "Mở file .md" để xem trước file bạn bạn gửi — hoặc bảo bạn bạn bấm "Giao task".</div>';
     return;
   }
-  $('timerPanel').hidden = false;
   const [dn, tot] = ckPair(day);
   $('todayMeta').textContent = `Day ${day}`;
-  $('todayHint').textContent = tot ? `Checklist ${dn}/${tot} · timer đọc bảng giờ trong task.` : 'Task này không có checklist tự động.';
+  $('todayHint').textContent = tot ? '' : 'Task này không có checklist tự động — theo dõi tiến độ bằng báo cáo.';
   body.innerHTML = (tot ? bar(dn, tot) : '') + mdToHtml(state.tasks[day].content);
   const cks = state.checks[day] || [];
   body.querySelectorAll('input[data-ck]').forEach((inp) => {
     const k = +inp.dataset.ck;
     if (cks[k]) { inp.checked = true; inp.closest('.ck')?.classList.add('done'); }
   });
-  timerSetup(day, true);
 }
 
 /* ---------------- báo cáo — danh sách, cả hai bên đọc ---------------- */
@@ -491,12 +410,10 @@ function renderReports() {
   let opened = false;
   list.innerHTML = days.map((d) => {
     const r = state.reports[d];
-    const pmin = focusMinutesForDay(d);
     const [dn, tot] = ckPair(d);
     const head = `<span class="d num">Day ${d}</span>
       <span class="name">${esc(taskTitle(d))}</span>
       <span class="fig num">${tot ? `${dn}<small>/${tot}</small>` : '—'}</span>
-      <span class="fig num">${pmin} <small>phút</small></span>
       <span class="pill ${r ? 'pos' : ''}">${r ? 'Đã nộp' : 'Chưa nộp'}</span>`;
     if (!r) return `<div class="rep-item"><div class="rep-head">${head}</div>
       <div class="btnrow" style="margin:0 0 16px"><button class="btn" data-open-report="${d}">Viết báo cáo</button></div></div>`;
@@ -506,97 +423,12 @@ function renderReports() {
   }).join('');
 }
 
-/* ---------------- timer ---------------- */
-const timer = { day: null, sched: DEFAULT_SCHED, i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0, int: null };
-function timerSetup(day, confirmIfRunning) {
-  if (timer.day === day) return true;
-  if (confirmIfRunning && timer.started && !timer.logged
-    && !confirm('Timer đang chạy. Chuyển day sẽ mất tiến trình timer. Chuyển chứ?')) return false;
-  clearInterval(timer.int);
-  Object.assign(timer, { day, i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0, int: null });
-  const t = state.tasks[day];
-  timer.sched = (t && t.type === 'md' && parseSchedule(t.content)) || DEFAULT_SCHED;
-  renderTimer();
-  return true;
-}
-const fmtClock = (s) => {
-  s = Math.max(0, Math.round(s));
-  if (s < 3600) return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-  return Math.floor(s / 3600) + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-};
-function renderTimer() {
-  const s = timer.sched;
-  $('timerMeta').textContent = timer.day != null ? `Day ${timer.day}` : '';
-  $('timerStrip').innerHTML = stripHTML(s) + `<p class="meta" style="margin-top:10px">${stripState(s)}</p>`;
-  $('timerRows').innerHTML = s.map((r, idx) => {
-    let cls = '';
-    if (idx < timer.i) cls += ' done';
-    if (idx === timer.i && timer.started && timer.running) cls += ' cur';
-    if (r.min === 0) cls += ' stop';
-    return `<div class="t-row ${cls}"><span class="tt num">${esc(r.time)}</span><span class="tm num">${r.min || '—'}</span><span class="tp">${esc(r.label)}</span></div>`;
-  }).join('');
-
-  const row = timer.i >= 0 && timer.i < s.length ? s[timer.i] : null;
-  const finished = timer.started && (timer.i >= s.length || timer.logged);
-  if (!timer.started) {
-    const total = s.reduce((x, r) => x + r.min, 0);
-    $('timerLabel').textContent = 'Sẵn sàng?';
-    $('timerClock').textContent = fmtClock(total * 60);
-    $('timerNext').textContent = 'Bắt đầu: ' + s[0].label;
-  } else if (finished) {
-    $('timerLabel').textContent = 'Hoàn thành phiên.';
-    $('timerClock').textContent = fmtClock(timer.doneMin * 60);
-    $('timerNext').textContent = `Đã ghi ${timer.doneMin} phút cho Day ${timer.day}`;
-  } else {
-    $('timerLabel').textContent = row.time + ' — ' + row.label;
-    $('timerClock').textContent = fmtClock(Math.max(0, timer.remain));
-    const nx = s[timer.i + 1];
-    $('timerNext').textContent = nx ? 'Tiếp: ' + nx.label : '';
-  }
-  $('btnStart').disabled = timer.running;
-  $('btnStart').textContent = timer.logged ? 'Lại từ đầu' : (timer.started && !timer.running ? 'Tiếp tục' : 'Bắt đầu');
-  $('btnPause').disabled = !timer.started || timer.logged;
-  $('btnPause').textContent = timer.running ? 'Tạm dừng' : (timer.started ? 'Tiếp tục' : 'Tạm dừng');
-  $('btnStop').disabled = !timer.started || timer.logged;
-  const hasStop = s.some((r) => r.min === 0);
-  $('timerBanner').hidden = !(finished && timer.logged && hasStop);
-}
-function tick() {
-  timer.remain--;
-  if (timer.remain < 0) { advance(); return; }
-  renderTimer();
-}
-function advance() {
-  const row = timer.sched[timer.i];
-  if (row && row.min > 0) { timer.doneMin += row.min; beep(); }
-  timer.i++;
-  if (timer.i >= timer.sched.length || timer.sched[timer.i].min === 0) { finishSession(); return; }
-  timer.remain = timer.sched[timer.i].min * 60;
-  renderTimer();
-}
-function finishSession() {
-  clearInterval(timer.int); timer.running = false;
-  if (!timer.logged && timer.doneMin > 0) {
-    state.focus.push({ date: today(), day: timer.day, minutes: timer.doneMin, ts: Date.now() });
-    timer.logged = true; save(); bg(pushFocus(state.focus.at(-1)));
-    renderToday();
-    toast(`Đã ghi ${timer.doneMin} phút cho Day ${timer.day}`);
-  }
-  renderTimer();
-}
-function resetTimerRun() {
-  clearInterval(timer.int);
-  Object.assign(timer, { i: -1, remain: 0, running: false, started: false, logged: false, doneMin: 0 });
-}
-
 /* ---------------- report ---------------- */
 let repLoadedDay = null;
 function reportTemplate(day) {
   const [dn, tot] = ckPair(day);
-  const mins = focusMinutesForDay(day);
   return `# Báo cáo Day ${day}
 - Ngày: ${today()}
-- Thời gian tập trung: ${mins} phút (từ timer)
 - Checklist: ${dn}/${tot}${tot ? ' (' + Math.round((dn / tot) * 100) + '%)' : ''}
 
 ## Đã làm
@@ -642,14 +474,6 @@ function saveDraft() {
   save(); bg(pushReport(day));
   $('repSavedInfo').textContent = `Đã nộp ${state.reports[day].date} ${state.reports[day].at}`;
 }
-function reportHtmlExport(day, md) {
-  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo Day ${day}</title>
-<style>body{font:15px/1.6 Georgia,serif;max-width:720px;margin:40px auto;padding:0 20px;color:#1f201d}
-h1{font-size:1.4rem}h2{font-size:1.05rem;margin:1.2em 0 .4em;padding-top:.6em;border-top:1px solid #eaeaea}
-table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #eaeaea;padding:6px 10px;text-align:left}
-blockquote{border-left:4px solid #fde68a;background:#fffbeb;margin:12px 0;padding:10px 14px;border-radius:10px;color:#92400e}</style>
-</head><body>${mdToHtml(md)}</body></html>`;
-}
 
 /* ---------------- create task (cho người giao task) ---------------- */
 let crAuto = true;
@@ -681,16 +505,18 @@ function createTemplate(n) {
 `;
 }
 
-/* ---------------- import: xem trước file task rồi mới nhận ---------------- */
-let staged = []; // {name, md, day}
+/* ---------------- import: xem trước file (.md task hoặc báo cáo) rồi mới nhận ----------------
+   File báo cáo nhận diện theo dòng đầu "# Báo cáo Day N" — chính là file app tự tạo ra. */
+let staged = []; // {name, md, day, kind: 'task' | 'report'}
 async function stageFiles(files) {
   staged = [];
   for (const f of files) {
     const text = await f.text();
     const isHtml = /\.html?$/i.test(f.name) || /^\s*<(!doctype|html)/i.test(text);
-    const md = isHtml ? htmlToMd(text) : text; // task .html cũng đọc được: chuyển về md để có checklist + timer
+    const md = isHtml ? htmlToMd(text) : text; // task .html cũng đọc được: chuyển về md để có checklist
+    const rep = md.match(/^#\s*Báo cáo\s*Day\s*(\d+)/m);
     const m = f.name.match(/day\s*(\d+)/i) || f.name.match(/(\d+)/);
-    staged.push({ name: f.name, md, day: m ? +m[1] : nextDay() });
+    staged.push({ name: f.name, md, day: rep ? +rep[1] : (m ? +m[1] : nextDay()), kind: rep ? 'report' : 'task' });
   }
   if (!staged.length) return;
   renderStage();
@@ -699,32 +525,45 @@ async function stageFiles(files) {
 }
 function renderStage() {
   $('stageList').innerHTML = staged.map((s, i) => {
-    const dup = state.tasks[s.day] && state.tasks[s.day].content !== s.md;
+    const hasTask = state.tasks[s.day] && state.tasks[s.day].content !== s.md;
+    const hasRep = !!state.reports[s.day];
+    const pill = s.kind === 'report'
+      ? (hasRep ? `<span class="pill">Báo cáo Day ${s.day} — đã có trong app, chỉ xem</span>`
+                : `<span class="pill pos">Báo cáo Day ${s.day} — sẽ lưu</span>`)
+      : (hasTask ? `<span class="pill warn">Day ${s.day} đã có task — sẽ ghi đè</span>`
+                 : `<span class="pill pos">Task mới</span>`);
     return `<div class="stage-item">
       <div class="stage-head">
         <span class="name">${esc(s.name)}</span>
         <label class="inline-field">Day<input type="number" class="input num" min="1" value="${s.day}" data-stage-day="${i}" style="width:76px"></label>
-        <span class="pill ${dup ? 'warn' : 'pos'}">${dup ? `Day ${s.day} đã có — sẽ ghi đè` : 'Task mới'}</span>
+        ${pill}
       </div>
       <div class="md stage-prev">${mdToHtml(s.md)}</div>
     </div>`;
   }).join('');
 }
 function acceptStaged() {
-  const touched = [];
+  const repDays = [];
   for (const s of staged) {
+    if (s.kind === 'report') {
+      if (!state.reports[s.day]) { // không đè báo cáo đã có (bản trong app luôn mới hơn)
+        const dm = s.md.match(/^-\s*Ngày:\s*(\d{4}-\d{2}-\d{2})/m);
+        state.reports[s.day] = { md: s.md, ts: Date.now(), date: dm ? dm[1] : today(), at: nowHM() };
+        repDays.push(s.day);
+        bg(pushReport(s.day));
+      }
+      continue;
+    }
     const day = Math.max(1, +s.day || nextDay());
     if (state.tasks[day]?.content !== s.md) delete state.checks[day]; // task mới → checklist cũ không còn đúng
     state.tasks[day] = { type: 'md', content: s.md, addedAt: Date.now() };
-    touched.push(day);
+    bg(pushTask(day));
   }
   staged = [];
   $('importModal').hidden = true;
-  resetTimerRun(); timer.day = null; // task có thể đổi → buộc dựng lại lịch timer
   pickDay = null; repLoadedDay = null;
   save(); renderAll();
-  for (const d of touched) bg(pushTask(d));
-  toast(touched.length > 1 ? `Đã nhận ${touched.length} task` : `Đã nhận task Day ${touched[0]}`);
+  toast(repDays.length ? `Đã lưu ${repDays.map((d) => 'Day ' + d).join(', ')} vào app` : 'Đã nhận');
 }
 function openReport(day) {
   pickDay = day; repLoadedDay = null; save(); switchTab('dash');
@@ -803,7 +642,7 @@ function init() {
       if (!data || typeof data.tasks !== 'object') throw new Error('bad');
       if (!confirm('Nhập backup sẽ thay thế dữ liệu máy này. Tiếp tục?')) return;
       state = { ...defaultState(), ...data, turso: { ...state.turso, pushed: false } };
-      pickDay = null; repLoadedDay = null; resetTimerRun(); timer.day = null;
+      pickDay = null; repLoadedDay = null;
       save(); renderAll(); toast('Đã nhập backup');
     } catch { alert('File backup không hợp lệ.'); }
     e.target.value = '';
@@ -811,18 +650,12 @@ function init() {
   $('resetAll').onclick = () => {
     if (!confirm('Xoá TOÀN BỘ task, báo cáo, tiến độ — cả trên Turso nếu đã kết nối? Không hoàn tác được.')) return;
     state = { ...defaultState(), turso: state.turso };
-    pickDay = null; repLoadedDay = null; resetTimerRun(); timer.day = null;
+    pickDay = null; repLoadedDay = null;
     save(); renderAll();
     if (tursoCfg().url && tursoCfg().token) {
-      bg((async () => { for (const t of ['tasks', 'reports', 'checks', 'focus']) await tsql('DELETE FROM ' + t); })());
+      bg((async () => { for (const t of ['tasks', 'reports', 'checks']) await tsql('DELETE FROM ' + t); })());
     }
     toast('Đã xoá hết');
-  };
-  $('dlAllMd').onclick = () => {
-    const days = taskDays().filter((d) => state.reports[d]);
-    if (!days.length) { toast('Chưa có báo cáo nào'); return; }
-    download(`baocao-day${days[0]}-den-day${days.at(-1)}.md`, days.map((d) => state.reports[d].md).join('\n\n---\n\n'));
-    toast(`Đã tải ${days.length} báo cáo gộp một file`);
   };
 
   // Turso
@@ -849,37 +682,6 @@ function init() {
     renderToday();
   });
 
-  // timer
-  $('btnStart').onclick = () => {
-    if (timer.logged) resetTimerRun();
-    if (!timer.started) {
-      timer.started = true; timer.i = 0;
-      timer.remain = (timer.sched[0]?.min || 0) * 60;
-    }
-    timer.running = true; clearInterval(timer.int); timer.int = setInterval(tick, 1000);
-    renderTimer();
-  };
-  $('btnPause').onclick = () => {
-    if (!timer.started || timer.logged) return;
-    if (timer.running) { clearInterval(timer.int); timer.running = false; }
-    else { timer.running = true; clearInterval(timer.int); timer.int = setInterval(tick, 1000); }
-    renderTimer();
-  };
-  $('btnStop').onclick = () => {
-    if (!timer.started || timer.logged) return;
-    clearInterval(timer.int); timer.running = false;
-    let mins = timer.doneMin;
-    if (timer.i < timer.sched.length && timer.sched[timer.i].min > 0) {
-      mins += Math.floor((timer.sched[timer.i].min * 60 - timer.remain) / 60);
-    }
-    if (mins > 0) {
-      state.focus.push({ date: today(), day: timer.day, minutes: mins, ts: Date.now() });
-      timer.logged = true; save(); bg(pushFocus(state.focus.at(-1))); renderToday();
-      toast(`Đã ghi ${mins} phút cho Day ${timer.day}`);
-    } else toast('Chưa đủ 1 phút để ghi');
-    renderTimer();
-  };
-
   // báo cáo: tự lưu khi ngừng gõ (900ms) → tự đẩy Turso
   let deb, draftT;
   $('repText').addEventListener('input', () => {
@@ -890,7 +692,7 @@ function init() {
     const day = curDay(); if (day == null) return;
     $('repText').value = reportTemplate(day);
     renderReport();
-    toast('Đã điền lại từ checklist + timer');
+    toast('Đã điền lại từ checklist');
   };
   $('btnSaveDraft').onclick = () => {
     const day = curDay(); if (day == null) return;
@@ -905,13 +707,7 @@ function init() {
     const day = curDay(); if (day == null) return;
     saveDraft();
     download(`baocaoday${day}.md`, $('repText').value);
-    toast(`Đã tải baocaoday${day}.md`);
-  };
-  $('btnDlHtml').onclick = () => {
-    const day = curDay(); if (day == null) return;
-    saveDraft();
-    download(`baocaoday${day}.html`, reportHtmlExport(day, $('repText').value), 'text/html');
-    toast(`Đã tải baocaoday${day}.html`);
+    toast(`Đã tạo baocaoday${day}.md — gửi file này cho bạn bạn`);
   };
 
   // giao task — nội dung
@@ -941,10 +737,16 @@ function init() {
   function renderCrPrev() { $('crPrev').innerHTML = mdToHtml($('crText').value); }
   renderCrPrev();
 
-  // cập nhật dải buổi tối mỗi 30 giây khi đang mở Hôm nay
-  setInterval(() => {
-    if ($('tab-dash')?.classList.contains('active')) { renderToday(); renderTimer(); }
-  }, 30000);
+  // nút "Mở file .md" ở tab Báo cáo dùng chung ô chọn file với Hôm nay
+  $('repFileBtn').onclick = () => $('importFile').click();
+  const dlAll = () => {
+    const days = taskDays().filter((d) => state.reports[d]);
+    if (!days.length) { toast('Chưa có báo cáo nào'); return; }
+    download(`baocao-day${days[0]}-den-day${days.at(-1)}.md`, days.map((d) => state.reports[d].md).join('\n\n---\n\n'));
+    toast(`Đã tải ${days.length} báo cáo gộp một file`);
+  };
+  $('dlAllReports').onclick = dlAll;
+  $('dlAllMd').onclick = dlAll;
 
   const TABS = ['dash', 'report', 'settings'];
   const hashTab = () => (location.hash.startsWith('#tab-') && TABS.includes(location.hash.slice(5)) ? location.hash.slice(5) : 'dash');
