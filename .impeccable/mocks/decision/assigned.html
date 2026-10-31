@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>GhostProject — Làm bài · Day 007</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--hl:#e3e9e6;--mut:#6b7a74;--tea:#1b6e66}
+html,body{height:900px;overflow:hidden}
+body{width:1440px;font-family:'Be Vietnam Pro',sans-serif;background:#f3f7f5;color:#17201d;font-size:14px}
+.app{display:flex;width:1440px;height:900px}
+/* sidebar */
+.side{width:224px;flex:none;background:#fff;border-right:1px solid var(--hl);display:flex;flex-direction:column;padding:22px 16px 20px}
+.logo{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.logo small{display:block;font-size:11px;font-weight:400;color:var(--mut);letter-spacing:.02em;margin-top:3px}
+nav{margin-top:30px;display:flex;flex-direction:column;gap:4px}
+nav a{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;font-size:13.5px;font-weight:500;color:var(--mut);text-decoration:none}
+nav a .d{width:6px;height:6px;border-radius:50%;background:transparent;flex:none}
+nav a.on{background:rgba(27,110,102,.08);color:var(--tea)}
+nav a.on .d{background:var(--tea)}
+.grow{flex:1}
+.btn{font-family:inherit;border:0;cursor:pointer;font-weight:600;font-size:13.5px;border-radius:12px}
+.btn.teal{background:var(--tea);color:#fff}
+.side .btn{width:100%;padding:12px 0}
+/* main column */
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+/* day-thread strip */
+.thread{display:flex;align-items:center;gap:8px;padding:12px 24px;border-bottom:1px solid var(--hl)}
+.pill{font-size:12px;font-weight:500;padding:6px 13px;border-radius:999px;border:1px solid transparent;color:var(--mut)}
+.pill.off{color:#9aa7a1;border-color:var(--hl)}
+.pill.on{background:#fff;border-color:var(--tea);color:var(--tea);display:inline-flex;align-items:center;gap:7px}
+.pill.on .d{width:6px;height:6px;border-radius:50%;background:var(--tea)}
+/* workspace header */
+.head{display:flex;align-items:center;padding:18px 24px 16px}
+.big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.sub{font-size:18px;font-weight:500;color:var(--mut);margin-left:14px}
+.hr{display:flex;align-items:center;gap:8px;margin-left:auto}
+.sel{position:relative}
+select{appearance:none;-webkit-appearance:none;font:500 13px 'Be Vietnam Pro',sans-serif;color:#17201d;background:#fff;border:1px solid var(--hl);border-radius:10px;padding:8px 30px 8px 12px;cursor:pointer}
+.sel::after{content:"▾";position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--mut);pointer-events:none}
+.chip{font-size:12px;font-weight:500;background:#fff;border:1px solid var(--hl);border-radius:999px;padding:7px 12px;color:#17201d}
+/* split panes + divider */
+.split{flex:1;min-height:0;display:flex;padding:2px 24px 24px}
+.pane{min-width:0;overflow:hidden}
+.pl{flex:0 0 62%}
+.pr{flex:1}
+.divider{position:relative;flex:0 0 10px}
+.rail{position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--hl)}
+.grip{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:4px;height:28px;border-radius:999px;background:#c5d0cb}
+.pct{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--mut);background:#fff;border:1px solid var(--hl);border-radius:999px;padding:3px 8px;white-space:nowrap}
+/* left pane — task card */
+.card{background:#fff;border:1px solid var(--hl);border-radius:14px;height:100%;padding:20px 26px;overflow:hidden}
+.receipt{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.receipt .d{width:7px;height:7px;border-radius:50%;background:var(--tea)}
+.receipt b{color:var(--tea);font-weight:600;letter-spacing:.04em}
+h2{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.goal{font-size:13px;color:var(--mut);margin:7px 0 16px}
+.goal b{color:#17201d;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);text-align:left;padding:7px 10px;border-bottom:1px solid var(--hl)}
+td{padding:9px 10px;border-bottom:1px solid var(--hl)}
+td.time{width:64px;color:var(--mut);font-variant-numeric:tabular-nums}
+td.min{width:54px;color:var(--mut);font-variant-numeric:tabular-nums}
+tr.stop td{font-weight:600;border-bottom:0;color:#17201d}
+tr.stop td.time,tr.stop td.min{color:var(--mut);font-weight:500}
+blockquote{margin:16px 0 4px;padding:10px 16px;border-left:3px solid #c9d5cf;background:#f8faf9;font-size:13px;line-height:1.55;color:var(--mut);border-radius:0 10px 10px 0}
+.check{list-style:none;margin-top:12px}
+.check li{display:flex;align-items:center;gap:10px;padding:6px 2px;font-size:13.5px}
+.check li.ok{color:var(--mut)}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--tea);flex:none}
+/* right pane — editor */
+.write{background:#fff;border:1px solid var(--hl);border-radius:14px;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.draft{flex:1;padding:20px 22px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;color:#17201d;overflow:hidden}
+.draft b{font-weight:600}
+.foot{display:flex;align-items:center;gap:8px;border-top:1px solid var(--hl);padding:12px 14px}
+.saved{font-size:11px;letter-spacing:.04em;color:var(--mut);margin-right:auto}
+.btn.ghost{background:transparent;color:var(--mut);font-weight:500;font-size:13px;padding:8px 10px;border-radius:10px}
+.btn.line{background:#fff;border:1px solid var(--hl);color:#17201d;font-weight:500;font-size:13px;padding:8px 14px;border-radius:10px}
+.btn.sm{padding:8px 16px;font-size:13px;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo">GhostProject<small>lộ trình tự học</small></div>
+    <nav>
+      <a class="on" href="#"><span class="d" aria-hidden="true"></span>Làm bài</a>
+      <a href="#"><span class="d" aria-hidden="true"></span>Báo cáo</a>
+      <a href="#"><span class="d" aria-hidden="true"></span>Cài đặt</a>
+    </nav>
+    <div class="grow"></div>
+    <button class="btn teal">Giao task</button>
+  </aside>
+  <main>
+    <div class="thread">
+      <span class="pill">Day 005 ✓</span>
+      <span class="pill">Day 006 ✓</span>
+      <span class="pill on">Day 007<span class="d" aria-hidden="true"></span></span>
+      <span class="pill off">Day 008</span>
+    </div>
+    <header class="head">
+      <div><span class="big">Day 007</span><span class="sub">Hàm và scope</span></div>
+      <div class="hr">
+        <span class="sel"><select aria-label="Chuyển day"><option>Chuyển day</option><option>Day 005</option><option>Day 006</option><option>Day 007</option><option>Day 008</option></select></span>
+        <span class="chip">Checklist 2/6</span>
+        <span class="chip">Streak 5 ngày</span>
+      </div>
+    </header>
+    <div class="split">
+      <section class="pane pl">
+        <div class="card">
+          <div class="receipt">Bạn gửi · 20:14 ·<span class="d" aria-hidden="true"></span><b>Đã xem</b></div>
+          <h2>Day 007 — Hàm và scope</h2>
+          <p class="goal"><b>Mục tiêu hôm nay:</b> hiểu scope của biến trong hàm, tự viết 5 hàm nhỏ.</p>
+          <table>
+            <tr><th>Time</th><th>Min</th><th>Part</th></tr>
+            <tr><td class="time">19:30</td><td class="min">10</td><td>Đọc lại ghi chú hôm qua</td></tr>
+            <tr><td class="time">19:40</td><td class="min">50</td><td>§1 Knowledge — hàm, tham số, return</td></tr>
+            <tr><td class="time">20:30</td><td class="min">40</td><td>§2 Predict → Run → Explain</td></tr>
+            <tr><td class="time">21:10</td><td class="min">20</td><td>§3 AI-Verify + drill</td></tr>
+            <tr class="stop"><td class="time">21:30</td><td class="min">—</td><td>Hard stop. Dừng cả giữa câu.</td></tr>
+          </table>
+          <blockquote>“21:30 là điểm dừng, không phải mục tiêu. Giấc ngủ quan trọng hơn việc xong section.”</blockquote>
+          <ul class="check">
+            <li class="ok"><input type="checkbox" checked>Đọc lại ghi chú hôm qua</li>
+            <li class="ok"><input type="checkbox" checked>§1: viết lại định nghĩa scope bằng lời của mình</li>
+            <li><input type="checkbox">§1: 3 ví dụ hoisting</li>
+            <li><input type="checkbox">§2: Predict → Run → Explain với 2 đoạn code</li>
+            <li><input type="checkbox">§3: kiểm chứng 1 điểm còn mơ hồ với AI</li>
+            <li><input type="checkbox">Drill: 5 bài viết hàm</li>
+          </ul>
+        </div>
+      </section>
+      <div class="divider" role="separator" aria-label="Chia khung"><span class="rail"></span><span class="grip"></span><span class="pct">62%</span></div>
+      <section class="pane pr">
+        <div class="write">
+          <div class="draft"><b>Báo cáo Day 7 — Ngày 2026-10-29 — Checklist 2/6 (33%)</b>
+Đã làm: đọc lại ghi chú Day 6; viết lại định nghĩa scope bằng lời của mình; 3 ví dụ hoisting — var bay lên, let không.
+Không làm: §2 Predict → Run → Explain — đang làm dở ở ví dụ thứ nhất.
+Học được: scope của var là function, let là block.
+Câu hỏi: tại sao dùng let thay var trong vòng lặp lại an toàn hơn?</div>
+          <div class="foot">
+            <span class="saved">Đã lưu 20:32</span>
+            <button class="btn ghost">Xem trước</button>
+            <button class="btn line">Tạo file .md</button>
+            <button class="btn teal sm">Nộp bài</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

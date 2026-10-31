@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>GhostProject · Sơ đồ tuyến đêm — Day 007</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body { height:900px; overflow:hidden; }
+  body{position:relative;width:1440px;height:900px;background:#10203f;font-family:'Be Vietnam Pro',sans-serif;color:#1a2333;-webkit-font-smoothing:antialiased}
+  button,select{font-family:inherit}
+  .side{position:absolute;left:0;top:0;width:216px;height:900px;background:#10203f}
+  .brand{padding:28px 24px 0;color:#f5f2ea;font-size:17px;font-weight:600}
+  .brand em{display:block;margin-top:4px;font-style:normal;font-size:11.5px;font-weight:400;color:rgba(245,242,234,.6)}
+  .nav{margin-top:46px}
+  .nav a{display:block;position:relative;padding:10px 24px;font-size:13.5px;color:rgba(245,242,234,.6);text-decoration:none}
+  .nav a.on{color:#f5f2ea;font-weight:500}
+  .nav a.on::before{content:"";position:absolute;left:0;top:50%;width:2px;height:18px;margin-top:-9px;background:#f5f2ea}
+  .assign{position:absolute;left:22px;right:22px;bottom:26px;padding:10px 0;background:none;border:1px solid rgba(245,242,234,.45);border-radius:9px;color:#f5f2ea;font-size:13px;font-weight:500;cursor:pointer}
+  .rail{position:absolute;left:216px;top:0;width:1224px;height:64px}
+  .ln{position:absolute;height:2px;background:#f5f2ea}
+  .ln.a{left:32px;top:19px;width:276px}
+  .ln.b{left:308px;top:19px;width:22.6px;transform:rotate(45deg);transform-origin:0 50%}
+  .ln.c{left:324px;top:35px;width:11px}
+  .dt{position:absolute;border-radius:50%}
+  .d5{left:39px;top:15px;width:10px;height:10px;background:#2e7d5b;border:1px solid rgba(245,242,234,.7)}
+  .d6{left:127px;top:15px;width:10px;height:10px;background:#2e7d5b;border:1px solid rgba(245,242,234,.7)}
+  .d7{left:213px;top:13px;width:14px;height:14px;background:#d8433b;box-shadow:0 0 0 3px rgba(216,67,59,.22)}
+  .d8{left:336px;top:31px;width:10px;height:10px;border:1px dashed #6f7a8c}
+  .st{position:absolute;transform:translateX(-50%);font-size:9px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:rgba(245,242,234,.6);white-space:nowrap}
+  .s5{left:44px;top:31px}
+  .s6{left:132px;top:31px}
+  .s7{left:220px;top:30px;color:#f5f2ea;font-weight:600}
+  .s8{left:341px;top:46px}
+  .surface{position:absolute;left:232px;top:80px;width:1192px;height:804px;background:#f5f2ea;border-radius:16px;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 26px 15px;border-bottom:1px solid #e4e0d4}
+  h1{font-size:20px;font-weight:600}
+  .meta{display:flex;align-items:center;gap:10px}
+  .meta select{padding:7px 8px 7px 12px;border:1px solid #e4e0d4;border-radius:8px;background:none;font-size:12.5px;color:#1a2333;cursor:pointer}
+  .chip{padding:7px 13px;border:1px solid #e4e0d4;border-radius:999px;font-size:12px;color:#6f7a8c;white-space:nowrap}
+  .chip b{font-weight:600;color:#1a2333}
+  .split{flex:1;display:flex;min-height:0}
+  .task{width:62%;padding:22px 26px}
+  .cap{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#6f7a8c}
+  .lbl{margin-top:22px}
+  .goal{margin-top:6px;font-size:14.5px;line-height:1.5}
+  table{width:100%;margin-top:14px;border-collapse:collapse;font-size:13px;line-height:1.4}
+  th{padding:0 12px 7px 0;border-bottom:1px solid #e4e0d4;text-align:left;font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#6f7a8c}
+  td{padding:8px 12px 8px 0;border-bottom:1px solid #e4e0d4;vertical-align:top}
+  .w1{width:64px}.w2{width:42px}
+  .stop td:first-child{color:#e2a33c;font-weight:600}
+  blockquote{margin-top:18px;padding:2px 0 2px 14px;border-left:3px solid #e2a33c;font-size:13.5px;font-weight:500;line-height:1.55}
+  ul{margin-top:6px;list-style:none}
+  li{display:flex;gap:10px;padding:7px 0;font-size:13.5px;line-height:1.45}
+  li input{width:15px;height:15px;margin-top:2px;accent-color:#2e7d5b;cursor:pointer;flex:none}
+  li.ok{color:#6f7a8c}
+  .draft{flex:1;min-width:0;padding:22px 24px 20px;border-left:1px solid #e4e0d4;display:flex;flex-direction:column}
+  .text{margin-top:16px;font-size:13.5px;line-height:1.65}
+  .text p{margin-bottom:12px}
+  .text p.h{font-weight:600}
+  .text b{font-weight:600}
+  .dft{margin-top:auto;padding-top:14px;border-top:1px solid #e4e0d4;display:flex;align-items:center;gap:8px}
+  .dft span{margin-right:auto;font-size:11px;color:#6f7a8c}
+  .pri{padding:8px 16px;background:#d8433b;border:1px solid #d8433b;border-radius:8px;color:#f5f2ea;font-size:12.5px;font-weight:500;cursor:pointer}
+  .out{padding:8px 14px;background:none;border:1px solid #e4e0d4;border-radius:8px;color:#1a2333;font-size:12.5px;cursor:pointer}
+  .gho{padding:8px 10px;background:none;border:none;color:#6f7a8c;font-size:12.5px;cursor:pointer}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand">GhostProject<em>lộ trình tự học</em></div>
+  <nav class="nav">
+    <a class="on" href="#">Làm bài</a>
+    <a href="#">Báo cáo</a>
+    <a href="#">Cài đặt</a>
+  </nav>
+  <button class="assign">Giao task</button>
+</aside>
+<header class="rail">
+  <i class="ln a"></i><i class="ln b"></i><i class="ln c"></i>
+  <i class="dt d5"></i><i class="dt d6"></i><i class="dt d7"></i><i class="dt d8"></i>
+  <span class="st s5">Day 005</span><span class="st s6">Day 006</span><span class="st s7">Day 007</span><span class="st s8">Day 008</span>
+</header>
+<main class="surface">
+  <div class="topbar">
+    <h1>Day 007 — Hàm và scope</h1>
+    <div class="meta">
+      <select>
+        <option selected>Chuyển day</option>
+        <option>Day 005</option><option>Day 006</option><option>Day 007</option><option>Day 008</option>
+      </select>
+      <span class="chip">Checklist <b>2/6</b></span>
+      <span class="chip">Streak <b>5 ngày</b></span>
+    </div>
+  </div>
+  <div class="split">
+    <section class="task">
+      <p class="cap">BẠN GỬI · 20:14</p>
+      <p class="cap lbl">Mục tiêu</p>
+      <p class="goal">hiểu scope của biến trong hàm, tự viết 5 hàm nhỏ.</p>
+      <table>
+        <tr><th class="w1">Time</th><th class="w2">Min</th><th>Part</th></tr>
+        <tr><td>19:30</td><td>10</td><td>Đọc lại ghi chú hôm qua</td></tr>
+        <tr><td>19:40</td><td>50</td><td>§1 Knowledge — hàm, tham số, return</td></tr>
+        <tr><td>20:30</td><td>40</td><td>§2 Predict → Run → Explain</td></tr>
+        <tr><td>21:10</td><td>20</td><td>§3 AI-Verify + drill</td></tr>
+        <tr class="stop"><td>21:30</td><td>—</td><td>Hard stop. Dừng cả giữa câu.</td></tr>
+      </table>
+      <blockquote>21:30 là điểm dừng, không phải mục tiêu. Giấc ngủ quan trọng hơn việc xong section.</blockquote>
+      <p class="cap lbl">Checklist</p>
+      <ul>
+        <li class="ok"><input type="checkbox" checked>Đọc lại ghi chú hôm qua</li>
+        <li class="ok"><input type="checkbox" checked>§1: viết lại định nghĩa scope bằng lời của mình</li>
+        <li><input type="checkbox">§1: 3 ví dụ hoisting</li>
+        <li><input type="checkbox">§2: Predict → Run → Explain với 2 đoạn code</li>
+        <li><input type="checkbox">§3: kiểm chứng 1 điểm còn mơ hồ với AI</li>
+        <li><input type="checkbox">Drill: 5 bài viết hàm</li>
+      </ul>
+    </section>
+    <section class="draft">
+      <p class="cap">Bản nháp</p>
+      <div class="text">
+        <p class="h">Báo cáo Day 7 — 2026-10-29 — Checklist 2/6 (33%)</p>
+        <p><b>Đã làm:</b> đọc lại ghi chú Day 6; viết lại định nghĩa scope bằng lời của mình; 3 ví dụ hoisting — var bay lên, let không.</p>
+        <p><b>Không làm:</b> §2 Predict → Run → Explain — dừng ở ví dụ thứ nhất.</p>
+        <p><b>Học được:</b> scope của var là function, let là block.</p>
+        <p><b>Câu hỏi:</b> tại sao dùng let thay var trong vòng lặp lại an toàn hơn?</p>
+      </div>
+      <footer class="dft">
+        <span>Đã lưu 20:32</span>
+        <button class="pri">Nộp bài</button>
+        <button class="out">Tạo file .md</button>
+        <button class="gho">Xem trước</button>
+      </footer>
+    </section>
+  </div>
+</main>
+</body>
+</html>

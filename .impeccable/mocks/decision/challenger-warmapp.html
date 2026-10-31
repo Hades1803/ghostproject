@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>GhostProject — Tối nay học gì?</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:900px;overflow:hidden}
+body{width:1440px;background:#faf6f1;color:#2c2621;font-family:'Be Vietnam Pro',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+.app{height:828px;padding:26px 36px 22px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:18px;font-weight:700}
+.hello{font-size:13px;color:#8a8177;margin-top:3px}
+.streak{background:#fff;border-radius:999px;padding:10px 18px;font-size:13px;font-weight:500}
+.days{display:flex;gap:12px;margin-top:18px}
+.day{width:120px;height:64px;background:#fff;border-radius:16px;padding:11px 14px;display:flex;flex-direction:column;justify-content:space-between}
+.dname{font-size:13px;font-weight:600}
+.dst{font-size:12px;color:#8a8177}
+.day.active{border:2px solid #e5543f;padding:9px 12px}
+.day.active .dname{font-weight:700}
+.ddot{width:8px;height:8px;border-radius:50%;background:#e5543f}
+.split{display:flex;gap:16px;margin-top:18px;flex:1;min-height:0}
+.card{background:#fff;border-radius:20px;padding:20px 24px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.task{flex:62}
+.draft{flex:38}
+.kicker{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a8177}
+.titlerow{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
+.titlerow h2{font-size:19px;font-weight:600}
+.meta{font-size:12px;color:#8a8177}
+.goal{font-size:14px;margin-top:10px}
+.lb{font-weight:600}
+.table{margin-top:12px}
+.tr{display:grid;grid-template-columns:60px 52px 1fr;gap:10px;padding:6px 0;border-top:1px solid #eee6dc;font-size:13.5px;line-height:1.4}
+.tr.h{border-top:none;font-size:10.5px;letter-spacing:.1em;color:#8a8177;font-weight:600}
+.tr .time{color:#8a8177;font-weight:500}
+blockquote{margin-top:12px;background:#fdf3ee;border-radius:12px;padding:11px 16px;font-size:13.5px;line-height:1.5}
+.check{list-style:none;margin-top:10px}
+.check li{display:flex;gap:11px;align-items:flex-start;padding:5px 0;font-size:13.5px;line-height:1.45}
+.cb{flex:none;width:18px;height:18px;border-radius:6px;border:1.5px solid rgba(138,129,119,.45);margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.cb.on{background:#e5543f;border-color:#e5543f}
+.dtext{margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.6;overflow:hidden}
+.dfoot{margin-top:auto;padding-top:12px;border-top:1px solid #eee6dc;display:flex;align-items:center;gap:10px}
+.saved{font-size:11px;color:#8a8177;margin-right:auto}
+.btn{border-radius:999px;font-family:inherit;font-size:13px;font-weight:500;padding:9px 18px;border:1.5px solid #eee6dc;background:#fff;color:#2c2621}
+.btn.primary{background:#e5543f;border-color:#e5543f;color:#fff;font-weight:700;padding:10px 22px}
+.btn.ghost{border-color:transparent;color:#8a8177}
+.bar{position:fixed;left:0;right:0;bottom:0;height:72px;background:#fff;border-top:1px solid #eee6dc;display:flex;align-items:center;padding:0 36px}
+.tabs{display:flex;gap:56px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#8a8177;min-width:60px}
+.tdot{width:9px;height:9px;border-radius:50%;background:#eee6dc}
+.tab.active{color:#e5543f;font-weight:600}
+.tab.active .tdot{background:#e5543f}
+.fab{margin-left:auto;background:#e5543f;color:#fff;font-weight:700;font-size:14px;border-radius:999px;padding:13px 26px;transform:translateY(-8px)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="brand">GhostProject</div>
+      <div class="hello">Tối nay học gì?</div>
+    </div>
+    <div class="streak">Streak 5 ngày</div>
+  </header>
+
+  <section class="days">
+    <div class="day done"><span class="dname">Day 005</span><span class="dst">✓</span></div>
+    <div class="day done"><span class="dname">Day 006</span><span class="dst">✓</span></div>
+    <div class="day active"><span class="dname">Day 007</span><span class="ddot"></span></div>
+    <div class="day"><span class="dname">Day 008</span><span class="dst"></span></div>
+  </section>
+
+  <main class="split">
+    <section class="card task">
+      <div class="kicker">Task</div>
+      <div class="titlerow"><h2>Day 007 — Hàm và scope</h2><span class="meta">Bạn gửi 20:14</span></div>
+      <p class="goal"><span class="lb">Mục tiêu:</span> hiểu scope của biến trong hàm, tự viết 5 hàm nhỏ.</p>
+      <div class="table">
+        <div class="tr h"><span>TIME</span><span>MIN</span><span>PART</span></div>
+        <div class="tr"><span class="time">19:30</span><span>10</span><span>Đọc lại ghi chú hôm qua</span></div>
+        <div class="tr"><span class="time">19:40</span><span>50</span><span>§1 Knowledge — hàm, tham số, return</span></div>
+        <div class="tr"><span class="time">20:30</span><span>40</span><span>§2 Predict → Run → Explain</span></div>
+        <div class="tr"><span class="time">21:10</span><span>20</span><span>§3 AI-Verify + drill</span></div>
+        <div class="tr"><span class="time">21:30</span><span>—</span><span class="lb">Hard stop. Dừng cả giữa câu.</span></div>
+      </div>
+      <blockquote>“21:30 là điểm dừng, không phải mục tiêu. Giấc ngủ quan trọng hơn việc xong section.”</blockquote>
+      <ul class="check">
+        <li><span class="cb on">✓</span>Đọc lại ghi chú hôm qua</li>
+        <li><span class="cb on">✓</span>§1: viết lại định nghĩa scope bằng lời của mình</li>
+        <li><span class="cb"></span>§1: 3 ví dụ hoisting</li>
+        <li><span class="cb"></span>§2: Predict → Run → Explain với 2 đoạn code</li>
+        <li><span class="cb"></span>§3: kiểm chứng 1 điểm còn mơ hồ với AI</li>
+        <li><span class="cb"></span>Drill: 5 bài viết hàm</li>
+      </ul>
+    </section>
+
+    <section class="card draft">
+      <div class="kicker">Viết bài</div>
+      <div class="dtext">
+        <p class="lb">Báo cáo Day 7 — 2026-10-29 — Checklist 2/6 (33%)</p>
+        <p><span class="lb">Đã làm:</span> đọc lại ghi chú Day 6; viết lại định nghĩa scope bằng lời của mình; 3 ví dụ hoisting — var bay lên, let không.</p>
+        <p><span class="lb">Không làm:</span> §2 Predict → Run → Explain — dừng ở ví dụ thứ nhất.</p>
+        <p><span class="lb">Học được:</span> scope của var là function, let là block.</p>
+        <p><span class="lb">Câu hỏi:</span> tại sao dùng let thay var trong vòng lặp lại an toàn hơn?</p>
+      </div>
+      <div class="dfoot">
+        <span class="saved">Đã lưu 20:32</span>
+        <button class="btn ghost">Xem trước</button>
+        <button class="btn">Tạo file .md</button>
+        <button class="btn primary">Nộp bài</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bar">
+  <div class="tabs">
+    <div class="tab active"><span class="tdot"></span><span>Làm bài</span></div>
+    <div class="tab"><span class="tdot"></span><span>Báo cáo</span></div>
+    <div class="tab"><span class="tdot"></span><span>Cài đặt</span></div>
+  </div>
+  <div class="fab">Giao task</div>
+</nav>
+</body>
+</html>

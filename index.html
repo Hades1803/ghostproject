@@ -6,21 +6,21 @@
 <title>GhostProject — Lộ trình tự học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app">
-  <!-- shell: sidebar trên ground, không top bar -->
+  <!-- shell: nav trên mặt bàn, trang giấy là nhân vật chính -->
   <aside class="sidebar" id="sidebar">
     <div class="who">
-      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--margin)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fdfcf7"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fdfcf7"/></svg>
       <div><b>GhostProject</b><span>lộ trình tự học</span></div>
       <button class="btn ghost close-sheet" id="menuClose" type="button" aria-label="Đóng menu">Đóng</button>
     </div>
     <nav aria-label="Mục chính">
-      <a class="nav-item" href="#tab-dash" data-tab="dash">Hôm nay</a>
+      <a class="nav-item" href="#tab-dash" data-tab="dash">Làm bài</a>
       <a class="nav-item" href="#tab-report" data-tab="report">Báo cáo</a>
     </nav>
     <div class="bottom">
@@ -32,53 +32,80 @@
   <div class="canvas">
     <!-- phone: thanh 48px, menu mở sheet toàn màn hình -->
     <div class="phonebar">
-      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--accent)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fff"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fff"/></svg>
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-4.3 0-7.8 3.3-7.8 7.6v11.2l2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8 2.6-1.8 2.6 1.8V10.2c0-4.3-3.5-7.6-7.8-7.6Z" fill="var(--margin)"/><circle cx="9.4" cy="10.4" r="1.25" fill="#fdfcf7"/><circle cx="14.6" cy="10.4" r="1.25" fill="#fdfcf7"/></svg>
       <b>GhostProject</b>
       <button class="btn primary" data-assign type="button">Giao task</button>
-      <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Menu</button>
+      <button class="btn ghost" id="menuBtn" type="button" aria-label="Mở menu">Mở menu</button>
     </div>
 
-    <!-- ============ HÔM NAY — task tối nay + nộp báo cáo ============ -->
-    <section id="tab-dash" class="tab col">
-      <header class="hello">
-        <h2 class="greet" id="greetTitle">Tối nay, Day 1.</h2>
-        <p class="sub" id="greetSub"></p>
+    <!-- ============ LÀM BÀI — trang đề bên trái, trang vở bên phải ============ -->
+    <section id="tab-dash" class="tab">
+      <header class="ws-top">
+        <h1 class="screen-title" id="wsTitle" data-screen="dash">Làm bài</h1>
+        <span class="ws-name" id="wsName"></span>
+        <span class="row-end" style="margin-left:auto">
+          <select id="dayPick" class="input select-day" aria-label="Chọn day"></select>
+          <span class="chip" id="chipCk" hidden></span>
+          <span class="chip" id="chipDone" hidden></span>
+          <span class="chip" id="chipStreak" hidden></span>
+        </span>
       </header>
 
-      <div class="kpis">
-        <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value" id="kStreak">0 <small>ngày</small></div></div>
-        <div class="kpi"><div class="kpi-label">Day có báo cáo</div><div class="kpi-value" id="kDone">0 <small>trên 0</small></div></div>
+      <div class="split" id="wsSplit" hidden>
+        <div class="pane pane-task" id="paneTask">
+          <div class="pane-bar">
+            <span id="taskTabs" style="display:contents"></span>
+            <span class="spacer"></span>
+            <button class="ghostbtn" id="collapseLeft" type="button" title="Gập trang đề">Gập đề ‹</button>
+          </div>
+          <div class="pane-scroll" id="taskBody"></div>
+        </div>
+
+        <div class="gutter" id="gutter" aria-hidden="true">
+          <span class="grip"></span>
+          <span class="split-num" id="splitNum">58%</span>
+        </div>
+        <button class="restore left" id="restoreLeft" type="button" hidden>Mở lại đề</button>
+        <button class="restore right" id="restoreRight" type="button" hidden>Mở lại trang viết</button>
+
+        <div class="pane pane-edit" id="paneEdit">
+          <div class="pane-bar">
+            <span class="savechip" id="saveState" role="status" aria-live="polite">Bản nháp: chưa có gì</span>
+            <span class="meta" id="subInfo"></span>
+            <span class="spacer"></span>
+            <button class="ghostbtn" id="collapseRight" type="button" title="Gập trang viết">› Gập viết</button>
+          </div>
+          <div class="pane-scroll" style="padding-bottom:6px">
+            <textarea id="repText" spellcheck="false" placeholder="Viết báo cáo ngay trên dòng kẻ — ngừng gõ là tự lưu."></textarea>
+          </div>
+          <div class="pane-preview" id="repPrevWrap" hidden>
+            <div id="repPrev" class="md"></div>
+          </div>
+          <div class="pane-actions">
+            <button class="btn" id="btnDlMd" type="button">Tạo file .md</button>
+            <button class="btn ghost" id="btnPreview" type="button" aria-expanded="false">Xem trước</button>
+            <button class="btn ghost" id="btnRefill" type="button" title="Điền lại mẫu báo cáo (hỏi trước khi thay nội dung)">Điền mẫu</button>
+            <button class="btn ghost" id="btnCopy" type="button">Sao chép</button>
+            <span class="spacer"></span>
+            <button class="btn primary" id="btnSubmit" type="button">Nộp bài</button>
+          </div>
+        </div>
       </div>
 
-      <section class="panel">
-        <header>
-          <h2>Tối nay</h2>
-          <span class="row-end">
-            <span class="meta" id="todayMeta"></span>
+      <div class="mtabs" id="mtabs" hidden>
+        <button class="mtab on" data-pane="task" type="button">Task</button>
+        <button class="mtab" data-pane="edit" type="button">Trả lời</button>
+      </div>
+      <div id="wsEmpty" hidden>
+        <div class="empty" style="min-height:220px">
+          <div>
+            <p style="margin-bottom:12px">Chưa có task nào. Mở file đề bạn bạn gửi — hoặc bảo bạn bạn bấm "Giao task".</p>
             <button class="btn" id="importBtn" type="button">Mở file .md</button>
-          </span>
-          <input type="file" id="importFile" accept=".md,.markdown,.txt,.html" multiple hidden>
-        </header>
-        <div id="todayBody" class="md"></div>
-        <p class="meta" id="todayHint" style="margin-top:12px"></p>
-      </section>
-
-      <section class="panel" id="repPanel">
-        <header><h2 id="repTitle">Báo cáo hôm nay</h2><span class="meta" id="repSavedInfo"></span></header>
-        <textarea id="repText" spellcheck="false" placeholder="Viết báo cáo ở đây — ngừng gõ là tự lưu và đồng bộ."></textarea>
-        <div class="btnrow">
-          <button class="btn primary" id="btnSaveDraft" type="button">Nộp báo cáo</button>
-          <button class="btn" id="btnDlMd" type="button">Tạo file .md</button>
-          <button class="btn ghost" id="btnRefill" type="button" title="Điền lại từ checklist (mất nội dung đang viết)">Điền lại từ data</button>
-          <button class="btn ghost" id="btnCopy" type="button">Copy</button>
+            <button class="btn primary" data-assign type="button">Giao task</button>
+          </div>
         </div>
-        <details class="preview">
-          <summary>Xem trước</summary>
-          <div id="repPrev" class="md"></div>
-        </details>
-      </section>
-
-      <p class="footnote">Dữ liệu lưu trong máy + đồng bộ qua Turso — cấu hình ở <a href="#tab-settings" data-tab="settings">Cài đặt</a>.</p>
+      </div>
+      <input type="file" id="importFile" accept=".md,.markdown,.txt,.html,.htm,.css,.png,.jpg,.jpeg,.gif,.webp,.svg,.woff,.woff2,.ttf,.otf" multiple hidden>
     </section>
 
     <!-- ============ BÁO CÁO — cả hai bên đọc bài đã nộp ============ -->
@@ -100,12 +127,12 @@
       <div class="set-row">
         <div class="set-label">
           <h2>Turso (SQLite)</h2>
-          <p>Hai máy dùng chung một database Turso: bạn bạn giao task, bạn nộp báo cáo, cả hai đọc được ở tab Báo cáo. Tạo database free ở turso.tech → copy URL + auth token dán vào đây (mỗi máy một lần).</p>
+          <p>Hai máy dùng chung một database Turso: bạn bạn giao task, bạn nộp báo cáo (từng phiên bản), bản nháp cũng theo sang máy kia. Tạo database free ở turso.tech → copy URL + auth token dán vào đây (mỗi máy một lần).</p>
         </div>
         <div class="set-panel">
           <div class="set-fields">
-            <label class="span2">Database URL<input id="tursoUrl" class="input" placeholder="libsql://ten-db-org.turso.io" autocomplete="off"></label>
-            <label class="span2">Auth token<input id="tursoToken" class="input" type="password" autocomplete="off"></label>
+            <label class="span2">URL database<input id="tursoUrl" class="input" placeholder="libsql://ten-db-org.turso.io" autocomplete="off"></label>
+            <label class="span2">Token truy cập<input id="tursoToken" class="input" type="password" autocomplete="off"></label>
           </div>
           <div class="btnrow">
             <button class="btn primary" id="btnConnect" type="button">Kết nối &amp; đồng bộ</button>
@@ -117,7 +144,7 @@
       <div class="set-row">
         <div class="set-label">
           <h2>Dữ liệu</h2>
-          <p>Backup JSON của task, báo cáo, checklist và phút tập trung (không gồm token Turso).</p>
+          <p>Backup JSON của day, task (mọi file), checklist, báo cáo và bản nháp (không gồm token Turso).</p>
         </div>
         <div class="set-panel">
           <div class="btnrow" style="margin-top:0">
@@ -131,7 +158,7 @@
       <div class="set-row">
         <div class="set-label">
           <h2>Báo cáo</h2>
-          <p>Gộp mọi báo cáo đã nộp thành một file .md để lưu hoặc gửi đi.</p>
+          <p>Gộp mọi phiên bản mới nhất của từng day thành một file .md để lưu hoặc gửi đi.</p>
         </div>
         <div class="set-panel">
           <button class="btn" id="dlAllMd" type="button">Tải tất cả báo cáo .md</button>
@@ -141,7 +168,7 @@
       <div class="set-row">
         <div class="set-label">
           <h2>Xoá tất cả</h2>
-          <p>Xoá task, báo cáo, checklist và phút tập trung — cả trên Turso nếu đã kết nối. Không hoàn tác được.</p>
+          <p>Xoá day, task, checklist, báo cáo và bản nháp — cả trên Turso nếu đã kết nối. Không hoàn tác được.</p>
         </div>
         <div class="set-panel">
           <button class="btn danger" id="resetAll" type="button">Xoá dữ liệu GhostProject</button>
@@ -158,7 +185,16 @@
       <h2 id="assignTitle">Giao task</h2>
       <button class="btn ghost" id="assignClose" type="button">Đóng</button>
     </header>
-    <div class="inline-field" style="margin-bottom:12px"><label for="crDay">Day</label><input type="number" id="crDay" min="1" value="1" class="input num" style="width:88px"><button class="btn" id="crFileBtn" type="button">Nhập file .md</button><input type="file" id="crFile" accept=".md,.markdown,.txt,.html" hidden></div>
+    <div class="inline-field" style="margin-bottom:12px">
+      <label for="crDay">Day</label>
+      <input type="number" id="crDay" min="1" value="1" class="input num" style="width:88px">
+      <label for="crTitle">Tiêu đề day</label>
+      <input type="text" id="crTitle" class="input" style="flex:1;min-width:180px" placeholder="VD: Hàm và scope" autocomplete="off">
+      <button class="btn" id="crFileBtn" type="button">Nhập file .md</button>
+      <input type="file" id="crFile" accept=".md,.markdown,.txt,.html" hidden>
+    </div>
+    <p class="field-err" id="crTitleErr" hidden>Tiêu đề day là bắt buộc — đặt tên để hai bên nhận ra day này.</p>
+    <p class="field-err" id="crDayErr" hidden>Day này đã có task — chọn số day khác.</p>
     <textarea id="crText" spellcheck="false"></textarea>
     <div class="btnrow">
       <button class="btn primary" id="btnCrSave" type="button">Đăng task</button>
@@ -169,16 +205,26 @@
   </div>
 </div>
 
-<!-- ============ NHẬN FILE: xem trước khi nhận ============ -->
+<!-- ============ NHẬN FILE: xem trước + ghép CSS/ảnh rồi mới nhận ============ -->
 <div class="modal" id="importModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stageTitle">
     <header>
       <h2 id="stageTitle">Xem trước file</h2>
       <button class="btn ghost" id="stageClose" type="button">Đóng</button>
     </header>
+    <div class="inline-field" style="margin-bottom:4px">
+      <label for="stageDay">Day</label>
+      <input type="number" id="stageDay" min="1" class="input num" style="width:88px">
+      <label for="stageName">Tiêu đề day</label>
+      <input type="text" id="stageName" class="input" style="flex:1;min-width:180px" placeholder="Bắt buộc — tên day" autocomplete="off">
+    </div>
+    <p class="field-err" id="stageTitleErr" hidden>Tiêu đề day là bắt buộc.</p>
+    <p class="meta" id="stageNote" style="margin:6px 0 4px"></p>
+    <p style="margin:0 0 4px"><span class="pill warn" id="stageOverwrite" hidden></span></p>
     <div id="stageList"></div>
+    <div id="stageCss"></div>
     <div class="btnrow">
-      <button class="btn primary" id="btnStageAccept" type="button">Nhận</button>
+      <button class="btn primary" id="btnStageAccept" type="button" disabled>Nhận</button>
       <button class="btn ghost" id="stageCancel" type="button">Huỷ</button>
     </div>
   </div>

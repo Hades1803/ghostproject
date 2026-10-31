@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Ghost/Project — Lưới hiển hiện</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+html,body{height:900px;overflow:hidden}
+body{position:relative;width:1440px;background:#fbfbf8;color:#22221f;font:400 15px/1.7 "Work Sans",sans-serif;-webkit-font-smoothing:antialiased}
+/* visible construction grid: 8 columns + baseline rows, entire workspace */
+.grid{position:fixed;inset:0;pointer-events:none;z-index:1;background-image:
+ repeating-linear-gradient(90deg,rgba(185,199,212,.35) 0 1px,transparent 1px 180px),
+ repeating-linear-gradient(0deg,rgba(185,199,212,.26) 0 1px,transparent 1px 36px)}
+/* left rail — column 1 */
+.rail{position:absolute;z-index:2;left:0;top:0;bottom:0;width:180px;padding:26px 20px;display:flex;flex-direction:column;border-right:1px solid rgba(139,161,180,.5)}
+.logo{font-family:"Archivo Black",sans-serif;font-size:16px;line-height:1.12;letter-spacing:-.2px}
+.rail nav{margin-top:36px;display:flex;flex-direction:column;gap:6px}
+.rail nav a{display:block;font-size:13px;font-weight:500;color:#7d7d76;padding:9px 12px}
+.rail nav a.on{background:#1f4f8b;color:#fff}
+.ghostbtn{display:block;margin-top:auto;border:1px solid #22221f;text-align:center;padding:10px 0;font-size:13px;font-weight:500;color:#22221f}
+/* top band — columns 2–8, bottom edge on a baseline row */
+.band{position:absolute;z-index:2;left:180px;top:0;width:1260px;height:180px;display:flex;border-bottom:1px solid rgba(139,161,180,.5)}
+.daynum{width:360px;background:#1f4f8b;color:#fff;font-family:"Archivo Black",sans-serif;font-size:64px;line-height:1;display:flex;align-items:center;padding-left:26px}
+.bandmain{flex:1;display:flex;justify-content:space-between;align-items:flex-start;padding:34px 36px 0 34px}
+.band h1{font-size:18px;font-weight:500}
+.band select{margin-top:18px;font:500 12.5px/1 "Work Sans",sans-serif;color:#7d7d76;border:1px solid #b9c7d4;background:#fbfbf8;padding:7px 10px;border-radius:2px;min-width:160px}
+.chips{display:flex;gap:10px}
+.chips span{border:1px solid #b9c7d4;border-radius:2px;padding:7px 14px;font-size:12.5px}
+.chips b{font-weight:500}
+/* the split — divider sits exactly on column line x=900; wash lets grid recede under text */
+.split{position:absolute;z-index:2;left:180px;top:180px;width:1260px;height:720px;display:flex;background:rgba(251,251,248,.5)}
+.pane{min-width:0}
+.task{width:720px;padding:26px 40px 20px 28px;border-right:1px solid rgba(122,145,165,.65)}
+.draft{flex:1;display:flex;flex-direction:column}
+.drafttext{padding:26px 36px 12px}
+.task h3{font-size:16.5px;font-weight:500;margin-bottom:8px}
+.goal{margin-bottom:16px}
+.goal span{color:#7d7d76}
+table{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.45;margin-bottom:18px}
+th{font-weight:500;font-size:10.5px;letter-spacing:1.4px;color:#7d7d76;text-align:left;padding:7px 10px;border:1px solid #dcdcd4}
+td{padding:8px 10px;border:1px solid #dcdcd4}
+td.t{width:66px;color:#7d7d76}
+td.m{width:54px;color:#7d7d76}
+blockquote{border-left:1px solid #22221f;padding:1px 0 1px 14px;margin-bottom:18px;color:#7d7d76}
+.checks{list-style:none}
+.checks li{display:flex;gap:10px;padding:5px 0;font-size:14.5px;line-height:1.5}
+.checks li.done{color:#7d7d76}
+.cb{flex:0 0 15px;height:15px;border:1px solid #22221f;margin-top:4px}
+.checks li.done .cb{background:#1f4f8b;border-color:#1f4f8b}
+.dtitle{font-weight:500;margin-bottom:12px}
+.drafttext p{margin-bottom:12px}
+.drafttext b{font-weight:500}
+.draftfoot{margin-top:auto;border-top:1px solid #dcdcd4;padding:14px 36px;display:flex;justify-content:space-between;align-items:center}
+.draftfoot span{font-size:12px;letter-spacing:.4px;color:#7d7d76}
+.draftfoot div{display:flex;gap:10px}
+button{font-family:"Work Sans",sans-serif;font-size:13px;font-weight:500;cursor:default}
+.solid{background:#22221f;color:#fff;border:1px solid #22221f;padding:9px 18px}
+.outl{background:transparent;color:#22221f;border:1px solid #22221f;padding:9px 16px}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<aside class="rail">
+  <div class="logo">GHOST/<br>PROJECT</div>
+  <nav>
+    <a class="on">Làm bài</a>
+    <a>Báo cáo</a>
+    <a>Cài đặt</a>
+  </nav>
+  <a class="ghostbtn">Giao task</a>
+</aside>
+<header class="band">
+  <div class="daynum">DAY 007</div>
+  <div class="bandmain">
+    <div>
+      <h1>Hàm và scope</h1>
+      <select>
+        <option selected disabled>Chuyển day</option>
+        <option>Day 007 · Hàm và scope</option>
+        <option>Day 006 · Vòng lặp</option>
+        <option>Day 005 · Mảng</option>
+      </select>
+    </div>
+    <div class="chips"><span>Checklist <b>2/6</b></span><span>Streak <b>5 ngày</b></span></div>
+  </div>
+</header>
+<main class="split">
+  <section class="pane task">
+    <h3>Day 007 — Hàm và scope</h3>
+    <p class="goal"><span>Mục tiêu:</span> hiểu scope của biến trong hàm, tự viết 5 hàm nhỏ.</p>
+    <table>
+      <tr><th>TIME</th><th>MIN</th><th>PART</th></tr>
+      <tr><td class="t">19:30</td><td class="m">10</td><td>Đọc lại ghi chú hôm qua</td></tr>
+      <tr><td class="t">19:40</td><td class="m">50</td><td>§1 Knowledge — hàm, tham số, return</td></tr>
+      <tr><td class="t">20:30</td><td class="m">40</td><td>§2 Predict → Run → Explain</td></tr>
+      <tr><td class="t">21:10</td><td class="m">20</td><td>§3 AI-Verify + drill</td></tr>
+      <tr><td class="t">21:30</td><td class="m">—</td><td>Hard stop. Dừng cả giữa câu.</td></tr>
+    </table>
+    <blockquote>“21:30 là điểm dừng, không phải mục tiêu. Giấc ngủ quan trọng hơn việc xong section.”</blockquote>
+    <ul class="checks">
+      <li class="done"><span class="cb"></span>Đọc lại ghi chú hôm qua</li>
+      <li class="done"><span class="cb"></span>§1: viết lại định nghĩa scope bằng lời của mình</li>
+      <li><span class="cb"></span>§1: 3 ví dụ hoisting</li>
+      <li><span class="cb"></span>§2: Predict → Run → Explain với 2 đoạn code</li>
+      <li><span class="cb"></span>§3: kiểm chứng 1 điểm còn mơ hồ với AI</li>
+      <li><span class="cb"></span>Drill: 5 bài viết hàm</li>
+    </ul>
+  </section>
+  <section class="pane draft">
+    <div class="drafttext">
+      <p class="dtitle">Báo cáo Day 7 — 2026-10-29 — Checklist 2/6 (33%)</p>
+      <p><b>Đã làm:</b> đọc lại ghi chú Day 6; viết lại định nghĩa scope bằng lời của mình; 3 ví dụ hoisting — var bay lên, let không.</p>
+      <p><b>Không làm:</b> §2 Predict → Run → Explain — dừng ở ví dụ thứ nhất.</p>
+      <p><b>Học được:</b> scope của var là function, let là block.</p>
+      <p><b>Câu hỏi:</b> tại sao dùng let thay var trong vòng lặp lại an toàn hơn?</p>
+    </div>
+    <footer class="draftfoot">
+      <span>Đã lưu 20:32</span>
+      <div><button class="solid">Nộp bài</button><button class="outl">Tạo file .md</button></div>
+    </footer>
+  </section>
+</main>
+</body>
+</html>

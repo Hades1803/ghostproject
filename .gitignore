@@ -1,13 +1,11 @@
-# Script chẩn đoán chứa key S3 thật — KHÔNG đưa lên git
-s3-probe.mjs
-s3-probe2.mjs
-s3-probe3.mjs
+# Tool dò key S3 / script thử nghiệm — KHÔNG đưa lên git
+s3-probe*.mjs
 s3-upload-test.mjs
 s3-cleanup.mjs
 test-sync.mjs
 test-flow.mjs
 
-# Bản build & công cụ nội bộ
+# Build & công cụ nội bộ
 deploy/
 .taste-skill/
 .agents/
@@ -15,3 +13,6 @@ deploy/
 node_modules/
 _preview.html
 _preview.js
+_mob.html
+.impeccable/questions/
+.impeccable/review/

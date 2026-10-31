@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>GhostProject — Day 007 — Hàm và scope</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap">
+<style>
+:root{--desk:#f1ece3;--paper:#fdfcf7;--rule:#c9d6e2;--red:#c2432f;--ink:#2b2b26;--mut:#8a8477;--hair:rgba(43,43,38,.16)}
+*{box-sizing:border-box;margin:0}
+html,body{height:900px;overflow:hidden}
+body{width:1440px;background:var(--desk);color:var(--ink);font-family:'Be Vietnam Pro',sans-serif;-webkit-font-smoothing:antialiased}
+/* ---- top bar ---- */
+.top{height:56px;display:flex;align-items:center;padding:0 28px;position:relative}
+.brand{font-size:16px;font-weight:600}
+.day{position:absolute;left:50%;transform:translateX(-50%);height:30px;padding:0 30px 0 12px;font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);background:var(--paper) url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='8'%20height='6'%3E%3Cpath%20d='M1%201l3%203%203-3'%20fill='none'%20stroke='%238a8477'%20stroke-width='1.3'/%3E%3C/svg%3E") no-repeat right 10px center;border:1px solid var(--hair);border-radius:8px;appearance:none}
+.chips{margin-left:auto;display:flex;gap:8px}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;font-size:12px;font-weight:500}
+.chip b{font-weight:600}
+/* ---- desk + two paper pages ---- */
+.desk{height:calc(100% - 56px);padding:14px 28px;display:flex;gap:16px}
+.page{position:relative;overflow:hidden;padding:0 24px 0 84px;background-color:var(--paper);background-image:repeating-linear-gradient(to bottom,transparent 0 33px,var(--rule) 33px 34px);border-radius:3px;box-shadow:0 1px 2px rgba(64,52,32,.09),0 10px 28px rgba(64,52,32,.13)}
+.page::before{content:'';position:absolute;top:0;bottom:0;left:64px;width:1px;background:var(--red)}
+.page::after{content:'';position:absolute;right:0;bottom:0;width:30px;height:30px;border-bottom-right-radius:3px;background:linear-gradient(315deg,rgba(64,52,32,.16),rgba(64,52,32,.04) 40%,transparent 50%)}
+.pgL{flex:0 0 58%}
+.pgR{flex:1}
+/* ---- everything sits on the 34px rule pitch ---- */
+.page h1{margin-top:34px;font-size:22px;font-weight:600;line-height:34px}
+.page p,.page td{font-size:13px;line-height:34px}
+.goal span{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin-right:8px}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:34px}
+th{height:34px;line-height:32px;padding:0;text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+td{height:34px;padding:0;text-align:left;vertical-align:middle}
+th.t,td.t{width:74px}
+th.m,td.m{width:54px}
+blockquote{margin:34px 0 0 24px;padding-left:16px;border-left:2px solid rgba(194,67,47,.5);max-width:560px;font-size:12.5px;line-height:34px;color:var(--mut)}
+ul{list-style:none;padding:0;margin:34px 0 0}
+li{display:flex;align-items:center;gap:12px;height:34px;font-size:13px}
+.cb{flex:none;width:14px;height:14px;border:1.5px solid var(--ink);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;line-height:1}
+li.on .cb::after{content:'✕'}
+/* ---- right page ---- */
+.pgR p{margin-top:34px}
+.pgR .hd{font-size:14px;font-weight:600}
+.pgR b{font-weight:600}
+/* ---- footer row on the last rule ---- */
+.foot{position:absolute;left:0;right:0;bottom:0;height:34px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut)}
+.foot .sp{flex:1}
+.btn{height:26px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}
+.btn.dark{background:var(--ink);color:var(--paper);border:1px solid var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(43,43,38,.38)}
+</style>
+</head>
+<body>
+<header class="top">
+<span class="brand">GhostProject</span>
+<select class="day" aria-label="Chọn ngày học">
+<option>Day 005 — Điều kiện và vòng lặp</option>
+<option>Day 006 — Mảng và đối tượng</option>
+<option selected>Day 007 — Hàm và scope</option>
+</select>
+<div class="chips">
+<span class="chip">Checklist <b>2/6</b></span>
+<span class="chip">Streak <b>5 ngày</b></span>
+</div>
+</header>
+<main class="desk">
+<section class="page pgL">
+<h1>Day 007 — Hàm và scope</h1>
+<p class="goal"><span>Mục tiêu</span>hiểu scope của biến trong hàm, tự viết 5 hàm nhỏ.</p>
+<table>
+<thead><tr><th class="t">Time</th><th class="m">Min</th><th>Part</th></tr></thead>
+<tbody>
+<tr><td class="t">19:30</td><td class="m">10</td><td>Đọc lại ghi chú hôm qua</td></tr>
+<tr><td class="t">19:40</td><td class="m">50</td><td>§1 Knowledge — hàm, tham số, return</td></tr>
+<tr><td class="t">20:30</td><td class="m">40</td><td>§2 Predict → Run → Explain</td></tr>
+<tr><td class="t">21:10</td><td class="m">20</td><td>§3 AI-Verify + drill</td></tr>
+<tr><td class="t">21:30</td><td class="m">—</td><td>Hard stop. Dừng cả giữa câu.</td></tr>
+</tbody>
+</table>
+<blockquote>“21:30 là điểm dừng, không phải mục tiêu. Giấc ngủ quan trọng hơn việc xong section.”</blockquote>
+<ul>
+<li class="on"><span class="cb"></span>Đọc lại ghi chú hôm qua</li>
+<li class="on"><span class="cb"></span>§1: viết lại định nghĩa scope bằng lời của mình</li>
+<li><span class="cb"></span>§1: 3 ví dụ hoisting</li>
+<li><span class="cb"></span>§2: Predict → Run → Explain với 2 đoạn code</li>
+<li><span class="cb"></span>§3: kiểm chứng 1 điểm còn mơ hồ với AI</li>
+<li><span class="cb"></span>Drill: 5 bài viết hàm</li>
+</ul>
+</section>
+<section class="page pgR">
+<p class="hd">Báo cáo Day 7 — 2026-10-29 — Checklist 2/6 (33%)</p>
+<p><b>Đã làm:</b> đọc lại ghi chú Day 6; viết lại định nghĩa scope bằng lời của mình; 3 ví dụ hoisting — var bay lên, let không.</p>
+<p><b>Không làm:</b> §2 Predict → Run → Explain — dừng ở ví dụ thứ nhất.</p>
+<p><b>Học được:</b> scope của var là function, let là block.</p>
+<p><b>Câu hỏi:</b> tại sao dùng let thay var trong vòng lặp lại an toàn hơn?</p>
+<div class="foot">
+<span>Đã lưu 20:32</span>
+<span class="sp"></span>
+<button class="btn dark" type="button">Nộp bài</button>
+<button class="btn ghost" type="button">Tạo file .md</button>
+</div>
+</section>
+</main>
+</body>
+</html>

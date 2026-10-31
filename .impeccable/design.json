@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01",
+  "title": "Design System: GhostProject",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Mực Ink",
+        "canonical": "#2b2b26",
+        "tonalRamp": ["oklch(20% 0.015 90)", "oklch(30% 0.02 90)", "oklch(40% 0.02 90)", "oklch(50% 0.02 90)", "oklch(62% 0.018 90)", "oklch(72% 0.015 90)", "oklch(84% 0.012 90)", "oklch(95% 0.008 90)"]
+      },
+      "margin": {
+        "role": "secondary",
+        "displayName": "Lề đỏ Margin",
+        "canonical": "#c2432f",
+        "tonalRamp": ["oklch(30% 0.13 30)", "oklch(40% 0.14 30)", "oklch(48% 0.15 30)", "oklch(56% 0.14 30)", "oklch(66% 0.11 30)", "oklch(76% 0.08 30)", "oklch(86% 0.05 30)", "oklch(95% 0.02 30)"]
+      },
+      "rule": {
+        "role": "secondary",
+        "displayName": "Dòng kẻ Rule",
+        "canonical": "#c9d6e2",
+        "tonalRamp": ["oklch(50% 0.03 240)", "oklch(58% 0.035 240)", "oklch(66% 0.035 240)", "oklch(74% 0.03 240)", "oklch(81% 0.025 240)", "oklch(88% 0.02 240)", "oklch(93% 0.012 240)", "oklch(97% 0.005 240)"]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Bàn học Desk",
+        "canonical": "#efe9df",
+        "tonalRamp": ["oklch(55% 0.02 90)", "oklch(62% 0.02 90)", "oklch(70% 0.02 90)", "oklch(78% 0.02 90)", "oklch(85% 0.018 90)", "oklch(90% 0.015 90)", "oklch(94% 0.012 90)", "oklch(97% 0.008 90)"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Giấy Paper",
+        "canonical": "#fdfcf7",
+        "tonalRamp": ["oklch(60% 0.01 95)", "oklch(70% 0.01 95)", "oklch(80% 0.008 95)", "oklch(88% 0.008 95)", "oklch(93% 0.007 95)", "oklch(96% 0.005 95)", "oklch(98% 0.003 95)", "oklch(99.5% 0.002 95)"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Chì Muted",
+        "canonical": "#6b655a",
+        "tonalRamp": ["oklch(35% 0.015 85)", "oklch(42% 0.015 85)", "oklch(50% 0.015 85)", "oklch(57% 0.015 85)", "oklch(64% 0.014 85)", "oklch(72% 0.012 85)", "oklch(82% 0.01 85)", "oklch(92% 0.006 85)"]
+      },
+      "positive-bg": {
+        "role": "tertiary",
+        "displayName": "Nền dương",
+        "canonical": "#e2ece6",
+        "tonalRamp": ["oklch(45% 0.04 160)", "oklch(55% 0.04 160)", "oklch(64% 0.04 160)", "oklch(72% 0.035 160)", "oklch(80% 0.03 160)", "oklch(88% 0.025 160)", "oklch(93% 0.015 160)", "oklch(97% 0.008 160)"]
+      },
+      "negative-bg": {
+        "role": "tertiary",
+        "displayName": "Nền lỗi",
+        "canonical": "#f6e4de",
+        "tonalRamp": ["oklch(45% 0.09 30)", "oklch(55% 0.08 30)", "oklch(65% 0.07 30)", "oklch(74% 0.06 30)", "oklch(82% 0.05 30)", "oklch(89% 0.04 30)", "oklch(94% 0.025 30)", "oklch(98% 0.012 30)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Số Day", "purpose": "Số day là nhân vật: chữ lớn nhất mỗi màn hình, luôn kèm tên day chì ngay cạnh." },
+      "body": { "displayName": "Trang vở", "purpose": "Nội dung đề và báo cáo; trong editor line-height bắt bằng nhịp dòng kẻ 34px." },
+      "label": { "displayName": "Ghi chú bút chì", "purpose": "Chip, filetab, trạng thái lưu — chữ nhỏ phụ, không bao giờ uppercase." }
+    },
+    "shadows": [
+      { "name": "page", "value": "0 2px 10px rgba(76,60,30,.10), 0 1px 3px rgba(76,60,30,.06)", "purpose": "Bóng vật mỏng — chỉ cho .pane (trang giấy trên bàn). Nút/modal/card cấm bóng." }
+    ],
+    "motion": [
+      { "name": "page-in", "value": "opacity 0→1, 200ms cubic-bezier(.22,1,.36,1) both", "purpose": "Khoảnh khắc chuyển động duy nhất: trang giấy mờ dần hiện ra khi đổi day. Không trượt, không scale." },
+      { "name": "hover", "value": "150ms ease; press 120ms", "purpose": "Đổi nền hover của nút/filetab; không dùng transform cho hover." }
+    ],
+    "breakpoints": [
+      { "name": "split", "value": "999px — trên: chia đôi pane; dưới: hai tab Task/Trả lời" },
+      { "name": "phone", "value": "860px — từ đây xuống: phonebar 48px thay sidebar" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Nút mực (primary)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Hành động chính của vùng: Nộp bài, Nhận file, Giao task, Kết nối.",
+      "html": "<button class=\"ds-btn-primary\">Nộp bài</button>",
+      "css": ".ds-btn-primary{font:500 13.5px 'Be Vietnam Pro',system-ui,sans-serif;background:var(--ink,#2b2b26);color:var(--paper,#fdfcf7);border:0;border-radius:999px;height:36px;padding:0 18px;cursor:pointer;transition:background-color .15s ease}.ds-btn-primary:hover{background:#3d3b33}.ds-btn-primary:focus-visible{outline:2px solid var(--ink,#2b2b26);outline-offset:2px}.ds-btn-primary:disabled{opacity:.55;cursor:not-allowed}"
+    },
+    {
+      "name": "Nút giấy (default)",
+      "kind": "button",
+      "refersTo": "button-paper",
+      "description": "Hành động phụ trên mặt bàn hoặc trong pane.",
+      "html": "<button class=\"ds-btn-paper\">Xuất backup .json</button>",
+      "css": ".ds-btn-paper{font:500 13.5px 'Be Vietnam Pro',system-ui,sans-serif;background:var(--paper,#fdfcf7);color:var(--ink,#2b2b26);border:0;border-radius:999px;height:36px;padding:0 14px;cursor:pointer;transition:background-color .15s ease}.ds-btn-paper:hover{background:var(--paper-dim,#f4f0e6)}.ds-btn-paper:focus-visible{outline:2px solid var(--ink,#2b2b26);outline-offset:2px}"
+    },
+    {
+      "name": "Filetab",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Tab chọn file trong pane đề; strip cuộn ngang khi day nhiều file.",
+      "html": "<span class=\"ds-filetab on\">taskday2.md</span><span class=\"ds-filetab\">taskday2-bai-tap.html</span>",
+      "css": ".ds-filetab{font:400 12.5px 'Be Vietnam Pro',system-ui,sans-serif;color:#6b655a;background:transparent;border:1px solid transparent;border-radius:999px;height:26px;padding:0 10px;display:inline-flex;align-items:center;white-space:nowrap;cursor:pointer;transition:background-color .15s ease}.ds-filetab:hover{background:#f4f0e6;color:#2b2b26}.ds-filetab.on{background:#f4f0e6;border-color:#e4dccd;color:#2b2b26;font-weight:500}"
+    },
+    {
+      "name": "Chip trạng thái",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Số liệu nhanh trên mặt bàn: Checklist 2/6, 1/2 day nộp, Streak.",
+      "html": "<span class=\"ds-chip\">Checklist <b>2</b>/6</span><span class=\"ds-chip pos\">Đã nộp</span><span class=\"ds-chip warn\">Cảnh báo</span>",
+      "css": ".ds-chip{font:400 12.5px 'Be Vietnam Pro',system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 12px;border-radius:999px;background:#efe9df;color:#5c564a}.ds-chip b{color:#2b2b26;font-weight:600}.ds-chip.pos{background:#e2ece6;color:#24503c}.ds-chip.warn{background:#f6e4de;color:#b23a26}"
+    },
+    {
+      "name": "Checkbox vở",
+      "kind": "custom",
+      "refersTo": "input-field",
+      "description": "Ô tick vuông nét mực trong checklist dòng kẻ 34px.",
+      "html": "<div class=\"ds-ck\"><input type=\"checkbox\" checked><span>Đọc lại ghi chú hôm qua (10 phút)</span></div><div class=\"ds-ck\"><input type=\"checkbox\"><span>§2: Predict → Run → Explain</span></div>",
+      "css": ".ds-ck{display:flex;align-items:flex-start;height:34px;font:400 15px 'Be Vietnam Pro',system-ui,sans-serif;color:#2b2b26}.ds-ck input{appearance:none;width:16px;height:16px;flex:none;margin:9px 10px 0 0;border:1.5px solid #2b2b26;border-radius:3px;background:#fdfcf7;cursor:pointer}.ds-ck input:checked{background:#2b2b26;border-color:#2b2b26}"
+    },
+    {
+      "name": "Trang vở (editor dòng kẻ)",
+      "kind": "custom",
+      "refersTo": "input-field",
+      "description": "Textarea báo cáo: nền giấy, lề đỏ 1px, dòng kẻ 34px cuộn theo chữ.",
+      "html": "<div class=\"ds-page\"><textarea class=\"ds-editor\"># Báo cáo Day 2\n- Ngày: 2026-10-30\n\n## Đã làm\n- viết lại cơ chế bằng lời của mình</textarea></div>",
+      "css": ".ds-page{position:relative;background:#fdfcf7;border-radius:6px;box-shadow:0 2px 10px rgba(76,60,30,.10),0 1px 3px rgba(76,60,30,.06);padding:0 20px 0 56px;width:100%}.ds-page::before{content:'';position:absolute;left:44px;top:0;bottom:0;width:1px;background:#c2432f;opacity:.5}.ds-editor{display:block;width:100%;height:204px;border:0;outline:none;resize:none;background:transparent;caret-color:#2b2b26;color:#2b2b26;font:400 15px/34px 'Be Vietnam Pro',system-ui,sans-serif;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#c9d6e2 33px,#c9d6e2 34px);background-attachment:local}"
+    },
+    {
+      "name": "Chip lưu (trạng thái thật)",
+      "kind": "custom",
+      "refersTo": "chip-status",
+      "description": "Ghi chú bút chì báo vòng đời nháp: Đang lưu… / Đã lưu giờ / Lưu lỗi.",
+      "html": "<span class=\"ds-save\">Đã lưu 21:10</span><span class=\"ds-save err\">Lưu lỗi — bộ nhớ máy đầy?</span>",
+      "css": ".ds-save{font:400 12.5px 'Be Vietnam Pro',system-ui,sans-serif;color:#6b655a}.ds-save.err{color:#b23a26;font-weight:500}"
+    },
+    {
+      "name": "Modal sheet ghim chân",
+      "kind": "card",
+      "refersTo": "rounded.input",
+      "description": "Trang giấy nổi trên màn tối; nơi có danh sách dài thì chỉ danh sách cuộn, nút chính ghim đáy.",
+      "html": "<div class=\"ds-sheet\"><header><h2>Xem trước file</h2><button class=\"ds-x\">Đóng</button></header><div class=\"ds-sheet-scroll\">Nội dung danh sách…</div><div class=\"ds-sheet-foot\"><button class=\"ds-btn-primary\">Nhận</button><button class=\"ds-btn-paper\">Huỷ</button></div></div>",
+      "css": ".ds-sheet{width:560px;max-width:100%;max-height:80vh;display:flex;flex-direction:column;background:#fdfcf7;border:1px solid #e4dccd;border-radius:8px;padding:22px;font:400 15px 'Be Vietnam Pro',system-ui,sans-serif;color:#2b2b26;box-sizing:border-box}.ds-sheet header{display:flex;justify-content:space-between;gap:12px;margin-bottom:14px}.ds-sheet h2{font-size:18px;font-weight:600;margin:0}.ds-sheet-scroll{flex:1;min-height:0;overflow:auto}.ds-sheet-foot{margin-top:10px;padding-top:12px;border-top:1px solid #ede7da;display:flex;gap:10px}.ds-sheet-foot button,.ds-x{cursor:pointer;border:0;border-radius:999px;height:36px;padding:0 18px;font:500 13.5px 'Be Vietnam Pro',system-ui,sans-serif}.ds-btn-primary{background:#2b2b26;color:#fdfcf7}.ds-btn-paper,.ds-x{background:transparent;color:#2b2b26}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Vở ngang 5 dòng",
+    "overview": "App là trang vở mở ngang trên bàn học tối: đọc đề trên trang giấy bên trái, viết báo cáo ngay trên dòng kẻ 34px bên trang kia, lề đỏ dọc mép trái mỗi trang. Bố cục 'dashboard thẻ trắng trên nền xám' của thể loại app học bị từ chối tường minh — pane là trang giấy, không phải card. Số day là chữ lớn nhất màn hình; trạng thái lưu viết nhỏ như ghi chú bút chì và luôn nói thật.",
+    "keyCharacteristics": [
+      "Pane = trang giấy 6px bo góc với lề đỏ 1px; bóng chỉ dành cho trang giấy, còn lại phẳng",
+      "Dòng kẻ xanh #c9d6e2 nhịp 34px chỉ ở trang viết, cuộn theo chữ",
+      "Đỏ #c2432f chỉ cho lề và lỗi; mực #2b2b26 làm mọi chữ chính",
+      "Một khoảnh khắc chuyển động duy nhất: trang giấy mờ dần hiện ra"
+    ],
+    "rules": [
+      { "name": "The Two-Ink Rule", "body": "Màn hình chỉ có mực #2b2b26 và hai bút màu có nghĩa: đỏ (lề/lỗi) và xanh (dòng kẻ). Không thêm màu thứ ba vào bất kỳ màn hình nào.", "section": "colors" },
+      { "name": "The Ruled-Page Rule", "body": "Trong trang viết mọi chữ đi trên nhịp 34px; padding khối là bội số của 34.", "section": "typography" },
+      { "name": "The Paper-Not-Card Rule", "body": "Chỉ .pane được bóng giấy; nút/modal/toast/card phẳng — cần tách thì dùng hairline + lề đỏ 1px.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do giữ lề đỏ 1px trên mọi trang giấy (.pane, .rep-item, .set-panel)",
+      "Do căn phải cột số (MIN, %, version) và header số theo cùng",
+      "Do giữ nhịp dòng kẻ 34px nguyên vẹn trong pane viết",
+      "Do dùng chữ Việt gốc, trạng thái thật (Đang lưu… → Đã lưu giờ → Lưu lỗi)"
+    ],
+    "donts": [
+      "Don't dùng gradient trang trí — gradient duy nhất được phép là ruling 34px của #repText",
+      "Don't đặt bóng vào nút, modal, toast, card",
+      "Don't đưa eyebrow/kicker vào bất kỳ màn hình nào — cấm, không phải chuẩn",
+      "Don't dùng glyph icon (▲ ● ►) làm icon; icon là SVG nhỏ hoặc không có",
+      "Don't dashboard hoá: không grid thẻ trắng nền xám, không KPI card",
+      "Don't để cả trang cuộn chung khi bố cục chia đôi"
+    ]
+  }
+}
