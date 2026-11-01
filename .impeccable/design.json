@@ -99,9 +99,9 @@
       "name": "Chip trạng thái",
       "kind": "chip",
       "refersTo": "chip-status",
-      "description": "Số liệu nhanh trên mặt bàn: Checklist 2/6, 1/2 day nộp, Streak.",
-      "html": "<span class=\"ds-chip\">Checklist <b>2</b>/6</span><span class=\"ds-chip pos\">Đã nộp</span><span class=\"ds-chip warn\">Cảnh báo</span>",
-      "css": ".ds-chip{font:400 12.5px 'Be Vietnam Pro',system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 12px;border-radius:999px;background:#efe9df;color:#5c564a}.ds-chip b{color:#2b2b26;font-weight:600}.ds-chip.pos{background:#e2ece6;color:#24503c}.ds-chip.warn{background:#f6e4de;color:#b23a26}"
+      "description": "Số liệu nhanh trên mặt bàn: Checklist 2/6, 1/2 day nộp, Streak — viết như ghi chú bút chì, KHÔNG có hộp/pill.",
+      "html": "<span class=\"ds-chip\">Checklist <b>2</b>/6</span><span class=\"ds-chip pos\">Đã nộp</span>",
+      "css": ".ds-chip{font:400 12.5px 'Be Vietnam Pro',system-ui,sans-serif;display:inline-flex;align-items:center;gap:4px;height:26px;color:#6b655a}.ds-chip b{color:#2b2b26;font-weight:600}.ds-chip.pos{height:22px;padding:0 9px;border-radius:999px;background:#e2ece6;color:#24503c}"
     },
     {
       "name": "Checkbox vở",

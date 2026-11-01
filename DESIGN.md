@@ -170,11 +170,11 @@ Giấy bo 6px, input bo 8px, mọi thứ hình tròn là pill 999px (nút, chip,
 - **Behavior:** nằm trên pane-bar 44px với đường kẻ dưới 1px; strip cuộn ngang khi >2 file; mobile mỗi tab tối đa 50% width có ellipsis.
 
 ### Chips / Pills
-- **Style:** cao 24px, pill, nền với tone nhóm: trung tính {colors.neutral-bg}/{colors.neutral-ink}, positive `{colors.positive-bg}/{colors.positive-ink}` (Đã nộp), warn `{colors.negative-bg}/{colors.negative}` (cảnh báo nhập file).
-- **State:** chip số liệu ("Checklist 2/6", "1/2 day nộp", "Streak 1 ngày") nằm trên mặt bàn cạnh day picker.
+- **Pill (có nền):** cao 22px, pill, tone nhóm: positive `{colors.positive-bg}/{colors.positive-ink}` (Đã nộp trên bài nộp), warn `{colors.negative-bg}/{colors.negative}` (cảnh báo nhập file). Dùng `.pill`.
+- **Text chip (ghi chú bút chì):** chip số liệu trên mặt bàn ("Checklist 2/6", "1/2 day nộp", "Streak 1 ngày") KHÔNG có hộp — chữ nhỏ `{colors.muted}` 12.5px, số đóng bùng `{colors.ink}`; cùng họ với savechip. Không thêm viền/nền cho chúng.
 
 ### Page Pane (signature component)
-- **Structure:** `.pane` = trang giấy: nền paper, bo 6px, bóng page shadow, lề đỏ 1px trong suốt (opacity .5). Cấu trúc dọc: `.pane-bar` (tab file + nút gập) → `.pane-scroll` (nội dung đề, padding trái 56px desktop / 44px mobile) → `.pane-actions` (chỉ pane phải: nhóm nút phụ trái, spacer, primary "Nộp bài" phải).
+- **Structure:** `.pane` = trang giấy: nền paper, bo 6px, bóng page shadow, lề đỏ 1px trong suốt (opacity .5). Cấu trúc dọc: `.pane-bar` (tab file + nút gập) → `.pane-scroll` (nội dung đề, padding trái 56px desktop / 44px mobile) → `.pane-actions` (chỉ pane phải: các nút phụ dạng chữ ghostbtn bên trái, primary "Nộp bài" margin-left:auto — một hàng thì phải, rơi hàng thì đáy-phải).
 - **Editor:** `#repText` trong pane phải, dòng kẻ 34px bằng repeating-linear-gradient + `background-attachment:local`; trạng thái lưu là `.savechip` 12.5px muted, đỏ khi lỗi.
 
 ### Inputs / Fields

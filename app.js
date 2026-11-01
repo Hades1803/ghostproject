@@ -812,7 +812,7 @@ function renderWork() {
   const split = $('wsSplit');
   const sel = $('dayPick');
   sel.innerHTML = days.length
-    ? days.slice().reverse().map((d) => `<option value="${d}"${d === day ? ' selected' : ''}>Day ${d} — ${esc(dayTitle(d))}</option>`).join('')
+    ? days.slice().reverse().map((d) => `<option value="${d}"${d === day ? ' selected' : ''}>Day ${d}</option>`).join('')
     : '<option value="">—</option>';
   sel.disabled = !days.length;
 

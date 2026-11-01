@@ -85,10 +85,10 @@ code{background:var(--paper-dim);border-radius:4px;padding:1px 5px;font-size:.9e
 .ws-top{display:flex;align-items:center;gap:14px;padding:16px 2px 14px;flex-wrap:wrap}
 .ws-top .screen-title{font-size:30px;line-height:1.1;font-weight:600;letter-spacing:-0.01em}
 .ws-name{color:var(--muted);font-weight:500}
-.select-day{max-width:230px}
+.select-day{max-width:150px}
 
 /* chip trạng thái: giấy nhỏ trên bàn */
-.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:var(--paper);border:1px solid var(--edge);font-size:var(--fs-small);color:var(--muted);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:4px;height:26px;font-size:var(--fs-small);color:var(--muted);white-space:nowrap}
 .chip b{color:var(--ink);font-weight:600}
 
 /* ---------- hai trang giấy ---------- */
@@ -152,9 +152,9 @@ code{background:var(--paper-dim);border-radius:4px;padding:1px 5px;font-size:.9e
 .savechip.err{color:var(--negative);font-weight:500}
 
 /* hành động ở đáy trang vở */
-.pane-actions{display:flex;align-items:center;gap:10px;padding:10px 14px 12px 56px;border-top:1px solid var(--edge-soft);flex-wrap:wrap}
-.pane-actions .spacer{flex:1}
-.pane-preview{flex:none;max-height:32vh;overflow:auto;border-top:1px solid var(--edge-soft);padding:10px 14px 12px 56px}
+.pane-actions{display:flex;align-items:center;gap:12px;padding:10px 14px 12px 56px;border-top:1px solid var(--edge-soft);flex-wrap:wrap}
+.pane-actions .btn.primary{margin-left:auto}
+.pane-actions .ghostbtn{height:34px;padding:0 6px}.pane-preview{flex:none;max-height:32vh;overflow:auto;border-top:1px solid var(--edge-soft);padding:10px 14px 12px 56px}
 
 /* mobile: hai tab thay chia đôi, giữ từng trang riêng */
 .mtabs{display:none}
